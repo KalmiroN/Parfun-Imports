@@ -15,7 +15,7 @@ pnpm-debug.log*
 .vite/
 
 # =====================================================
-# BACKEND – Spring Boot (Maven ou Gradle)
+# BACKEND – Spring Boot (Maven)
 # =====================================================
 
 # Maven
@@ -28,7 +28,6 @@ release.properties
 
 # Gradle
 .gradle/
-build/
 !gradle-wrapper.jar
 
 # JVM / Java
@@ -52,7 +51,9 @@ build/
 .settings/
 
 # VSCode
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 
 # =====================================================
 # OS FILES
