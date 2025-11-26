@@ -33,12 +33,14 @@ Este projeto foi desenvolvido em **React + TailwindCSS**, com sistema de **temas
 
 ## 📂 Estrutura do projeto
 
+```ts
 src/
 ├── components/ # Componentes reutilizáveis (ThemeSwitcher, etc.)
 ├── context/ # Provider de tema (themeProvider.jsx)
 ├── layouts/ # Layout principal da aplicação
 ├── pages/ # Páginas (Login, Register, Cart, Checkout, Admin, etc.)
 ├── styles/ # tokens.css e theme.css
+```
 
 ---
 
