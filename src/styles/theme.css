@@ -1,0 +1,23 @@
+/* Tema 1 - Claro elegante com dourado */
+[data-theme="theme1"] {
+  --color-bg: #fffdf5; /* Fundo bege claro */
+  --color-text: #1a1a1a; /* Texto escuro */
+  --color-primary: #d4af37; /* Dourado clássico */
+  --color-accent: #f59e0b; /* Laranja suave */
+}
+
+/* Tema 2 - Escuro sofisticado com dourado */
+[data-theme="theme2"] {
+  --color-bg: #1a1a1a; /* Preto profundo */
+  --color-text: #f5f5f5; /* Texto claro */
+  --color-primary: #d4af37; /* Dourado brilhante */
+  --color-accent: #f59e0b; /* Laranja queimado */
+}
+
+/* Tema 3 - Minimalista com laranja predominante */
+[data-theme="theme3"] {
+  --color-bg: #fff7ed; /* Creme suave */
+  --color-text: #2c2c2c; /* Cinza médio */
+  --color-primary: #f59e0b; /* Laranja claro */
+  --color-accent: #d4af37; /* Dourado como destaque */
+}
