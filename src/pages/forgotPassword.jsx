@@ -1,28 +1,22 @@
 import { Link } from "react-router-dom";
 
-export default function Login() {
-  const handleLogin = (e) => {
+export default function ForgotPassword() {
+  const handleRecover = (e) => {
     e.preventDefault();
-    alert("Login realizado com sucesso!");
+    alert("Instruções de recuperação enviadas para o e-mail informado!");
   };
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-brand-bg transition-colors duration-500">
       <div className="w-full max-w-md p-8 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft">
         <h2 className="font-display text-3xl text-brand-text text-center mb-6">
-          Entrar
+          Recuperar Senha
         </h2>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleRecover} className="space-y-4">
           <input
             type="email"
-            placeholder="E-mail"
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Senha"
+            placeholder="Digite seu e-mail"
             className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
             required
           />
@@ -33,25 +27,16 @@ export default function Login() {
               type="submit"
               className="flex-1 px-6 py-3 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500"
             >
-              Entrar
+              Recuperar senha
             </button>
             <Link
-              to="/"
+              to="/login"
               className="flex-1 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
             >
-              Voltar à página inicial
+              Voltar ao login
             </Link>
           </div>
         </form>
-
-        <div className="mt-6 text-center">
-          <Link
-            to="/forgot-password"
-            className="text-brand-accent hover:underline transition-colors duration-300"
-          >
-            Esqueci minha senha
-          </Link>
-        </div>
       </div>
     </main>
   );

@@ -1,19 +1,13 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const ThemeContext = createContext();
 
-export const ThemeProvider = ({ children }) => {
-  // Carrega tema inicial do localStorage ou usa "theme1"
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("app-theme") || "theme1";
-  });
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState("theme1"); // tema padrão
 
   useEffect(() => {
-    // Aplica o tema como atributo data-theme no body
-    document.body.setAttribute("data-theme", theme);
-
-    // Salva tema no localStorage
-    localStorage.setItem("app-theme", theme);
+    // Aplica o atributo data-theme no <html>
+    document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
   return (
@@ -21,6 +15,8 @@ export const ThemeProvider = ({ children }) => {
       {children}
     </ThemeContext.Provider>
   );
-};
+}
 
-export const useTheme = () => useContext(ThemeContext);
+export function useTheme() {
+  return useContext(ThemeContext);
+}

@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Gold (claro com dourado) */
+html.theme-gold {
+  --color-bg: #faf7f0;
+  --color-surface: #ffffff;
+  --color-text: #111111;
+  --color-muted: #666666;
+  --color-accent: #c6a664; /* dourado elegante */
+  --color-border: #e8e2d4;
+  --color-overlay: rgba(255, 255, 255, 0.55);
+}
+
+/* Dark (escuro com dourado) */
+html.theme-dark {
+  --color-bg: #0f0f11;
+  --color-surface: #151517;
+  --color-text: #f2f2f2;
+  --color-muted: #bdbdbd;
+  --color-accent: #c6a664;
+  --color-border: #2a2a2e;
+  --color-overlay: rgba(0, 0, 0, 0.55);
+}
+
+/* Orange (claro com laranja suave) */
+html.theme-orange {
+  --color-bg: #fbf7f3;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-muted: #6f6f6f;
+  --color-accent: #e4a85b; /* laranja suave */
+  --color-border: #eadfd2;
+  --color-overlay: rgba(255, 255, 255, 0.55);
+}

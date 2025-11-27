@@ -1,26 +1,30 @@
-import React from "react";
+import Hero from "../components/Hero";
+import { Link } from "react-router-dom";
 
 export default function OrderConfirmation() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-[var(--color-bg)] text-[var(--color-text)]">
-      <div className="p-8 rounded-lg shadow-lg max-w-md bg-[var(--color-bg)]">
-        <h2 className="text-3xl font-bold mb-4 text-[var(--color-primary)]">
-          Pedido Confirmado!
-        </h2>
-        <p className="mb-6 text-lg text-[var(--color-text)]">
-          Obrigado por sua compra. Seu pedido foi recebido e está sendo
-          processado.
-        </p>
-        <p className="mb-6 text-[var(--color-accent)]">
-          Você receberá um e-mail com os detalhes em breve.
-        </p>
-        <a
-          href="/products"
-          className="px-6 py-3 rounded-lg font-semibold bg-[var(--color-primary)] text-white hover:bg-[var(--color-accent)] transition"
+    <main className="transition-colors duration-500">
+      <Hero
+        backgroundImage="/hero-confirmation.jpg"
+        title="Pedido confirmado"
+        subtitle="Obrigado pela compra! Você receberá um e-mail com os detalhes."
+      />
+
+      {/* Botões de ação */}
+      <div className="mx-auto max-w-4xl px-4 py-12 flex flex-col md:flex-row gap-4 justify-center">
+        <Link
+          to="/my-orders"
+          className="flex-1 px-6 py-3 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500 text-center"
         >
-          Continuar Comprando
-        </a>
+          Ver meus pedidos
+        </Link>
+        <Link
+          to="/products"
+          className="flex-1 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+        >
+          Continuar comprando
+        </Link>
       </div>
-    </div>
+    </main>
   );
 }
