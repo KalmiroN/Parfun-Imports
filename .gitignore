@@ -14,6 +14,9 @@ pnpm-debug.log*
 # Vite cache
 .vite/
 
+# Coverage
+coverage/
+
 # =====================================================
 # BACKEND – Spring Boot (Maven)
 # =====================================================
@@ -35,6 +38,7 @@ release.properties
 *.war
 *.jar
 *.log
+logs/
 
 # =====================================================
 # IDE & TOOLS
@@ -69,4 +73,5 @@ Thumbs.db
 *.swo
 *.bak
 .cache/
+
 

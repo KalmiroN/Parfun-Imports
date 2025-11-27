@@ -1,70 +1,55 @@
-import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function AdminOrders() {
-  const [orders, setOrders] = useState([
-    {
-      id: "12345",
-      customer: "João Silva",
-      date: "2025-11-10",
-      status: "Em processamento",
-      total: 449.8,
-    },
-    {
-      id: "67890",
-      customer: "Maria Oliveira",
-      date: "2025-11-01",
-      status: "Concluído",
-      total: 299.9,
-    },
-  ]);
-
-  const updateStatus = (id, newStatus) => {
-    setOrders(
-      orders.map((order) =>
-        order.id === id ? { ...order, status: newStatus } : order
-      )
-    );
-  };
+  // Placeholder: lista de pedidos
+  const pedidos = [
+    { id: 1, cliente: "Almir", total: "R$ 499,00", status: "Entregue" },
+    { id: 2, cliente: "Maria", total: "R$ 349,90", status: "Em processamento" },
+  ];
 
   return (
-    <div className="min-h-screen p-6 bg-[var(--color-bg)] text-[var(--color-text)]">
-      <h2 className="text-2xl font-bold mb-6 text-[var(--color-primary)]">
-        Administração de Pedidos
-      </h2>
+    <main className="min-h-screen bg-brand-bg transition-colors duration-500">
+      <div className="mx-auto max-w-6xl px-4 py-12">
+        <h2 className="font-display text-3xl text-brand-text mb-6">
+          Administração de Pedidos
+        </h2>
 
-      <div className="space-y-6">
-        {orders.map((order) => (
-          <div
-            key={order.id}
-            className="p-6 rounded-lg shadow-md bg-[var(--color-bg)]"
-          >
-            <h3 className="text-lg font-semibold mb-2 text-[var(--color-primary)]">
-              Pedido #{order.id}
-            </h3>
-            <p className="text-[var(--color-text)]">
-              Cliente: {order.customer}
-            </p>
-            <p className="text-[var(--color-text)]">Data: {order.date}</p>
-            <p className="text-[var(--color-text)]">
-              Total: R$ {order.total.toFixed(2)}
-            </p>
-            <div className="mt-3">
-              <label className="block mb-1 text-[var(--color-text)]">
-                Status:
-              </label>
-              <select
-                value={order.status}
-                onChange={(e) => updateStatus(order.id, e.target.value)}
-                className="p-2 border border-[var(--color-primary)] rounded bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+        {pedidos.length === 0 ? (
+          <p className="text-brand-textMuted">Nenhum pedido encontrado.</p>
+        ) : (
+          <div className="space-y-6">
+            {pedidos.map((order) => (
+              <div
+                key={order.id}
+                className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-4 transition-colors duration-500"
               >
-                <option value="Em processamento">Em processamento</option>
-                <option value="Concluído">Concluído</option>
-                <option value="Cancelado">Cancelado</option>
-              </select>
-            </div>
+                <h3 className="text-lg font-display text-brand-text">
+                  Pedido #{order.id} - {order.cliente}
+                </h3>
+                <p className="text-brand-textMuted">
+                  Total: {order.total} | Status: {order.status}
+                </p>
+
+                {/* Botões de ação */}
+                <div className="flex flex-col md:flex-row gap-4 mt-4">
+                  <Link
+                    to={`/admin/orders/${order.id}`}
+                    className="flex-1 px-4 py-2 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500 text-center"
+                  >
+                    Ver detalhes do pedido
+                  </Link>
+                  <Link
+                    to="/admin"
+                    className="flex-1 px-4 py-2 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+                  >
+                    Voltar ao painel
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
-    </div>
+    </main>
   );
 }

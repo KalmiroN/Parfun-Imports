@@ -1,94 +1,58 @@
-import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function AdminProducts() {
-  const [products, setProducts] = useState([
-    { id: 1, name: "Ameeri Al Wataniah", price: 199.9 },
-    { id: 2, name: "Angel Isabelle La Belle", price: 249.9 },
-  ]);
-
-  const [newProduct, setNewProduct] = useState({ name: "", price: "" });
-
-  const addProduct = (e) => {
-    e.preventDefault();
-    if (!newProduct.name || !newProduct.price) return;
-    setProducts([
-      ...products,
-      {
-        id: Date.now(),
-        name: newProduct.name,
-        price: parseFloat(newProduct.price),
-      },
-    ]);
-    setNewProduct({ name: "", price: "" });
-  };
-
-  const deleteProduct = (id) => {
-    setProducts(products.filter((p) => p.id !== id));
-  };
+  // Placeholder: lista de produtos
+  const produtos = [
+    { id: 1, name: "Ameeri", price: "R$ 499,00" },
+    { id: 2, name: "Noora", price: "R$ 429,00" },
+  ];
 
   return (
-    <div className="min-h-screen p-6 bg-[var(--color-bg)] text-[var(--color-text)]">
-      <h2 className="text-2xl font-bold mb-6 text-[var(--color-primary)]">
-        Administração de Produtos
-      </h2>
+    <main className="min-h-screen bg-brand-bg transition-colors duration-500">
+      <div className="mx-auto max-w-6xl px-4 py-12">
+        <h2 className="font-display text-3xl text-brand-text mb-6">
+          Administração de Produtos
+        </h2>
 
-      {/* Formulário de novo produto */}
-      <form onSubmit={addProduct} className="mb-6 flex gap-4 items-end">
-        <div>
-          <label className="block mb-1 text-[var(--color-text)]">Nome</label>
-          <input
-            type="text"
-            value={newProduct.name}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, name: e.target.value })
-            }
-            className="p-2 border border-[var(--color-primary)] rounded bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-          />
-        </div>
-        <div>
-          <label className="block mb-1 text-[var(--color-text)]">Preço</label>
-          <input
-            type="number"
-            step="0.01"
-            value={newProduct.price}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, price: e.target.value })
-            }
-            className="p-2 border border-[var(--color-primary)] rounded bg-[var(--color-bg)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-          />
-        </div>
-        <button
-          type="submit"
-          className="px-4 py-2 rounded-lg font-semibold bg-[var(--color-primary)] text-white hover:bg-[var(--color-accent)] transition"
-        >
-          Adicionar
-        </button>
-      </form>
-
-      {/* Lista de produtos */}
-      <div className="space-y-4">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="p-4 rounded-lg shadow-md flex justify-between items-center bg-[var(--color-bg)]"
-          >
-            <div>
-              <h3 className="text-lg font-semibold text-[var(--color-primary)]">
-                {product.name}
-              </h3>
-              <p className="text-[var(--color-text)]">
-                R$ {product.price.toFixed(2)}
-              </p>
-            </div>
-            <button
-              onClick={() => deleteProduct(product.id)}
-              className="px-3 py-1 rounded-lg font-semibold bg-[var(--color-accent)] text-white hover:opacity-90 transition"
-            >
-              Excluir
-            </button>
+        {produtos.length === 0 ? (
+          <p className="text-brand-textMuted">Nenhum produto cadastrado.</p>
+        ) : (
+          <div className="space-y-6">
+            {produtos.map((p) => (
+              <div
+                key={p.id}
+                className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-4 transition-colors duration-500 flex justify-between items-center"
+              >
+                <div>
+                  <h3 className="text-lg font-display text-brand-text">
+                    {p.name}
+                  </h3>
+                  <p className="text-brand-textMuted">{p.price}</p>
+                </div>
+                <button className="px-4 py-2 rounded-full bg-red-500 text-white hover:opacity-90 transition-colors duration-500">
+                  Remover
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
+
+        {/* Botões de ação */}
+        <div className="flex flex-col md:flex-row gap-4 mt-8">
+          <Link
+            to="/admin/products/new"
+            className="flex-1 px-6 py-3 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500 text-center"
+          >
+            Adicionar novo produto
+          </Link>
+          <Link
+            to="/products"
+            className="flex-1 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+          >
+            Voltar ao catálogo
+          </Link>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

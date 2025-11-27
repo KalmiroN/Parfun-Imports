@@ -1,47 +1,54 @@
-import React from "react";
-import { useTheme } from "../context/themeProvider";
+import { Link } from "react-router-dom";
 
 export default function Register() {
-  const { theme } = useTheme();
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)] font-[var(--font-family)]">
-      {/* Card com efeito de blur e transparência */}
-      <div className="backdrop-blur-md bg-[var(--color-bg)]/80 p-6 rounded-xl shadow-lg w-full max-w-md">
-        <div className="backdrop-blur-lg bg-[var(--color-bg)]/90 rounded-xl p-8 w-full shadow-xl">
-          <h2 className="text-2xl md:text-3xl font-semibold text-center mb-6 text-[var(--color-primary)]">
-            Criar Conta
-          </h2>
-          <form className="space-y-4">
-            <input
-              type="text"
-              placeholder="Nome Completo"
-              className="w-full p-3 rounded-lg border border-[var(--color-primary)] bg-[var(--color-bg)]/80 text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              className="w-full p-3 rounded-lg border border-[var(--color-primary)] bg-[var(--color-bg)]/80 text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition"
-            />
-            <input
-              type="password"
-              placeholder="Senha"
-              className="w-full p-3 rounded-lg border border-[var(--color-primary)] bg-[var(--color-bg)]/80 text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition"
-            />
-            <input
-              type="password"
-              placeholder="Confirmar Senha"
-              className="w-full p-3 rounded-lg border border-[var(--color-primary)] bg-[var(--color-bg)]/80 text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition"
-            />
+    <main className="min-h-screen flex items-center justify-center bg-brand-bg transition-colors duration-500 relative">
+      {/* Container com efeito vidro */}
+      <div className="w-full max-w-md p-8 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft">
+        <h2 className="font-display text-3xl text-brand-text text-center mb-6 transition-colors duration-500">
+          Cadastro
+        </h2>
+
+        {/* Formulário */}
+        <form className="space-y-4">
+          <input
+            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+            placeholder="Nome completo"
+            type="text"
+          />
+          <input
+            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+            placeholder="E-mail"
+            type="email"
+          />
+          <input
+            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+            placeholder="Senha"
+            type="password"
+          />
+          <input
+            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+            placeholder="Confirmar senha"
+            type="password"
+          />
+
+          {/* Botões de ação */}
+          <div className="flex flex-col md:flex-row gap-4 mt-8">
             <button
               type="submit"
-              className="w-full py-3 font-bold rounded-lg bg-[var(--color-primary)] text-white hover:bg-[var(--color-accent)] transition"
+              className="flex-1 px-6 py-3 text-lg font-semibold text-brand-text rounded-full bg-brand-accent hover:opacity-90 transition-colors duration-500"
             >
-              Registrar
+              Cadastrar
             </button>
-          </form>
-        </div>
+            <Link
+              to="/"
+              className="flex-1 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+            >
+              Voltar à página inicial
+            </Link>
+          </div>
+        </form>
       </div>
-    </div>
+    </main>
   );
 }
