@@ -1,30 +1,23 @@
-/** @type {import('tailwindcss').Config} */
-export default {
-  darkMode: "class", // permite alternar tema escuro
-  content: [
-    "./index.html",
-    "./src/**/*.{js,jsx}", // procura classes em todos os arquivos JS/JSX
-  ],
+module.exports = {
+  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        brand: {
-          bg: "var(--color-bg)",
-          text: "var(--color-text)",
-          primary: "var(--color-primary)",
-          accent: "var(--color-accent)",
-          border: "var(--color-border)",
-          muted: "var(--color-muted)",
-          surface: "var(--color-surface)",
-          overlay: "var(--color-overlay)",
-        },
-      },
-      fontFamily: {
-        display: ['"Playfair Display"', "serif"], // títulos elegantes
-        sans: ["Inter", "system-ui", "sans-serif"], // texto padrão
+        "brand-bg": "var(--color-bg)",
+        "brand-text": "var(--color-text)",
+        "brand-muted": "var(--color-muted)",
+        "brand-primary": "var(--color-primary)",
+        "brand-accent": "var(--color-accent)",
+        "brand-border": "var(--color-border)",
+        "brand-surface": "var(--color-surface)",
+        "brand-overlay": "var(--color-overlay)",
       },
       boxShadow: {
-        soft: "0 8px 24px rgba(0,0,0,0.08)", // sombra suave para cards
+        soft: "0 2px 8px rgba(0,0,0,0.08)",
+      },
+      fontFamily: {
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Playfair Display", "serif"],
       },
     },
   },
