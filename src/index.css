@@ -1,6 +1,24 @@
+/* 1. Importa o Tailwind primeiro */
+@import "tailwindcss";
+
+/* 2. Diretivas principais do Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 3. Importa seu tema customizado depois do Tailwind */
+@import "./styles/theme.css";
+
+/* 4. Ajustes globais extras */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Inter, system-ui, sans-serif; /* corrigido */
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
 
 /* Gold (claro com dourado) */
 html.theme-gold {
@@ -8,7 +26,7 @@ html.theme-gold {
   --color-surface: #ffffff;
   --color-text: #111111;
   --color-muted: #666666;
-  --color-accent: #c6a664; /* dourado elegante */
+  --color-accent: #c6a664;
   --color-border: #e8e2d4;
   --color-overlay: rgba(255, 255, 255, 0.55);
 }
@@ -30,7 +48,7 @@ html.theme-orange {
   --color-surface: #ffffff;
   --color-text: #1a1a1a;
   --color-muted: #6f6f6f;
-  --color-accent: #e4a85b; /* laranja suave */
+  --color-accent: #e4a85b;
   --color-border: #eadfd2;
   --color-overlay: rgba(255, 255, 255, 0.55);
 }

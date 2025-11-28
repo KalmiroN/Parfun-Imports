@@ -1,9 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import NotFound from "./pages/notFound";
 import { ThemeProvider } from "./context/themeProvider";
 
 // Layout principal (já com Header + Footer)
-import Layout from "./layouts/layout";
+import Layout from "./layouts/Layout";
 
 // Páginas principais
 import Home from "./pages/home";
@@ -25,6 +24,9 @@ import Search from "./pages/search";
 // Páginas administrativas
 import AdminProducts from "./pages/admin/adminProducts";
 import AdminOrders from "./pages/admin/adminOrders";
+
+// Página de fallback
+import NotFound from "./pages/notFound";
 
 export default function App() {
   return (
@@ -59,6 +61,8 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
+
+        {/* 🔎 Teste de Tema - aparece em todas as páginas */}
       </Router>
     </ThemeProvider>
   );
