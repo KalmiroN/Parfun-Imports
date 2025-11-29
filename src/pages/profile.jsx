@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTheme } from "../context/themeProvider";
 
 export default function Profile() {
   const [name, setName] = useState("Nome do Cliente");
   const [email, setEmail] = useState("cliente@exemplo.com");
   const [address, setAddress] = useState("Rua Exemplo, 123 - São Paulo/SP");
+
+  const { theme } = useTheme();
+  const hasDarkOverlay = theme === "dark";
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -12,8 +16,20 @@ export default function Profile() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-brand-bg transition-colors duration-500">
-      <div className="bg-brand-surface/80 backdrop-blur-md p-8 rounded-xl shadow-soft w-full max-w-lg">
+    <main
+      className="min-h-screen flex items-center justify-center transition-colors duration-500 relative"
+      style={{
+        backgroundImage:
+          "url('/images/background_files/gold-backgraund-02.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {hasDarkOverlay && (
+        <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+      )}
+
+      <div className="relative z-10 bg-brand-surface/80 backdrop-blur-md p-8 rounded-xl shadow-2xl w-full max-w-lg transition-colors duration-500">
         <h2 className="font-display text-2xl text-brand-text mb-6">
           Meu Perfil
         </h2>
@@ -62,7 +78,7 @@ export default function Profile() {
             </button>
             <Link
               to="/products"
-              className="flex-1 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+              className="flex-1 px-6 py-3 rounded-full border border-brand-border text-brand-text bg-brand-surface hover:bg-brand-surface/60 transition-colors duration-500 text-center"
             >
               Voltar ao catálogo
             </Link>

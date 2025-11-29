@@ -1,5 +1,5 @@
-import Hero from "../components/Hero";
 import ProductCard from "../components/ProductCard";
+import { useTheme } from "../context/themeProvider";
 
 const produtos = [
   {
@@ -85,14 +85,33 @@ const produtos = [
 ];
 
 export default function Products() {
+  const { theme } = useTheme();
+  const hasDarkOverlay = theme === "dark";
+
   return (
     <main className="bg-brand-bg text-brand-text transition-colors duration-500">
-      <Hero
-        backgroundImage="/images/hero-products.jpg"
-        title="Catálogo"
-        subtitle="Seleção de fragrâncias com acabamento impecável."
-      />
+      {/* Seção Catálogo com imagem de fundo */}
+      <section
+        className="relative min-h-[60vh] flex flex-col items-center justify-center text-center"
+        style={{
+          backgroundImage:
+            "url('/images/background_files/perfumes-arabes-2.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {hasDarkOverlay && (
+          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+        )}
+        <div className="relative z-10 px-4">
+          <h1 className="text-4xl font-bold mb-4 text-white">Catálogo</h1>
+          <p className="text-lg mb-6 text-white">
+            Seleção de fragrâncias com acabamento impecável.
+          </p>
+        </div>
+      </section>
 
+      {/* Grid de produtos */}
       <div className="mx-auto max-w-6xl px-4 py-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {produtos.map((p, idx) => (
           <ProductCard key={idx} {...p} />

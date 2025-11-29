@@ -1,6 +1,6 @@
 export default function ProductCard({ name, price, imageUrl }) {
   return (
-    <article className="rounded-xl border border-brand-border bg-brand-surface shadow-soft overflow-hidden transition-colors duration-500">
+    <article className="rounded-xl border border-brand-border bg-brand-surface shadow-2xl hover:shadow-2xl overflow-hidden transition duration-500">
       {/* Imagem com fade-in e transição suave */}
       <div className="aspect-[3/4] bg-brand-surface overflow-hidden">
         <img
@@ -13,7 +13,7 @@ export default function ProductCard({ name, price, imageUrl }) {
       </div>
 
       {/* Conteúdo */}
-      <div className="p-4 transition-colors duration-500">
+      <div className="p-6 transition-colors duration-500">
         <h3 className="font-sans text-brand-text text-lg transition-colors duration-500">
           {name}
         </h3>
