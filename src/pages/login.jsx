@@ -7,51 +7,70 @@ export default function Login() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-brand-bg transition-colors duration-500">
-      <div className="w-full max-w-md p-8 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft">
-        <h2 className="font-display text-3xl text-brand-text text-center mb-6">
-          Entrar
+    <main
+      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
+      style={{
+        backgroundImage: "url('/images/background_files/Orquidea.jpg')",
+      }}
+    >
+      {/* Overlay escuro para contraste */}
+      <div className="absolute inset-0 bg-black/40" />
+
+      {/* Container do login */}
+      <div className="relative w-full max-w-lg p-12 rounded-2xl bg-white/20 backdrop-blur-md border border-brand-border shadow-strong">
+        <h2 className="love-light-regular text-5xl text-brand-text text-center mb-8">
+          Login
         </h2>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-6">
           <input
             type="email"
             placeholder="E-mail"
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-3 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
             required
           />
           <input
             type="password"
             placeholder="Senha"
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-3 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
             required
           />
 
-          {/* Botões de ação */}
-          <div className="flex flex-col md:flex-row gap-4 mt-6">
-            <button
-              type="submit"
-              className="flex-1 px-6 py-3 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500"
+          <div className="flex justify-between items-center text-sm mt-2">
+            <label className="flex items-center gap-2 text-brand-text">
+              <input type="checkbox" className="accent-brand-accent" />
+              Lembrar-me
+            </label>
+            <Link
+              to="/forgot-password"
+              className="text-brand-accent hover:underline transition-colors duration-300"
             >
-              Entrar
-            </button>
+              Esqueci minha senha
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full px-6 py-3 rounded-full bg-brand-accent text-black font-bold hover:opacity-90 transition-colors duration-500 mt-4"
+          >
+            Login
+          </button>
+
+          <div className="flex justify-between mt-6">
+            <Link
+              to="/register"
+              className="px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+            >
+              Inscrever-se
+            </Link>
             <Link
               to="/"
-              className="flex-1 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+              className="px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
             >
-              Voltar à página inicial
+              Sair
             </Link>
           </div>
         </form>
-
-        <div className="mt-6 text-center">
-          <Link
-            to="/forgot-password"
-            className="text-brand-accent hover:underline transition-colors duration-300"
-          >
-            Esqueci minha senha
-          </Link>
-        </div>
       </div>
     </main>
   );

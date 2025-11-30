@@ -11,6 +11,10 @@ export default function Header() {
       ? "/images/shopping_bag_2.png"
       : "/images/shopping_bag.png";
 
+  // Ícone de login alterna conforme tema
+  const loginIcon =
+    theme === "dark" ? "/images/login_branco.png" : "/images/login_preto.png";
+
   return (
     <header className="flex items-center justify-between px-6 py-4 bg-brand-surface shadow-soft">
       {/* Logo - clique alterna o tema */}
@@ -52,7 +56,6 @@ export default function Header() {
               Perfil
             </a>
           </li>
-
           {isAdmin && (
             <>
               <li>
@@ -76,13 +79,20 @@ export default function Header() {
         </ul>
       </nav>
 
-      {/* Carrinho */}
-      <div>
+      {/* Carrinho + Login */}
+      <div className="flex items-center gap-6">
         <a href="/cart">
           <img
             src={cartIcon}
             alt="Carrinho"
-            className="h-6 w-6 hover:scale-105 transition"
+            className="h-8 w-8 hover:scale-105 transition"
+          />
+        </a>
+        <a href="/login">
+          <img
+            src={loginIcon}
+            alt="Login"
+            className="h-10 w-10 hover:scale-105 transition"
           />
         </a>
       </div>

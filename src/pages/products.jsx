@@ -104,8 +104,11 @@ export default function Products() {
           <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         )}
         <div className="relative z-10 px-4">
-          <h1 className="text-4xl font-bold mb-4 text-white">Catálogo</h1>
-          <p className="text-lg mb-6 text-white">
+          {/* Título com fonte Love Light */}
+          <h1 className="love-light-regular text-[5rem] mb-6 text-white">
+            Catálogo
+          </h1>
+          <p className="text-3xl mb-10 text-white">
             Seleção de fragrâncias com acabamento impecável.
           </p>
         </div>

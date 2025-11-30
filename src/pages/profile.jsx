@@ -1,88 +1,81 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useTheme } from "../context/themeProvider";
+import React, { useState } from "react";
 
 export default function Profile() {
-  const [name, setName] = useState("Nome do Cliente");
-  const [email, setEmail] = useState("cliente@exemplo.com");
-  const [address, setAddress] = useState("Rua Exemplo, 123 - São Paulo/SP");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
 
-  const { theme } = useTheme();
-  const hasDarkOverlay = theme === "dark";
-
-  const handleSave = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Dados atualizados com sucesso!");
+    alert("Perfil atualizado com sucesso!");
   };
 
   return (
-    <main
-      className="min-h-screen flex items-center justify-center transition-colors duration-500 relative"
-      style={{
-        backgroundImage:
-          "url('/images/background_files/gold-backgraund-02.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      {hasDarkOverlay && (
-        <div className="absolute inset-0 bg-black/40 pointer-events-none" />
-      )}
-
-      <div className="relative z-10 bg-brand-surface/80 backdrop-blur-md p-8 rounded-xl shadow-2xl w-full max-w-lg transition-colors duration-500">
-        <h2 className="font-display text-2xl text-brand-text mb-6">
+    <main className="min-h-screen flex items-center justify-center bg-brand-bg transition-colors duration-500">
+      <div className="w-full max-w-lg p-10 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft">
+        <h2 className="love-light-regular text-3xl text-brand-text text-center mb-8">
           Meu Perfil
         </h2>
-        <form onSubmit={handleSave} className="space-y-4">
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Campo Nome */}
           <div>
-            <label className="block text-sm text-brand-textMuted mb-1">
-              Nome
-            </label>
+            <label className="block text-brand-text mb-2">Nome</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-brand-border bg-brand-surface text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+              placeholder="Digite seu nome"
+              className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-surface text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent"
+              required
             />
           </div>
+
+          {/* Campo Telefone */}
           <div>
-            <label className="block text-sm text-brand-textMuted mb-1">
-              E-mail
-            </label>
+            <label className="block text-brand-text mb-2">Telefone</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="(11) 99999-9999"
+              className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-surface text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent"
+            />
+          </div>
+
+          {/* Campo E-mail */}
+          <div>
+            <label className="block text-brand-text mb-2">E-mail</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-brand-border bg-brand-surface text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+              placeholder="Digite seu e-mail"
+              className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-surface text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent"
+              required
             />
           </div>
+
+          {/* Campo Endereço */}
           <div>
-            <label className="block text-sm text-brand-textMuted mb-1">
-              Endereço
-            </label>
+            <label className="block text-brand-text mb-2">Endereço</label>
             <input
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-brand-border bg-brand-surface text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+              placeholder="Seu endereço"
+              className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-surface text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent"
             />
           </div>
 
-          {/* Botões de ação */}
-          <div className="flex flex-col md:flex-row gap-4 mt-6">
-            <button
-              type="submit"
-              className="flex-1 px-6 py-3 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500"
-            >
-              Salvar alterações
-            </button>
-            <Link
-              to="/products"
-              className="flex-1 px-6 py-3 rounded-full border border-brand-border text-brand-text bg-brand-surface hover:bg-brand-surface/60 transition-colors duration-500 text-center"
-            >
-              Voltar ao catálogo
-            </Link>
-          </div>
+          {/* Botão salvar */}
+          <button
+            type="submit"
+            className="w-full px-6 py-3 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500"
+          >
+            Salvar
+          </button>
         </form>
       </div>
     </main>
