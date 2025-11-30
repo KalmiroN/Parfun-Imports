@@ -20,6 +20,13 @@ body {
   color: var(--color-text);
 }
 
+/* Classe para usar a fonte Love Light */
+.love-light-regular {
+  font-family: "Love Light", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
 /* Gold (claro com dourado) */
 html.theme-gold {
   --color-bg: #faf7f0;

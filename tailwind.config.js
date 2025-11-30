@@ -19,6 +19,20 @@ module.exports = {
         sans: ["Inter", "system-ui", "sans-serif"],
         display: ["Playfair Display", "serif"],
       },
+      keyframes: {
+        slideInSlow: {
+          "0%": { transform: "translateX(100%)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        slideOutSlow: {
+          "0%": { transform: "translateX(0)", opacity: "1" },
+          "100%": { transform: "translateX(100%)", opacity: "0" },
+        },
+      },
+      animation: {
+        slideInSlow: "slideInSlow 2s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+        slideOutSlow: "slideOutSlow 2s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+      },
     },
   },
   plugins: [],
