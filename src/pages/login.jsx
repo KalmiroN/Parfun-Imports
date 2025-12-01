@@ -1,9 +1,27 @@
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/authProvider";
 
 export default function Login() {
+  const { setUser } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const handleLogin = (e) => {
     e.preventDefault();
-    alert("Login realizado com sucesso!");
+
+    // Define role com base no email
+    const role = email === "admin@site.com" ? "admin" : "client";
+
+    // Atualiza contexto de autenticação
+    setUser({
+      name: role === "admin" ? "Administrador" : "Usuário Teste",
+      email: email,
+      role: role,
+    });
+
+    // Redireciona para perfil
+    window.location.href = "/profile";
   };
 
   return (
@@ -25,12 +43,16 @@ export default function Login() {
         <form onSubmit={handleLogin} className="space-y-6">
           <input
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="E-mail"
             className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-3 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
             required
           />
           <input
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Senha"
             className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-3 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
             required
@@ -49,24 +71,15 @@ export default function Login() {
             </Link>
           </div>
 
-          <button
-            type="submit"
-            className="w-full px-6 py-3 rounded-full bg-brand-accent text-black font-bold hover:opacity-90 transition-colors duration-500 mt-4"
-          >
+          <button type="submit" className="btn-accent w-full mt-4">
             Login
           </button>
 
           <div className="flex justify-between mt-6">
-            <Link
-              to="/register"
-              className="px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
-            >
+            <Link to="/register" className="btn-secondary text-center">
               Inscrever-se
             </Link>
-            <Link
-              to="/"
-              className="px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
-            >
+            <Link to="/" className="btn-secondary text-center">
               Sair
             </Link>
           </div>

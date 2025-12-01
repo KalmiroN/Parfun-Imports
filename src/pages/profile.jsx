@@ -1,25 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/authProvider";
 
 export default function Profile() {
+  const { user } = useAuth();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
+
+  useEffect(() => {
+    if (!user) {
+      window.location.href = "/login";
+    } else {
+      setName(user.name || "");
+      setEmail(user.email || "");
+    }
+  }, [user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     alert("Perfil atualizado com sucesso!");
   };
 
+  if (!user) return null;
+
   return (
-    <main className="min-h-screen flex items-center justify-center bg-brand-bg transition-colors duration-500">
-      <div className="w-full max-w-lg p-10 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft">
+    <div
+      className="flex items-center justify-center min-h-[calc(100vh-200px)] w-full bg-cover bg-center relative"
+      style={{
+        backgroundImage:
+          "url('/images/background_files/gold-backgraund-02.jpg')",
+      }}
+    >
+      {/* Overlay para contraste */}
+      <div className="absolute inset-0 bg-black/40" />
+
+      {/* Conteúdo centralizado */}
+      <div className="relative z-10 w-full max-w-lg p-10 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft animate-fadeInUp">
         <h2 className="love-light-regular text-3xl text-brand-text text-center mb-8">
           Meu Perfil
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Campo Nome */}
           <div>
             <label className="block text-brand-text mb-2">Nome</label>
             <input
@@ -32,7 +54,6 @@ export default function Profile() {
             />
           </div>
 
-          {/* Campo Telefone */}
           <div>
             <label className="block text-brand-text mb-2">Telefone</label>
             <input
@@ -44,7 +65,6 @@ export default function Profile() {
             />
           </div>
 
-          {/* Campo E-mail */}
           <div>
             <label className="block text-brand-text mb-2">E-mail</label>
             <input
@@ -57,7 +77,6 @@ export default function Profile() {
             />
           </div>
 
-          {/* Campo Endereço */}
           <div>
             <label className="block text-brand-text mb-2">Endereço</label>
             <input
@@ -69,15 +88,11 @@ export default function Profile() {
             />
           </div>
 
-          {/* Botão salvar */}
-          <button
-            type="submit"
-            className="w-full px-6 py-3 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500"
-          >
+          <button type="submit" className="btn-accent w-full">
             Salvar
           </button>
         </form>
       </div>
-    </main>
+    </div>
   );
 }

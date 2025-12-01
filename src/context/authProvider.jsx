@@ -10,8 +10,13 @@ export function AuthProvider({ children }) {
     role: "client", // ou "admin"
   });
 
+  // Função de logout
+  const logout = () => {
+    setUser(null); // limpa o usuário
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -22,7 +22,7 @@ export default function CheckoutCard({
   const total = priceNumber * quantity;
 
   return (
-    <div className="flex gap-6 rounded-xl border border-brand-border bg-brand-surface shadow-strong p-6">
+    <div className="flex gap-6 rounded-xl border border-brand-border bg-brand-surface shadow-strong p-6 hover:scale-[1.02] transition-transform duration-300">
       {/* Esquerda: imagem + info básica */}
       <div className="flex-1 flex gap-4">
         <img
@@ -40,33 +40,33 @@ export default function CheckoutCard({
           <div className="mt-4 flex items-center gap-3">
             <button
               onClick={() => onQuantityChange(index, -1)}
-              className="px-3 py-1 rounded-full border border-brand-border text-brand-text hover:bg-brand-accent hover:text-black"
+              className="btn-secondary px-3 py-1"
             >
               −
             </button>
             <span className="min-w-8 text-center">{quantity}</span>
             <button
               onClick={() => onQuantityChange(index, +1)}
-              className="px-3 py-1 rounded-full border border-brand-border text-brand-text hover:bg-brand-accent hover:text-black"
+              className="btn-secondary px-3 py-1"
             >
               +
             </button>
           </div>
 
-          {/* Ações: Excluir / Salvar para depois como links */}
+          {/* Ações: Excluir / Salvar para depois */}
           <div className="mt-4 flex gap-6">
-            <span
+            <button
               onClick={() => onRemove(index)}
-              className="cursor-pointer text-brand-accent hover:underline"
+              className="btn-secondary text-sm"
             >
               Excluir
-            </span>
-            <span
+            </button>
+            <button
               onClick={() => onSaveLater()}
-              className="cursor-pointer text-brand-accent hover:underline"
+              className="btn-secondary text-sm"
             >
               Salvar para depois
-            </span>
+            </button>
           </div>
         </div>
       </div>
