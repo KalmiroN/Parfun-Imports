@@ -1,15 +1,12 @@
-/* 1. Importa o Tailwind primeiro */
-@import "tailwindcss";
-
-/* 2. Diretivas principais do Tailwind */
+/* 1. Diretivas principais do Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 3. Importa seu tema customizado depois do Tailwind */
+/* 2. Importa seu tema customizado depois do Tailwind */
 @import "./styles/theme.css";
 
-/* 4. Ajustes globais extras */
+/* 3. Ajustes globais extras */
 html,
 body {
   height: 100%;
@@ -127,4 +124,20 @@ html.theme-orange {
 
 .animate-fadeInRight {
   animation: fadeInRight 0.6s ease-out forwards;
+}
+
+/* ========================= */
+/* Inputs padronizados       */
+/* ========================= */
+
+.input-field {
+  @apply w-full px-3 py-2 border border-brand-border rounded-lg bg-brand-surface text-brand-text;
+}
+
+.input-field:focus {
+  @apply outline-none ring-2 ring-brand-accent border-brand-accent;
+}
+
+.input-field::placeholder {
+  @apply text-brand-muted;
 }
