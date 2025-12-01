@@ -27,6 +27,10 @@ body {
   font-style: normal;
 }
 
+/* ========================= */
+/* Temas de cores            */
+/* ========================= */
+
 /* Gold (claro com dourado) */
 html.theme-gold {
   --color-bg: #faf7f0;
@@ -58,4 +62,69 @@ html.theme-orange {
   --color-accent: #e4a85b;
   --color-border: #eadfd2;
   --color-overlay: rgba(255, 255, 255, 0.55);
+}
+
+/* ========================= */
+/* Utilitários globais       */
+/* ========================= */
+
+/* Botão padrão com cor de destaque */
+.btn-accent {
+  @apply px-6 py-3 rounded-full bg-brand-accent text-black font-bold 
+         hover:opacity-90 active:brightness-90 transition;
+}
+
+/* Botão secundário (neutro, borda e fundo transparente) */
+.btn-secondary {
+  @apply px-6 py-3 rounded-full border border-brand-border text-brand-text font-medium 
+         hover:bg-brand-accent hover:text-black active:brightness-90 transition;
+}
+
+/* ========================= */
+/* Animações customizadas    */
+/* ========================= */
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeInLeft {
+  animation: fadeInLeft 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fadeInRight {
+  animation: fadeInRight 0.6s ease-out forwards;
 }

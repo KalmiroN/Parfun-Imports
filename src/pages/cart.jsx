@@ -1,8 +1,9 @@
 import { useCart } from "../context/cartProvider";
 import { toast } from "react-toastify";
 import { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
 import CheckoutCard from "../components/CheckoutCard";
+import CheckoutAside from "../components/CheckoutAside";
+import SaveLaterAside from "../components/SaveLaterAside";
 
 export default function Cart() {
   const { cartItems, setCartItems } = useCart();
@@ -55,58 +56,10 @@ export default function Cart() {
     return acc + priceValue * qty;
   }, 0);
 
-  const openCheckout = () => setShowCheckout(true);
-  const openSaveLater = () => setShowSaveLater(true);
-
-  const closeCheckout = () => setShowCheckout(false);
-  const closeSaveLater = () => setShowSaveLater(false);
-
-  const CheckoutAside = showCheckout ? (
-    <aside
-      style={{ top: mainMetrics.top, height: mainMetrics.height }}
-      className="fixed right-0 z-50 w-[24rem] bg-brand-surface shadow-strong p-6 
-        border-l border-t border-b border-yellow-500 rounded-l-2xl animate-slideInSlow"
-    >
-      <div className="flex items-start justify-between">
-        <h2 className="text-2xl font-display mb-4">Finalizar compra</h2>
-        <button
-          onClick={closeCheckout}
-          className="ml-4 text-brand-text hover:text-black hover:bg-brand-accent rounded-full px-3 py-1"
-        >
-          ✕
-        </button>
-      </div>
-
-      <p className="text-brand-text mb-4">Escolha a forma de pagamento:</p>
-      <button className="w-full px-6 py-3 mb-4 rounded-full border border-brand-border text-brand-text font-bold hover:bg-brand-accent hover:text-black">
-        Cartão de crédito
-      </button>
-      <button className="w-full px-6 py-3 rounded-full border border-brand-border text-brand-text font-bold hover:bg-brand-accent hover:text-black">
-        Pix
-      </button>
-    </aside>
-  ) : null;
-  const SaveLaterAside = showSaveLater ? (
-    <aside
-      style={{ top: mainMetrics.top, height: mainMetrics.height }}
-      className="fixed right-0 z-50 w-[20rem] bg-brand-surface shadow-strong p-6 
-        border-l border-t border-b border-yellow-500 rounded-l-2xl animate-slideInSlow"
-    >
-      <div className="flex items-start justify-between">
-        <h2 className="text-xl font-display mb-4">Salvos para depois</h2>
-        <button
-          onClick={closeSaveLater}
-          className="ml-4 text-brand-text hover:text-black hover:bg-brand-accent rounded-full px-3 py-1"
-        >
-          ✕
-        </button>
-      </div>
-
-      <p className="text-brand-text">
-        Aqui você verá os itens que foram salvos para comprar mais tarde.
-      </p>
-    </aside>
-  ) : null;
+  // Regras de altura
+  const bothActive = showCheckout && showSaveLater;
+  const singleHeight = mainMetrics.height * 0.9;
+  const asideHeight = mainMetrics.height * 0.44;
 
   return (
     <>
@@ -137,14 +90,18 @@ export default function Cart() {
                 };
 
                 return (
-                  <CheckoutCard
+                  <div
                     key={idx}
-                    item={item}
-                    index={idx}
-                    onRemove={handleRemove}
-                    onQuantityChange={handleQuantityChange}
-                    onSaveLater={openSaveLater}
-                  />
+                    className="hover:scale-[1.02] transition-transform duration-300"
+                  >
+                    <CheckoutCard
+                      item={item}
+                      index={idx}
+                      onRemove={handleRemove}
+                      onQuantityChange={handleQuantityChange}
+                      onSaveLater={() => setShowSaveLater(true)}
+                    />
+                  </div>
                 );
               })}
             </div>
@@ -153,13 +110,12 @@ export default function Cart() {
               <p className="text-xl font-semibold">
                 Subtotal: R$ {subtotal.toFixed(2).replace(".", ",")}
               </p>
-              {/* 🔧 Removido: bloco de parcelamento/estoque fora do card */}
             </div>
 
             <div className="flex justify-center mt-8">
               <button
-                onClick={openCheckout}
-                className="px-8 py-4 rounded-full border border-brand-border text-brand-text font-bold text-lg hover:bg-brand-accent hover:text-black"
+                onClick={() => setShowCheckout(true)}
+                className="btn-accent text-lg"
               >
                 Finalizar compra
               </button>
@@ -168,8 +124,45 @@ export default function Cart() {
         )}
       </main>
 
-      {showCheckout && createPortal(CheckoutAside, document.body)}
-      {showSaveLater && createPortal(SaveLaterAside, document.body)}
+      {/* Asides */}
+      {showCheckout && !bothActive && (
+        <CheckoutAside
+          show={showCheckout}
+          top={mainMetrics.top + 20} // alinhado com os cards
+          height={singleHeight}
+          width={320}
+          onClose={() => setShowCheckout(false)}
+        />
+      )}
+
+      {showSaveLater && !bothActive && (
+        <SaveLaterAside
+          show={showSaveLater}
+          top={mainMetrics.top + 20}
+          height={singleHeight}
+          width={320}
+          onClose={() => setShowSaveLater(false)}
+        />
+      )}
+
+      {bothActive && (
+        <>
+          <CheckoutAside
+            show={showCheckout}
+            top={mainMetrics.top + 20}
+            height={asideHeight}
+            width={320}
+            onClose={() => setShowCheckout(false)}
+          />
+          <SaveLaterAside
+            show={showSaveLater}
+            top={mainMetrics.top + 20 + asideHeight + 3} // gap de 3px
+            height={asideHeight}
+            width={320}
+            onClose={() => setShowSaveLater(false)}
+          />
+        </>
+      )}
     </>
   );
 }
