@@ -49,7 +49,7 @@ export default function Profile() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Digite seu nome"
-              className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-surface text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent"
+              className="input-field"
               required
             />
           </div>
@@ -61,7 +61,7 @@ export default function Profile() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="(11) 99999-9999"
-              className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-surface text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent"
+              className="input-field"
             />
           </div>
 
@@ -72,7 +72,7 @@ export default function Profile() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Digite seu e-mail"
-              className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-surface text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent"
+              className="input-field"
               required
             />
           </div>
@@ -84,7 +84,7 @@ export default function Profile() {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Seu endereço"
-              className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-surface text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent"
+              className="input-field"
             />
           </div>
 

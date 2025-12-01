@@ -8,13 +8,10 @@ export default function CheckoutAside({ show, top, height, width, onClose }) {
     <div
       className="fixed z-[1000] bg-brand-surface border border-brand-border rounded-lg shadow-soft p-4"
       style={{
-        position: "fixed",
         top: `${top}px`,
-        right: 0, // colado no lado direito da tela
-        left: "auto", // garante que 'left' não interfira
+        right: 0,
         height: `${height}px`,
         width: `${width}px`,
-        transform: "none", // evita qualquer herança de transform
       }}
     >
       <h2 className="text-xl font-semibold mb-4">Finalizar compra</h2>
@@ -22,9 +19,9 @@ export default function CheckoutAside({ show, top, height, width, onClose }) {
       <button className="btn-accent w-full">Pix</button>
       <button
         onClick={onClose}
-        className="mt-4 text-sm text-brand-muted hover:underline"
+        className="btn-secondary mt-4 flex items-center justify-center gap-2"
       >
-        Fechar
+        ✕ Fechar
       </button>
     </div>
   );

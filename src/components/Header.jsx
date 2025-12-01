@@ -2,12 +2,14 @@ import { useTheme } from "../context/themeProvider";
 import { useAuth } from "../context/authProvider";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const { theme, cycleTheme } = useTheme();
   const { user, logout } = useAuth();
   const [showUserBox, setShowUserBox] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const isAdmin = user?.role === "admin";
 
@@ -30,9 +32,9 @@ export default function Header() {
       : "/images/logout_24dp_black.png";
 
   const handleLogout = () => {
-    logout();
+    logout(); // limpa sessão/token
     toast.info("Você saiu da sua conta.");
-    window.location.href = "/login";
+    navigate("/login"); // redireciona para login
   };
 
   return (
@@ -48,7 +50,6 @@ export default function Header() {
           className="h-36 w-36 rounded-full border-4 border-brand-border shadow-strong group-hover:scale-105 transition-transform duration-500"
         />
       </div>
-
       {/* Botão hamburguer (mobile) */}
       <button
         className="md:hidden text-brand-text focus:outline-none ml-auto"
@@ -91,7 +92,6 @@ export default function Header() {
           )}
         </ul>
       </nav>
-
       {/* Ícones à direita */}
       <div className="flex items-center gap-6">
         {/* Carrinho */}
@@ -137,7 +137,6 @@ export default function Header() {
           </span>
         </div>
       </div>
-
       {/* Caixa flutuante do usuário */}
       {showUserBox && user && (
         <div className="absolute right-6 top-20 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border">
@@ -154,7 +153,6 @@ export default function Header() {
           </button>
         </div>
       )}
-
       {/* Menu mobile */}
       {menuOpen && (
         <nav className="absolute top-full left-0 w-full bg-brand-surface shadow-strong p-6 md:hidden">
@@ -194,6 +192,14 @@ export default function Header() {
                 </li>
               </>
             )}
+            <li>
+              <button
+                onClick={handleLogout}
+                className="btn-secondary w-full text-center"
+              >
+                Logout
+              </button>
+            </li>
           </ul>
         </nav>
       )}
