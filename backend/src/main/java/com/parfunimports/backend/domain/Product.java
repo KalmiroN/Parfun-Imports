@@ -1,7 +1,8 @@
-package com.parfunimports.model;
+package com.parfunimports.backend.domain;
 
 import jakarta.persistence.*;
 import java.util.List;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "product") // garante que o nome da tabela seja igual ao banco
@@ -17,7 +18,7 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
-    private Double price;
+    private BigDecimal price;  // Usar BigDecimal para valores monetários
 
     @Column(nullable = false)
     private Integer stock;
@@ -51,11 +52,11 @@ public class Product {
         this.description = description;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
