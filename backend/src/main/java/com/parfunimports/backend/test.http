@@ -1,0 +1,133 @@
+### ============================
+### USERS
+### ============================
+
+# Listar todos os usuários
+GET http://localhost:8080/users
+Authorization: Basic admin 123456
+
+###
+
+# Buscar usuário por ID
+GET http://localhost:8080/users/1
+Authorization: Basic admin 123456
+
+###
+
+# Criar novo usuário
+POST http://localhost:8080/users
+Content-Type: application/json
+Authorization: Basic admin 123456
+
+{
+  "name": "Almir",
+  "email": "almir@email.com",
+  "password": "123456",
+  "role": "USER"
+}
+
+###
+
+# Atualizar usuário existente
+PUT http://localhost:8080/users/1
+Content-Type: application/json
+Authorization: Basic admin 123456
+
+{
+  "name": "Almir Atualizado",
+  "email": "almir@email.com",
+  "password": "654321",
+  "role": "ADMIN"
+}
+
+###
+
+# Deletar usuário
+DELETE http://localhost:8080/users/1
+Authorization: Basic admin 123456
+
+
+### ============================
+### PRODUCTS
+### ============================
+
+# Listar todos os produtos
+GET http://localhost:8080/products
+Authorization: Basic admin 123456
+
+###
+
+# Criar novo produto
+POST http://localhost:8080/products
+Content-Type: application/json
+Authorization: Basic admin 123456
+
+{
+  "name": "Perfume X",
+  "description": "Fragrância importada",
+  "price": 199.90,
+  "stock": 50
+}
+
+###
+
+# Atualizar produto
+PUT http://localhost:8080/products/1
+Content-Type: application/json
+Authorization: Basic admin 123456
+
+{
+  "name": "Perfume Y",
+  "description": "Fragrância premium",
+  "price": 249.90,
+  "stock": 30
+}
+
+###
+
+# Deletar produto
+DELETE http://localhost:8080/products/1
+Authorization: Basic admin 123456
+
+
+### ============================
+### ORDERS
+### ============================
+
+# Listar todos os pedidos
+GET http://localhost:8080/orders
+Authorization: Basic admin 123456
+
+###
+
+# Criar novo pedido
+POST http://localhost:8080/orders
+Content-Type: application/json
+Authorization: Basic admin 123456
+
+{
+  "status": "PENDING",
+  "total": 199.90,
+  "user": { "id": 1 },
+  "product": { "id": 1 }
+}
+
+###
+
+# Atualizar pedido
+PUT http://localhost:8080/orders/1
+Content-Type: application/json
+Authorization: Basic admin 123456
+
+{
+  "status": "COMPLETED",
+  "total": 199.90,
+  "user": { "id": 1 },
+  "product": { "id": 1 }
+}
+
+###
+
+# Deletar pedido
+DELETE http://localhost:8080/orders/1
+Authorization: Basic admin 123456

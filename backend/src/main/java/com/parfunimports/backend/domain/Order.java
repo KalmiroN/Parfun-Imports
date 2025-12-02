@@ -1,6 +1,7 @@
-package com.parfunimports.model;
+package com.parfunimports.backend.domain;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "orders")  // evita conflito com palavra reservada
@@ -11,7 +12,9 @@ public class Order {
     private Long id;
 
     private String status;
-    private Double total;
+
+    // Usar BigDecimal para cálculos monetários
+    private BigDecimal total;
 
     // Cada pedido pertence a um usuário
     @ManyToOne
@@ -40,11 +43,11 @@ public class Order {
         this.status = status;
     }
 
-    public Double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
-    public void setTotal(Double total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
 
