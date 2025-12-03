@@ -2,9 +2,17 @@ import { Link } from "react-router-dom";
 
 export default function Register() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-brand-bg transition-colors duration-500 relative">
+    <main
+      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
+      style={{
+        backgroundImage: "url('/images/background_files/Orquidea.jpg')",
+      }}
+    >
+      {/* Overlay escuro para contraste */}
+      <div className="absolute inset-0 bg-black/40" />
+
       {/* Container com efeito vidro */}
-      <div className="w-full max-w-md p-8 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft">
+      <div className="relative w-full max-w-md p-8 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft">
         <h2 className="font-display text-3xl text-brand-text text-center mb-6 transition-colors duration-500">
           Cadastro
         </h2>
