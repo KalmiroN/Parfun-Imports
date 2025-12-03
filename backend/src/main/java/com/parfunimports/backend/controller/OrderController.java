@@ -3,12 +3,13 @@ package com.parfunimports.backend.controller;
 import com.parfunimports.backend.domain.Order;
 import com.parfunimports.backend.service.OrderService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/orders")
 public class OrderController {
 
     private final OrderService orderService;
@@ -17,37 +18,41 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    // Listar todos os pedidos
+    // Listar todos os pedidos (somente ADMIN)
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(orderService.findAll());
     }
 
-    // Buscar pedido por ID
+    // Buscar pedido por ID (USER e ADMIN)
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
         Order order = orderService.findById(id);
         return order != null ? ResponseEntity.ok(order) : ResponseEntity.notFound().build();
     }
 
-    // Criar novo pedido
+    // Criar novo pedido (somente USER)
     @PostMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         Order savedOrder = orderService.createOrder(order);
         return ResponseEntity.ok(savedOrder);
     }
 
-    // Atualizar pedido existente
+    // Atualizar pedido existente (somente ADMIN)
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order order) {
         Order updatedOrder = orderService.updateOrder(id, order);
         return updatedOrder != null ? ResponseEntity.ok(updatedOrder) : ResponseEntity.notFound().build();
     }
 
-    // Deletar pedido
+    // Deletar pedido (somente ADMIN)
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
         return orderService.deleteOrder(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
-

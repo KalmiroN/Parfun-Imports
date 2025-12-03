@@ -15,33 +15,42 @@ public class OrderService {
         this.orderRepository = orderRepository;
     }
 
+    // Listar todos os pedidos
     public List<Order> findAll() {
         return orderRepository.findAll();
     }
 
+    // Buscar pedido por ID
     public Order findById(Long id) {
-        return orderRepository.findById(id).orElse(null);
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado com ID: " + id));
     }
 
+    // Criar novo pedido
     public Order createOrder(Order order) {
         return orderRepository.save(order);
     }
 
-    public Order updateOrder(Long id, Order order) {
-        return orderRepository.findById(id).map(existing -> {
-            existing.setStatus(order.getStatus());
-            existing.setTotal(order.getTotal());
-            existing.setUser(order.getUser());
-            existing.setProduct(order.getProduct());
-            return orderRepository.save(existing);
-        }).orElse(null);
+    // Atualizar pedido existente
+    public Order updateOrder(Long id, Order orderDetails) {
+        return orderRepository.findById(id)
+                .map(existing -> {
+                    existing.setStatus(orderDetails.getStatus());
+                    existing.setTotal(orderDetails.getTotal());
+                    existing.setUser(orderDetails.getUser());
+                    existing.setProduct(orderDetails.getProduct());
+                    return orderRepository.save(existing);
+                })
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado com ID: " + id));
     }
 
+    // Deletar pedido
     public boolean deleteOrder(Long id) {
-        if (orderRepository.existsById(id)) {
-            orderRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        return orderRepository.findById(id)
+                .map(order -> {
+                    orderRepository.delete(order);
+                    return true;
+                })
+                .orElse(false);
     }
 }
