@@ -15,34 +15,42 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
+    // Listar todos os produtos
     public List<Product> findAll() {
         return productRepository.findAll();
     }
 
+    // Buscar produto por ID
     public Product findById(Long id) {
-        return productRepository.findById(id).orElse(null);
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
     }
 
+    // Criar novo produto
     public Product createProduct(Product product) {
         return productRepository.save(product);
     }
 
+    // Atualizar produto existente
     public Product updateProduct(Long id, Product product) {
-        return productRepository.findById(id).map(existing -> {
-            existing.setName(product.getName());
-            existing.setDescription(product.getDescription());
-            existing.setPrice(product.getPrice());
-            existing.setStock(product.getStock());
-            return productRepository.save(existing);
-        }).orElse(null);
+        return productRepository.findById(id)
+                .map(existing -> {
+                    existing.setName(product.getName());
+                    existing.setDescription(product.getDescription());
+                    existing.setPrice(product.getPrice());
+                    existing.setStock(product.getStock());
+                    return productRepository.save(existing);
+                })
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
     }
 
+    // Deletar produto
     public boolean deleteProduct(Long id) {
-        if (productRepository.existsById(id)) {
-            productRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        return productRepository.findById(id)
+                .map(product -> {
+                    productRepository.delete(product);
+                    return true;
+                })
+                .orElse(false);
     }
 }
-
