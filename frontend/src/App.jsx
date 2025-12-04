@@ -16,20 +16,22 @@ import OrderConfirmation from "./pages/orderConfirmation";
 import MyOrders from "./pages/myOrders";
 import Login from "./pages/login";
 import Register from "./pages/register";
+import Logout from "./pages/Logout";
 
 // Novas páginas
 import ForgotPassword from "./pages/forgotPassword";
 import Profile from "./pages/profile";
 import Wishlist from "./pages/wishlist";
 import Search from "./pages/search";
-import Dashboard from "./pages/Dashboard"; // ✅ Import da nova página
+import Dashboard from "./pages/Dashboard";
 
 // Páginas administrativas
-import AdminProducts from "./pages/admin/adminProducts";
-import AdminOrders from "./pages/admin/adminOrders";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminOrders from "./pages/admin/AdminOrders";
 
-// Página de fallback
-import NotFound from "./pages/notFound";
+// Página de fallback e acesso negado
+import NotFound from "./pages/NotFound";
+import Unauthorized from "./pages/Unauthorized";
 
 // ✅ Import do ProtectedRoute
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -42,13 +44,15 @@ export default function App() {
           <Routes>
             {/* Login e Cadastro fora do Layout */}
             <Route path="/login" element={<Login />} />
+            <Route path="/logout" element={<Logout />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
 
             {/* Rotas protegidas */}
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute role="admin">
+                <ProtectedRoute allowedRoles={["USER"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -56,7 +60,7 @@ export default function App() {
             <Route
               path="/cart"
               element={
-                <ProtectedRoute redirectTo="/register">
+                <ProtectedRoute allowedRoles={["USER"]} redirectTo="/login">
                   <Cart />
                 </ProtectedRoute>
               }
@@ -64,7 +68,7 @@ export default function App() {
             <Route
               path="/checkout"
               element={
-                <ProtectedRoute redirectTo="/register">
+                <ProtectedRoute allowedRoles={["USER"]} redirectTo="/login">
                   <Checkout />
                 </ProtectedRoute>
               }
@@ -72,7 +76,7 @@ export default function App() {
             <Route
               path="/order-confirmation"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["USER"]}>
                   <OrderConfirmation />
                 </ProtectedRoute>
               }
@@ -80,7 +84,7 @@ export default function App() {
             <Route
               path="/my-orders"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["USER"]}>
                   <MyOrders />
                 </ProtectedRoute>
               }
@@ -96,11 +100,11 @@ export default function App() {
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/search" element={<Search />} />
 
-              {/* Admin (somente role=admin) */}
+              {/* Admin (somente role=ADMIN) */}
               <Route
                 path="/admin/products"
                 element={
-                  <ProtectedRoute role="admin">
+                  <ProtectedRoute allowedRoles={["ADMIN"]}>
                     <AdminProducts />
                   </ProtectedRoute>
                 }
@@ -108,7 +112,7 @@ export default function App() {
               <Route
                 path="/admin/orders"
                 element={
-                  <ProtectedRoute role="admin">
+                  <ProtectedRoute allowedRoles={["ADMIN"]}>
                     <AdminOrders />
                   </ProtectedRoute>
                 }

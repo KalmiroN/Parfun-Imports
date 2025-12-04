@@ -39,22 +39,22 @@ export default function Footer() {
           <div className="flex gap-4">
             <a href="https://facebook.com" target="_blank" rel="noreferrer">
               <img
-                src="/images/social/facebook.png"
+                src="/images/facebook.png"
                 alt="Facebook"
                 className="h-8 w-8 hover:scale-110 transition"
               />
             </a>
             <a href="https://instagram.com" target="_blank" rel="noreferrer">
               <img
-                src="/images/social/instagram.png"
+                src="/images/instagram.png"
                 alt="Instagram"
                 className="h-8 w-8 hover:scale-110 transition"
               />
             </a>
             <a href="https://twitter.com" target="_blank" rel="noreferrer">
               <img
-                src="/images/social/twitter.png"
-                alt="Twitter"
+                src="/images/twitter_X.png"
+                alt="Twitter/X"
                 className="h-8 w-8 hover:scale-110 transition"
               />
             </a>

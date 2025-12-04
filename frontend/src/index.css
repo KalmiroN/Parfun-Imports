@@ -61,17 +61,28 @@ html.theme-orange {
   --color-overlay: rgba(255, 255, 255, 0.55);
 }
 
+/* Imperial Glow (dourado + azul + coral vibrante) */
+html.theme-imperial {
+  --color-bg: #fdf8f2;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-muted: #7a7a7a;
+  --color-accent: #ff6f61; /* coral vibrante */
+  --color-primary: #d4af37; /* dourado metálico */
+  --color-secondary: #0057b7; /* azul royal */
+  --color-border: #e4d9c5;
+  --color-overlay: rgba(255, 255, 255, 0.55);
+}
+
 /* ========================= */
 /* Utilitários globais       */
 /* ========================= */
 
-/* Botão padrão com cor de destaque */
 .btn-accent {
   @apply px-6 py-3 rounded-full bg-brand-accent text-black font-bold 
          hover:opacity-90 active:brightness-90 transition;
 }
 
-/* Botão secundário (neutro, borda e fundo transparente) */
 .btn-secondary {
   @apply px-6 py-3 rounded-full border border-brand-border text-brand-text font-medium 
          hover:bg-brand-accent hover:text-black active:brightness-90 transition;
@@ -91,7 +102,6 @@ html.theme-orange {
     transform: translateX(0);
   }
 }
-
 .animate-fadeInLeft {
   animation: fadeInLeft 0.6s ease-out forwards;
 }
@@ -106,7 +116,6 @@ html.theme-orange {
     transform: translateY(0);
   }
 }
-
 .animate-fadeInUp {
   animation: fadeInUp 0.6s ease-out forwards;
 }
@@ -121,7 +130,6 @@ html.theme-orange {
     transform: translateX(0);
   }
 }
-
 .animate-fadeInRight {
   animation: fadeInRight 0.6s ease-out forwards;
 }
@@ -133,11 +141,9 @@ html.theme-orange {
 .input-field {
   @apply w-full px-3 py-2 border border-brand-border rounded-lg bg-brand-surface text-brand-text;
 }
-
 .input-field:focus {
   @apply outline-none ring-2 ring-brand-accent border-brand-accent;
 }
-
 .input-field::placeholder {
   @apply text-brand-muted;
 }

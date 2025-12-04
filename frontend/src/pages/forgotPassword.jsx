@@ -10,7 +10,8 @@ export default function ForgotPassword() {
     <main
       className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
       style={{
-        backgroundImage: "url('/images/background_files/Orquidea.jpg')",
+        backgroundImage:
+          "url('/images/background_files/gold-backgraund-02.jpg')",
       }}
     >
       <div className="absolute inset-0 bg-black/40" />

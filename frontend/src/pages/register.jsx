@@ -34,11 +34,21 @@ export default function Register() {
 
       const data = await response.json();
 
-      // Salva token no localStorage
-      localStorage.setItem("token", data.token);
+      // ✅ Log para verificar o que o backend retorna
+      console.log("Resposta do backend (register):", data);
 
-      // Redireciona para dashboard
-      navigate("/dashboard");
+      // ✅ Salva token e role no localStorage
+      localStorage.setItem("token", data.token);
+      if (data.role) {
+        localStorage.setItem("role", data.role);
+      }
+
+      // ✅ Redireciona conforme role
+      if (data.role === "ADMIN") {
+        navigate("/admin/products");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError(err.message);
     }

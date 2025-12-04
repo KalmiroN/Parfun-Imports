@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import CheckoutCard from "../components/CheckoutCard";
 import CheckoutAside from "../components/CheckoutAside";
 import SaveLaterAside from "../components/SaveLaterAside";
+import { authFetch } from "../utils/authFetch"; // ✅ importa utilitário
 
 export default function Cart() {
   const { cartItems, setCartItems } = useCart();
@@ -13,6 +14,32 @@ export default function Cart() {
 
   const mainRef = useRef(null);
   const [mainMetrics, setMainMetrics] = useState({ top: 0, height: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // ✅ Buscar carrinho do backend ao carregar
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const response = await authFetch(
+          `${import.meta.env.VITE_API_URL}/cart`
+        );
+
+        if (!response.ok) {
+          throw new Error("Erro ao buscar carrinho");
+        }
+
+        const data = await response.json();
+        setCartItems(data.items || []); // backend retorna { items: [...] }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, [setCartItems]);
 
   useEffect(() => {
     const update = () => {
@@ -25,24 +52,47 @@ export default function Cart() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const handleRemove = (index) => {
+  const handleRemove = async (index) => {
     const updated = [...cartItems];
     const removedItem = updated[index];
     updated.splice(index, 1);
     setCartItems(updated);
-    toast.info(`${removedItem?.name || "Produto"} foi removido do carrinho.`);
+
+    // ✅ Remove também no backend
+    try {
+      await authFetch(`${import.meta.env.VITE_API_URL}/cart/remove`, {
+        method: "POST",
+        body: JSON.stringify({ productId: removedItem.id }),
+      });
+      toast.info(`${removedItem?.name || "Produto"} foi removido do carrinho.`);
+    } catch {
+      toast.error("Erro ao remover produto do carrinho.");
+    }
   };
 
-  const handleQuantityChange = (index, delta) => {
+  const handleQuantityChange = async (index, delta) => {
     const updated = [...cartItems];
     const newQty = (updated[index]?.quantity || 1) + delta;
     updated[index].quantity = Math.max(1, newQty);
     setCartItems(updated);
-    toast.success(
-      `Quantidade de ${updated[index]?.name || "Produto"} atualizada para ${
-        updated[index].quantity
-      }`
-    );
+
+    // ✅ Atualiza também no backend
+    try {
+      await authFetch(`${import.meta.env.VITE_API_URL}/cart/update`, {
+        method: "POST",
+        body: JSON.stringify({
+          productId: updated[index].id,
+          quantity: updated[index].quantity,
+        }),
+      });
+      toast.success(
+        `Quantidade de ${updated[index]?.name || "Produto"} atualizada para ${
+          updated[index].quantity
+        }`
+      );
+    } catch {
+      toast.error("Erro ao atualizar quantidade.");
+    }
   };
 
   const subtotal = cartItems.reduce((acc, item) => {
@@ -61,6 +111,14 @@ export default function Cart() {
   const singleHeight = mainMetrics.height * 0.9;
   const asideHeight = mainMetrics.height * 0.44;
 
+  if (loading) {
+    return (
+      <main className="bg-brand-bg text-brand-text min-h-screen flex items-center justify-center">
+        <p>Carregando carrinho...</p>
+      </main>
+    );
+  }
+
   return (
     <>
       <main
@@ -68,6 +126,8 @@ export default function Cart() {
         className="bg-brand-bg text-brand-text min-h-screen px-4 py-12"
       >
         <h1 className="text-3xl font-display mb-8">Carrinho de Compras</h1>
+
+        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
         {cartItems.length === 0 ? (
           <div className="rounded-xl border border-brand-border bg-brand-surface shadow-strong p-8 text-center">
@@ -80,6 +140,7 @@ export default function Cart() {
             <div className="space-y-6">
               {cartItems.map((rawItem, idx) => {
                 const item = {
+                  id: rawItem?.id,
                   name: rawItem?.name || "Produto",
                   price:
                     typeof rawItem?.price === "number"
@@ -128,7 +189,7 @@ export default function Cart() {
       {showCheckout && !bothActive && (
         <CheckoutAside
           show={showCheckout}
-          top={mainMetrics.top + 20} // alinhado com os cards
+          top={mainMetrics.top + 20}
           height={singleHeight}
           width={320}
           onClose={() => setShowCheckout(false)}
@@ -156,7 +217,7 @@ export default function Cart() {
           />
           <SaveLaterAside
             show={showSaveLater}
-            top={mainMetrics.top + 20 + asideHeight + 3} // gap de 3px
+            top={mainMetrics.top + 20 + asideHeight + 3}
             height={asideHeight}
             width={320}
             onClose={() => setShowSaveLater(false)}

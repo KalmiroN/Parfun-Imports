@@ -1,21 +1,42 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { authFetch } from "../utils/authFetch"; // ✅ importa o utilitário
 
 export default function MyOrders() {
-  // Placeholder: simulação de pedidos
-  const orders = [
-    {
-      id: 1,
-      date: "20/11/2025",
-      total: "R$ 499,00",
-      status: "Entregue",
-    },
-    {
-      id: 2,
-      date: "25/11/2025",
-      total: "R$ 349,90",
-      status: "Em processamento",
-    },
-  ];
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await authFetch(
+          `${import.meta.env.VITE_API_URL}/orders/my`
+        );
+
+        if (!response.ok) {
+          throw new Error("Erro ao buscar pedidos");
+        }
+
+        const data = await response.json();
+        setOrders(data); // ✅ backend retorna lista de pedidos
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-brand-text">Carregando pedidos...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-brand-bg transition-colors duration-500">
@@ -23,6 +44,8 @@ export default function MyOrders() {
         <h2 className="font-display text-3xl text-brand-text mb-6">
           Meus Pedidos
         </h2>
+
+        {error && <p className="text-red-500">{error}</p>}
 
         {orders.length === 0 ? (
           <p className="text-brand-textMuted">Você ainda não possui pedidos.</p>
