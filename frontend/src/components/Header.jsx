@@ -50,6 +50,7 @@ export default function Header() {
           className="h-36 w-36 rounded-full border-4 border-brand-border shadow-strong group-hover:scale-105 transition-transform duration-500"
         />
       </div>
+
       {/* Botão hamburguer (mobile) */}
       <button
         className="md:hidden text-brand-text focus:outline-none ml-auto"
@@ -92,6 +93,7 @@ export default function Header() {
           )}
         </ul>
       </nav>
+
       {/* Ícones à direita */}
       <div className="flex items-center gap-6">
         {/* Carrinho */}
@@ -107,7 +109,6 @@ export default function Header() {
             Carrinho
           </span>
         </div>
-
         {/* Usuário */}
         {user && (
           <div className="relative group">
@@ -122,7 +123,6 @@ export default function Header() {
             </span>
           </div>
         )}
-
         {/* Login */}
         <div className="relative group">
           <a href="/login">
@@ -137,6 +137,7 @@ export default function Header() {
           </span>
         </div>
       </div>
+
       {/* Caixa flutuante do usuário */}
       {showUserBox && user && (
         <div className="absolute right-6 top-20 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border">
@@ -153,6 +154,7 @@ export default function Header() {
           </button>
         </div>
       )}
+
       {/* Menu mobile */}
       {menuOpen && (
         <nav className="absolute top-full left-0 w-full bg-brand-surface shadow-strong p-6 md:hidden">
