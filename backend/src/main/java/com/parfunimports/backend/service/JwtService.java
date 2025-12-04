@@ -31,6 +31,11 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    // ✅ Extrair role do token
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
     // Extrair qualquer claim
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
@@ -41,7 +46,7 @@ public class JwtService {
     public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getEmail())
-                .claim("role", user.getRole().toString()) // adiciona role no token
+                .claim("role", user.getRole().toString()) // ✅ adiciona role no token
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -71,3 +76,4 @@ public class JwtService {
                 .getBody();
     }
 }
+
