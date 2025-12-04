@@ -1,6 +1,7 @@
 package com.parfunimports.backend.service;
 
 import com.parfunimports.backend.domain.Order;
+import com.parfunimports.backend.exception.OrderNotFoundException;
 import com.parfunimports.backend.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ public class OrderService {
     // Buscar pedido por ID
     public Order findById(Long id) {
         return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado com ID: " + id));
+                .orElseThrow(() -> new OrderNotFoundException(id));
     }
 
     // Criar novo pedido
@@ -38,10 +39,10 @@ public class OrderService {
                     existing.setStatus(orderDetails.getStatus());
                     existing.setTotal(orderDetails.getTotal());
                     existing.setUser(orderDetails.getUser());
-                    existing.setProduct(orderDetails.getProduct());
+                    existing.setProducts(orderDetails.getProducts()); // ✅ lista de produtos
                     return orderRepository.save(existing);
                 })
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado com ID: " + id));
+                .orElseThrow(() -> new OrderNotFoundException(id));
     }
 
     // Deletar pedido
@@ -51,6 +52,6 @@ public class OrderService {
                     orderRepository.delete(order);
                     return true;
                 })
-                .orElse(false);
+                .orElseThrow(() -> new OrderNotFoundException(id));
     }
 }

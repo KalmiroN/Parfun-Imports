@@ -26,16 +26,23 @@ public class AuthService {
 
     // Registrar novo usuário
     public AuthResponse register(RegisterRequest request) {
+        // Verifica se email já existe
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email já está em uso: " + request.getEmail());
+        }
+
+        // Cria novo usuário com role fixo USER
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.USER); // por padrão, novos usuários são USER
+        user.setRole(Role.USER); // ✅ sempre USER
 
         userRepository.save(user);
 
+        // Gera token JWT para o novo usuário
         String token = jwtService.generateToken(user);
-        return new AuthResponse(token);
+        return new AuthResponse("Usuário registrado com sucesso", token);
     }
 
     // Autenticar usuário
@@ -47,7 +54,8 @@ public class AuthService {
             throw new RuntimeException("Senha inválida");
         }
 
+        // Gera token JWT para o usuário autenticado
         String token = jwtService.generateToken(user);
-        return new AuthResponse(token);
+        return new AuthResponse("Login realizado com sucesso", token);
     }
 }

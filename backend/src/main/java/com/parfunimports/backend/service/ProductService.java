@@ -1,6 +1,7 @@
 package com.parfunimports.backend.service;
 
 import com.parfunimports.backend.domain.Product;
+import com.parfunimports.backend.exception.ProductNotFoundException;
 import com.parfunimports.backend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,25 +24,37 @@ public class ProductService {
     // Buscar produto por ID
     public Product findById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
-    // Criar novo produto
+    // Criar novo produto (com validação)
     public Product createProduct(Product product) {
+        if (product.getName() == null || product.getName().isBlank()) {
+            throw new IllegalArgumentException("Nome do produto não pode ser vazio");
+        }
+        if (product.getPrice() == null) {
+            throw new IllegalArgumentException("Preço do produto não pode ser nulo");
+        }
         return productRepository.save(product);
     }
 
-    // Atualizar produto existente
+    // Atualizar produto existente (com validação)
     public Product updateProduct(Long id, Product product) {
         return productRepository.findById(id)
                 .map(existing -> {
+                    if (product.getName() == null || product.getName().isBlank()) {
+                        throw new IllegalArgumentException("Nome do produto não pode ser vazio");
+                    }
+                    if (product.getPrice() == null) {
+                        throw new IllegalArgumentException("Preço do produto não pode ser nulo");
+                    }
                     existing.setName(product.getName());
                     existing.setDescription(product.getDescription());
                     existing.setPrice(product.getPrice());
                     existing.setStock(product.getStock());
                     return productRepository.save(existing);
                 })
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     // Deletar produto
@@ -51,6 +64,6 @@ public class ProductService {
                     productRepository.delete(product);
                     return true;
                 })
-                .orElse(false);
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 }
