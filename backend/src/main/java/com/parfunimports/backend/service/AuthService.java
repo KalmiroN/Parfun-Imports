@@ -24,7 +24,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    // Registrar novo usuário
+    // ✅ Registrar novo usuário
     public AuthResponse register(RegisterRequest request) {
         // Verifica se email já existe
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -36,16 +36,18 @@ public class AuthService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.USER); // ✅ sempre USER
+        user.setRole(Role.USER); // sempre USER por padrão
 
         userRepository.save(user);
 
         // Gera token JWT para o novo usuário
         String token = jwtService.generateToken(user);
-        return new AuthResponse("Usuário registrado com sucesso", token);
+
+        // ✅ Retorna também o role
+        return new AuthResponse("Usuário registrado com sucesso", token, user.getRole().name());
     }
 
-    // Autenticar usuário
+    // ✅ Autenticar usuário
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -56,6 +58,8 @@ public class AuthService {
 
         // Gera token JWT para o usuário autenticado
         String token = jwtService.generateToken(user);
-        return new AuthResponse("Login realizado com sucesso", token);
+
+        // ✅ Retorna também o role
+        return new AuthResponse("Login realizado com sucesso", token, user.getRole().name());
     }
 }
