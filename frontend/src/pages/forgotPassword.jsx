@@ -7,8 +7,15 @@ export default function ForgotPassword() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-brand-bg transition-colors duration-500">
-      <div className="w-full max-w-md p-8 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft">
+    <main
+      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
+      style={{
+        backgroundImage: "url('/images/background_files/Orquidea.jpg')",
+      }}
+    >
+      <div className="absolute inset-0 bg-black/40" />
+
+      <div className="relative w-full max-w-md p-8 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft">
         <h2 className="font-display text-3xl text-brand-text text-center mb-6">
           Recuperar Senha
         </h2>
@@ -21,7 +28,6 @@ export default function ForgotPassword() {
             required
           />
 
-          {/* Botões de ação */}
           <div className="flex flex-col md:flex-row gap-4 mt-6">
             <button
               type="submit"

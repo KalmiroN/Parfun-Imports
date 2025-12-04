@@ -1,27 +1,48 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../context/authProvider";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const { setUser } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
-    // Define role com base no email
-    const role = email === "admin@site.com" ? "admin" : "client";
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
-    // Atualiza contexto de autenticação
-    setUser({
-      name: role === "admin" ? "Administrador" : "Usuário Teste",
-      email: email,
-      role: role,
-    });
+      if (!response.ok) {
+        throw new Error("Falha no login. Verifique suas credenciais.");
+      }
 
-    // Redireciona para perfil
-    window.location.href = "/profile";
+      const data = await response.json();
+
+      // ✅ Log para verificar o que o backend retorna
+      console.log("Resposta do backend:", data);
+
+      // ✅ Salva token e role (se existir) no localStorage
+      localStorage.setItem("token", data.token);
+      if (data.role) {
+        localStorage.setItem("role", data.role);
+      }
+
+      // Redireciona para dashboard
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -57,6 +78,8 @@ export default function Login() {
             className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-3 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
             required
           />
+
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <div className="flex justify-between items-center text-sm mt-2">
             <label className="flex items-center gap-2 text-brand-text">
