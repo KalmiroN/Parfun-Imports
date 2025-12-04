@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/authProvider";
+import { authFetch } from "../utils/authFetch"; // ✅ utilitário para fetch com token
+import { toast } from "react-toastify";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -7,23 +9,76 @@ export default function Profile() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  // ✅ Buscar dados do usuário no backend
   useEffect(() => {
-    if (!user) {
-      window.location.href = "/login";
-    } else {
-      setName(user.name || "");
-      setEmail(user.email || "");
-    }
+    const fetchProfile = async () => {
+      if (!user) {
+        window.location.href = "/login";
+        return;
+      }
+
+      try {
+        const response = await authFetch(
+          `${import.meta.env.VITE_API_URL}/user/me`
+        );
+
+        if (!response.ok) {
+          throw new Error("Erro ao carregar perfil.");
+        }
+
+        const data = await response.json();
+        setName(data.name || "");
+        setEmail(data.email || "");
+        setPhone(data.phone || "");
+        setAddress(data.address || "");
+        setError(""); // ✅ limpa erro se carregar com sucesso
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
   }, [user]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Perfil atualizado com sucesso!");
+    setError(""); // ✅ limpa antes de tentar salvar
+
+    try {
+      const response = await authFetch(
+        `${import.meta.env.VITE_API_URL}/user/update`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ name, phone, email, address }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar perfil.");
+      }
+
+      toast.success("Perfil atualizado com sucesso!");
+      setError(""); // ✅ limpa erro se salvar com sucesso
+    } catch (err) {
+      setError(err.message);
+      toast.error(err.message);
+    }
   };
 
   if (!user) return null;
 
+  if (loading) {
+    return (
+      <main className="flex items-center justify-center min-h-screen">
+        <p className="text-brand-text">Carregando perfil...</p>
+      </main>
+    );
+  }
   return (
     <div
       className="flex items-center justify-center min-h-[calc(100vh-200px)] w-full bg-cover bg-center relative"
@@ -41,6 +96,10 @@ export default function Profile() {
           Meu Perfil
         </h2>
 
+        {error && user && (
+          <p className="text-red-500 text-center mb-4">{error}</p>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-brand-text mb-2">Nome</label>
@@ -48,6 +107,7 @@ export default function Profile() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onFocus={() => setError("")}
               placeholder="Digite seu nome"
               className="input-field"
               required
@@ -60,6 +120,7 @@ export default function Profile() {
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              onFocus={() => setError("")}
               placeholder="(11) 99999-9999"
               className="input-field"
             />
@@ -71,6 +132,7 @@ export default function Profile() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setError("")}
               placeholder="Digite seu e-mail"
               className="input-field"
               required
@@ -83,6 +145,7 @@ export default function Profile() {
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
+              onFocus={() => setError("")}
               placeholder="Seu endereço"
               className="input-field"
             />

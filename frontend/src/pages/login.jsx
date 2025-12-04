@@ -32,14 +32,18 @@ export default function Login() {
       // ✅ Log para verificar o que o backend retorna
       console.log("Resposta do backend:", data);
 
-      // ✅ Salva token e role (se existir) no localStorage
+      // ✅ Salva token e role no localStorage
       localStorage.setItem("token", data.token);
       if (data.role) {
         localStorage.setItem("role", data.role);
       }
 
-      // Redireciona para dashboard
-      navigate("/dashboard");
+      // ✅ Redireciona conforme role
+      if (data.role === "ADMIN") {
+        navigate("/admin/products");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError(err.message);
     }

@@ -93,7 +93,6 @@ export default function Header() {
           )}
         </ul>
       </nav>
-
       {/* Ícones à direita */}
       <div className="flex items-center gap-6">
         {/* Carrinho */}
@@ -140,7 +139,7 @@ export default function Header() {
 
       {/* Caixa flutuante do usuário */}
       {showUserBox && user && (
-        <div className="absolute right-6 top-20 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border">
+        <div className="absolute right-6 top-20 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border z-50">
           <h3 className="text-lg font-semibold mb-2">Informações do Usuário</h3>
           <p className="text-sm">Nome: {user?.name}</p>
           <p className="text-sm">Email: {user?.email}</p>
@@ -157,7 +156,7 @@ export default function Header() {
 
       {/* Menu mobile */}
       {menuOpen && (
-        <nav className="absolute top-full left-0 w-full bg-brand-surface shadow-strong p-6 md:hidden">
+        <nav className="absolute top-full left-0 w-full bg-brand-surface shadow-strong p-6 md:hidden z-50">
           <ul className="flex flex-col gap-4">
             <li>
               <a href="/" className="btn-accent w-full text-center">
