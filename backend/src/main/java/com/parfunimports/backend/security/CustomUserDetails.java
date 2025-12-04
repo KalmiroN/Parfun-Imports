@@ -16,7 +16,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getAuthorities(); // usa o método do próprio User
+        return user.getAuthorities(); // ✅ agora funciona porque User implementa UserDetails
     }
 
     @Override
@@ -26,30 +26,30 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail(); // agora funciona porque User tem getEmail()
+        return user.getEmail(); // ✅ agora existe o getter
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return user.isAccountNonExpired();
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return user.isAccountNonLocked();
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return user.isCredentialsNonExpired();
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.isEnabled();
     }
 
-    // Getter para acessar o objeto User original, se precisar
+    // Getter extra para acessar o objeto User original
     public User getUser() {
         return user;
     }

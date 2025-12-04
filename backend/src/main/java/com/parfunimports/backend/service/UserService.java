@@ -1,6 +1,8 @@
 package com.parfunimports.backend.service;
 
 import com.parfunimports.backend.domain.User;
+import com.parfunimports.backend.exception.EmailAlreadyExistsException;
+import com.parfunimports.backend.exception.UserNotFoundException;
 import com.parfunimports.backend.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,11 +30,15 @@ public class UserService {
     // Buscar usuário por ID
     public User findById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    // Criar novo usuário
+    // Criar novo usuário (com validação de email duplicado)
     public User createUser(User user) {
+        userRepository.findByEmail(user.getEmail()).ifPresent(existing -> {
+            throw new EmailAlreadyExistsException(user.getEmail());
+        });
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -47,17 +53,22 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    // Atualizar usuário existente
+    // Atualizar usuário existente (re-encode da senha só se alterada)
     public User updateUser(Long id, User userDetails) {
         return userRepository.findById(id)
                 .map(existing -> {
                     existing.setName(userDetails.getName());
                     existing.setEmail(userDetails.getEmail());
                     existing.setRole(userDetails.getRole());
-                    existing.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+
+                    if (userDetails.getPassword() != null &&
+                        !passwordEncoder.matches(userDetails.getPassword(), existing.getPassword())) {
+                        existing.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+                    }
+
                     return userRepository.save(existing);
                 })
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     // Deletar usuário
@@ -67,6 +78,7 @@ public class UserService {
                     userRepository.delete(user);
                     return true;
                 })
-                .orElse(false);
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 }
+
