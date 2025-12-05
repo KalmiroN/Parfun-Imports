@@ -32,6 +32,7 @@ import AdminOrders from "./pages/admin/AdminOrders";
 // Página de fallback e acesso negado
 import NotFound from "./pages/NotFound";
 import Unauthorized from "./pages/Unauthorized";
+import AccessDenied from "./pages/AccessDenied"; // ✅ agora importada
 
 // ✅ Import do ProtectedRoute
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -47,12 +48,13 @@ export default function App() {
             <Route path="/logout" element={<Logout />} />
             <Route path="/register" element={<Register />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="/access-denied" element={<AccessDenied />} />
 
-            {/* Rotas protegidas */}
+            {/* Rotas protegidas para CLIENTE */}
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute allowedRoles={["USER"]}>
+                <ProtectedRoute allowedRoles={["client"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -60,7 +62,7 @@ export default function App() {
             <Route
               path="/cart"
               element={
-                <ProtectedRoute allowedRoles={["USER"]} redirectTo="/login">
+                <ProtectedRoute allowedRoles={["client"]} redirectTo="/login">
                   <Cart />
                 </ProtectedRoute>
               }
@@ -68,7 +70,7 @@ export default function App() {
             <Route
               path="/checkout"
               element={
-                <ProtectedRoute allowedRoles={["USER"]} redirectTo="/login">
+                <ProtectedRoute allowedRoles={["client"]} redirectTo="/login">
                   <Checkout />
                 </ProtectedRoute>
               }
@@ -76,7 +78,7 @@ export default function App() {
             <Route
               path="/order-confirmation"
               element={
-                <ProtectedRoute allowedRoles={["USER"]}>
+                <ProtectedRoute allowedRoles={["client"]}>
                   <OrderConfirmation />
                 </ProtectedRoute>
               }
@@ -84,7 +86,7 @@ export default function App() {
             <Route
               path="/my-orders"
               element={
-                <ProtectedRoute allowedRoles={["USER"]}>
+                <ProtectedRoute allowedRoles={["client"]}>
                   <MyOrders />
                 </ProtectedRoute>
               }
@@ -100,11 +102,11 @@ export default function App() {
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/search" element={<Search />} />
 
-              {/* Admin (somente role=ADMIN) */}
+              {/* Admin (somente role=admin) */}
               <Route
                 path="/admin/products"
                 element={
-                  <ProtectedRoute allowedRoles={["ADMIN"]}>
+                  <ProtectedRoute allowedRoles={["admin"]}>
                     <AdminProducts />
                   </ProtectedRoute>
                 }
@@ -112,7 +114,7 @@ export default function App() {
               <Route
                 path="/admin/orders"
                 element={
-                  <ProtectedRoute allowedRoles={["ADMIN"]}>
+                  <ProtectedRoute allowedRoles={["admin"]}>
                     <AdminOrders />
                   </ProtectedRoute>
                 }

@@ -66,7 +66,7 @@ export default function Register() {
 
       {/* Container com efeito vidro */}
       <div className="relative w-full max-w-md p-8 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft">
-        <h2 className="font-display text-3xl text-brand-text text-center mb-6 transition-colors duration-500">
+        <h2 className="font-display text-3xl text-brand-text text-center mb-6 transition-colors duration-500 select-none">
           Cadastro
         </h2>
 
@@ -105,19 +105,23 @@ export default function Register() {
             required
           />
 
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-sm text-center select-none">
+              {error}
+            </p>
+          )}
 
           {/* Botões de ação */}
           <div className="flex flex-col md:flex-row gap-4 mt-8">
             <button
               type="submit"
-              className="flex-1 px-6 py-3 text-lg font-semibold text-brand-text rounded-full bg-brand-accent hover:opacity-90 transition-colors duration-500"
+              className="flex-1 px-6 py-3 text-lg font-semibold text-brand-text rounded-full bg-brand-accent hover:opacity-90 transition-colors duration-500 select-none"
             >
               Cadastrar
             </button>
             <Link
               to="/"
-              className="flex-1 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+              className="flex-1 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center select-none"
             >
               Voltar à página inicial
             </Link>

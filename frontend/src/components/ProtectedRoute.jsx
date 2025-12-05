@@ -13,16 +13,19 @@ export default function ProtectedRoute({
   allowedRoles,
 }) {
   const token = localStorage.getItem("token");
-  const userRole = localStorage.getItem("role"); // precisa vir do backend
+  const userRole = localStorage.getItem("role"); // deve vir do backend
 
   // Se não houver token → redireciona para login
   if (!token) {
     return <Navigate to={redirectTo} replace />;
   }
 
-  // Se houver roles definidas e o usuário não estiver incluído → redireciona para Unauthorized
-  if (allowedRoles && !allowedRoles.includes(userRole)) {
-    return <Navigate to="/unauthorized" replace />;
+  // Se houver roles definidas e o usuário não estiver incluído → redireciona para AccessDenied
+  if (
+    allowedRoles &&
+    !allowedRoles.map((r) => r.toLowerCase()).includes(userRole?.toLowerCase())
+  ) {
+    return <Navigate to="/access-denied" replace />;
   }
 
   // Se autorizado → renderiza o conteúdo protegido
