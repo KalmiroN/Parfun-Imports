@@ -27,61 +27,6 @@ const produtos = [
     price: "R$ 539,00",
     imageUrl: "/images/Club-De-Nuit-Woman-00.jpg",
   },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Club-De-Nuit-Woman-01.jpg",
-  },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Como-Moiselle-00.jpg",
-  },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Club-De-Nuit-Woman-01.jpg",
-  },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Como-Moiselle-Near-01.jpg",
-  },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Delilah-Pour-Femme-00.jpg",
-  },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Khamrah-Lattafa-00.jpg",
-  },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Khamrah-Lattafa-Box-01.jpg",
-  },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Lattafa-Fakhar-00.jpg",
-  },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Royal-Amber-00.jpg",
-  },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Sabah-Al-Ward-00.jpg",
-  },
-  {
-    name: "Ameer Al Oud",
-    price: "R$ 539,00",
-    imageUrl: "/images/Safeer-Al-Noble-Lattafa-00.jpg",
-  },
 ];
 
 export default function Products() {
@@ -105,10 +50,10 @@ export default function Products() {
         )}
         <div className="relative z-10 px-4">
           {/* Título com fonte Love Light */}
-          <h1 className="love-light-regular text-[5rem] mb-6 text-white">
+          <h1 className="love-light-regular text-[5rem] mb-6 text-white select-none">
             Catálogo
           </h1>
-          <p className="text-3xl mb-10 text-white">
+          <p className="text-3xl mb-10 text-white select-none">
             Seleção de fragrâncias com acabamento impecável.
           </p>
         </div>

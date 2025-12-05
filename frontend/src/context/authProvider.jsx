@@ -1,22 +1,33 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  // Exemplo de usuário logado (pode vir do backend depois)
-  const [user, setUser] = useState({
-    name: "Ana Clara",
-    email: "clarinha@gmail.com",
-    role: "client", // ou "admin"
-  });
+  const [user, setUser] = useState(null);
 
-  // Função de logout
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    if (token && role) {
+      // Aqui você pode buscar os dados do usuário no backend
+      setUser({ role });
+    }
+  }, []);
+
+  const login = (userData, token) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", userData.role);
+    setUser(userData);
+  };
+
   const logout = () => {
-    setUser(null); // limpa o usuário
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

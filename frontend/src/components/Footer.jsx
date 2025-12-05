@@ -3,7 +3,7 @@ import React from "react";
 export default function Footer() {
   return (
     <footer className="bg-brand-surface border-t border-brand-border shadow-soft mt-12">
-      <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-8">
         {/* Logo + nome */}
         <div className="flex items-center gap-4 animate-fadeInLeft">
           <img
@@ -17,7 +17,7 @@ export default function Footer() {
         </div>
 
         {/* Links úteis */}
-        <div className="flex flex-col gap-2 text-brand-text animate-fadeInUp">
+        <div className="flex flex-col gap-2 text-brand-text animate-fadeInUp text-center md:text-left">
           <h3 className="font-semibold mb-2">Links úteis</h3>
           <a href="/products" className="hover:text-brand-accent transition">
             Produtos
@@ -34,8 +34,8 @@ export default function Footer() {
         </div>
 
         {/* Redes sociais */}
-        <div className="flex flex-col gap-3 animate-fadeInRight">
-          <h3 className="font-semibold mb-2 text-brand-text">Siga-nos</h3>
+        <div className="flex flex-col items-center gap-3 animate-fadeInRight">
+          <h3 className="font-semibold text-brand-text">Siga-nos</h3>
           <div className="flex gap-4">
             <a href="https://facebook.com" target="_blank" rel="noreferrer">
               <img

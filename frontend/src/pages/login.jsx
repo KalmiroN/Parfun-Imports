@@ -29,9 +29,6 @@ export default function Login() {
 
       const data = await response.json();
 
-      // ✅ Log para verificar o que o backend retorna
-      console.log("Resposta do backend:", data);
-
       // ✅ Salva token e role no localStorage
       localStorage.setItem("token", data.token);
       if (data.role) {
@@ -61,7 +58,7 @@ export default function Login() {
 
       {/* Container do login */}
       <div className="relative w-full max-w-lg p-12 rounded-2xl bg-white/20 backdrop-blur-md border border-brand-border shadow-strong">
-        <h2 className="love-light-regular text-5xl text-brand-text text-center mb-8">
+        <h2 className="love-light-regular text-5xl text-brand-text text-center mb-8 select-none">
           Login
         </h2>
 
@@ -83,30 +80,37 @@ export default function Login() {
             required
           />
 
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-sm text-center select-none">
+              {error}
+            </p>
+          )}
 
           <div className="flex justify-between items-center text-sm mt-2">
-            <label className="flex items-center gap-2 text-brand-text">
+            <label className="flex items-center gap-2 text-brand-text select-none">
               <input type="checkbox" className="accent-brand-accent" />
               Lembrar-me
             </label>
             <Link
               to="/forgot-password"
-              className="text-brand-accent hover:underline transition-colors duration-300"
+              className="text-brand-accent hover:underline transition-colors duration-300 select-none"
             >
               Esqueci minha senha
             </Link>
           </div>
 
-          <button type="submit" className="btn-accent w-full mt-4">
+          <button type="submit" className="btn-accent w-full mt-4 select-none">
             Login
           </button>
 
           <div className="flex justify-between mt-6">
-            <Link to="/register" className="btn-secondary text-center">
+            <Link
+              to="/register"
+              className="btn-secondary text-center select-none"
+            >
               Inscrever-se
             </Link>
-            <Link to="/" className="btn-secondary text-center">
+            <Link to="/" className="btn-secondary text-center select-none">
               Sair
             </Link>
           </div>

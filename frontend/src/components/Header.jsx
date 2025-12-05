@@ -11,7 +11,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role?.toLowerCase() === "admin";
 
   const cartIcon =
     theme === "dark"
@@ -32,14 +32,14 @@ export default function Header() {
       : "/images/logout_24dp_black.png";
 
   const handleLogout = () => {
-    logout(); // limpa sessão/token
+    logout();
     toast.info("Você saiu da sua conta.");
-    navigate("/login"); // redireciona para login
+    navigate("/login");
   };
 
   return (
     <header className="flex items-center justify-between px-6 py-4 bg-brand-surface shadow-soft relative">
-      {/* Logo gigante em camada superior */}
+      {/* Logo */}
       <div
         className="absolute top-2 left-6 z-50 cursor-pointer group animate-fadeInLeft"
         onClick={cycleTheme}
@@ -59,7 +59,7 @@ export default function Header() {
         {menuOpen ? "✕" : "☰"}
       </button>
 
-      {/* Menu centralizado (desktop) */}
+      {/* Menu desktop */}
       <nav className="hidden md:flex flex-1 justify-center">
         <ul className="flex gap-4">
           <li>
@@ -93,6 +93,7 @@ export default function Header() {
           )}
         </ul>
       </nav>
+
       {/* Ícones à direita */}
       <div className="flex items-center gap-6">
         {/* Carrinho */}
@@ -108,6 +109,7 @@ export default function Header() {
             Carrinho
           </span>
         </div>
+
         {/* Usuário */}
         {user && (
           <div className="relative group">
@@ -122,6 +124,7 @@ export default function Header() {
             </span>
           </div>
         )}
+
         {/* Login */}
         <div className="relative group">
           <a href="/login">
@@ -193,14 +196,6 @@ export default function Header() {
                 </li>
               </>
             )}
-            <li>
-              <button
-                onClick={handleLogout}
-                className="btn-secondary w-full text-center"
-              >
-                Logout
-              </button>
-            </li>
           </ul>
         </nav>
       )}

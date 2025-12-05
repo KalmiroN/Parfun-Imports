@@ -22,12 +22,12 @@ export default function Home() {
         )}
         <div className="relative z-10 px-4">
           {/* Título principal com fonte Love Light */}
-          <h1 className="love-light-regular text-[5rem] mb-6 text-white">
+          <h1 className="love-light-regular text-[5rem] mb-6 text-white select-none">
             Parfun Imports
           </h1>
 
           {/* Subtítulo aumentado */}
-          <p className="text-3xl mb-10 text-white">
+          <p className="text-3xl mb-10 text-white select-none">
             Fragrâncias exclusivas que elevam sua presença.
           </p>
 
@@ -35,13 +35,13 @@ export default function Home() {
           <div className="flex gap-6 justify-center">
             <a
               href="/products"
-              className="px-8 py-4 rounded-full bg-brand-accent text-black font-bold text-lg hover:opacity-90 transition"
+              className="px-8 py-4 rounded-full bg-brand-accent text-black font-bold text-lg hover:opacity-90 transition select-none"
             >
               Ver Catálogo
             </a>
             <a
               href="/cart"
-              className="px-8 py-4 rounded-full border border-brand-border text-brand-text font-bold text-lg hover:bg-brand-accent hover:text-black transition-colors duration-500"
+              className="px-8 py-4 rounded-full border border-brand-border text-brand-text font-bold text-lg hover:bg-brand-accent hover:text-black transition-colors duration-500 select-none"
             >
               Carrinho
             </a>
@@ -50,7 +50,7 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-12">
-        <h2 className="text-2xl font-display mb-6 text-brand-text text-center">
+        <h2 className="text-2xl font-display mb-6 text-brand-text text-center select-none">
           Destaques
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
