@@ -40,7 +40,7 @@ export default function Register() {
       // ✅ Salva token e role no localStorage
       localStorage.setItem("token", data.token);
       if (data.role) {
-        localStorage.setItem("role", data.role);
+        localStorage.setItem("role", data.role.toLowerCase());
       }
 
       // ✅ Redireciona conforme role
