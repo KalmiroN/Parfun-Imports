@@ -13,7 +13,7 @@ export default function ProtectedRoute({
   allowedRoles,
 }) {
   const token = localStorage.getItem("token");
-  const userRole = localStorage.getItem("role"); // deve vir do backend
+  const userRole = localStorage.getItem("role")?.toLowerCase(); // normaliza para minúsculo
 
   // Se não houver token → redireciona para login
   if (!token) {
@@ -23,7 +23,7 @@ export default function ProtectedRoute({
   // Se houver roles definidas e o usuário não estiver incluído → redireciona para AccessDenied
   if (
     allowedRoles &&
-    !allowedRoles.map((r) => r.toLowerCase()).includes(userRole?.toLowerCase())
+    !allowedRoles.map((r) => r.toLowerCase()).includes(userRole)
   ) {
     return <Navigate to="/access-denied" replace />;
   }
