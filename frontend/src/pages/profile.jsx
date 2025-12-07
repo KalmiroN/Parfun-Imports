@@ -1,10 +1,12 @@
+// src/pages/Profile.jsx
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../context/authProvider";
-import { authFetch } from "../utils/authFetch"; // ✅ utilitário para fetch com token
+import { useAuth0 } from "@auth0/auth0-react"; // ✅ hook oficial do Auth0
+import { authFetch } from "../utils/authFetch"; // utilitário para fetch com token
 import { toast } from "react-toastify";
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } =
+    useAuth0(); // ✅ inclui getAccessTokenSilently
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -15,14 +17,16 @@ export default function Profile() {
   // ✅ Buscar dados do usuário no backend
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user) {
-        window.location.href = "/login";
+      if (!isAuthenticated) {
+        loginWithRedirect(); // redireciona para login se não estiver autenticado
         return;
       }
 
       try {
         const response = await authFetch(
-          `${import.meta.env.VITE_API_URL}/user/me`
+          `${import.meta.env.VITE_API_URL}/user/me`,
+          {},
+          getAccessTokenSilently // ✅ passa o método aqui
         );
 
         if (!response.ok) {
@@ -34,7 +38,7 @@ export default function Profile() {
         setEmail(data.email || "");
         setPhone(data.phone || "");
         setAddress(data.address || "");
-        setError(""); // ✅ limpa erro se carregar com sucesso
+        setError(""); // limpa erro se carregar com sucesso
       } catch (err) {
         setError(err.message);
       } finally {
@@ -43,11 +47,11 @@ export default function Profile() {
     };
 
     fetchProfile();
-  }, [user]);
+  }, [isAuthenticated, loginWithRedirect, getAccessTokenSilently]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // ✅ limpa antes de tentar salvar
+    setError(""); // limpa antes de tentar salvar
 
     try {
       const response = await authFetch(
@@ -55,7 +59,8 @@ export default function Profile() {
         {
           method: "PUT",
           body: JSON.stringify({ name, phone, email, address }),
-        }
+        },
+        getAccessTokenSilently // ✅ também passa aqui
       );
 
       if (!response.ok) {
@@ -63,14 +68,14 @@ export default function Profile() {
       }
 
       toast.success("Perfil atualizado com sucesso!");
-      setError(""); // ✅ limpa erro se salvar com sucesso
+      setError(""); // limpa erro se salvar com sucesso
     } catch (err) {
       setError(err.message);
       toast.error(err.message);
     }
   };
 
-  if (!user) return null;
+  if (!isAuthenticated) return null;
 
   if (loading) {
     return (
@@ -79,6 +84,7 @@ export default function Profile() {
       </main>
     );
   }
+
   return (
     <div
       className="flex items-center justify-center min-h-[calc(100vh-200px)] w-full bg-cover bg-center relative"
@@ -96,9 +102,7 @@ export default function Profile() {
           Meu Perfil
         </h2>
 
-        {error && user && (
-          <p className="text-red-500 text-center mb-4">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

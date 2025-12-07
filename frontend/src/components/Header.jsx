@@ -1,17 +1,19 @@
 import { useTheme } from "../context/themeProvider";
-import { useAuth } from "../context/authProvider";
+import { useAuth0 } from "@auth0/auth0-react"; // ✅ usar o hook oficial do Auth0
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const { theme, cycleTheme } = useTheme();
-  const { user, logout } = useAuth();
+  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0(); // ✅ destructuring correto
   const [showUserBox, setShowUserBox] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const isAdmin = user?.role?.toLowerCase() === "admin";
+  // Roles vêm do token JWT (claim customizada)
+  const roles = user?.["https://parfun-imports.com/roles"] || [];
+  const isAdmin = roles.includes("admin");
 
   const cartIcon =
     theme === "dark"
@@ -32,7 +34,7 @@ export default function Header() {
       : "/images/logout_24dp_black.png";
 
   const handleLogout = () => {
-    logout();
+    logout({ logoutParams: { returnTo: window.location.origin } }); // ✅ logout Auth0
     toast.info("Você saiu da sua conta.");
     navigate("/login");
   };
@@ -72,11 +74,13 @@ export default function Header() {
               Produtos
             </a>
           </li>
-          <li>
-            <a href="/profile" className="btn-accent">
-              Perfil
-            </a>
-          </li>
+          {isAuthenticated && (
+            <li>
+              <a href="/profile" className="btn-accent">
+                Perfil
+              </a>
+            </li>
+          )}
           {isAdmin && (
             <>
               <li>
@@ -111,7 +115,7 @@ export default function Header() {
         </div>
 
         {/* Usuário */}
-        {user && (
+        {isAuthenticated && (
           <div className="relative group">
             <img
               src={userIcon}
@@ -126,22 +130,24 @@ export default function Header() {
         )}
 
         {/* Login */}
-        <div className="relative group">
-          <a href="/login">
-            <img
-              src={loginIcon}
-              alt="Login"
-              className="h-10 w-10 hover:scale-105 transition"
-            />
-          </a>
-          <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition delay-[1500ms]">
-            Login
-          </span>
-        </div>
+        {!isAuthenticated && (
+          <div className="relative group">
+            <button onClick={() => loginWithRedirect()}>
+              <img
+                src={loginIcon}
+                alt="Login"
+                className="h-10 w-10 hover:scale-105 transition"
+              />
+            </button>
+            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition delay-[1500ms]">
+              Login
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Caixa flutuante do usuário */}
-      {showUserBox && user && (
+      {showUserBox && isAuthenticated && (
         <div className="absolute right-6 top-20 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border z-50">
           <h3 className="text-lg font-semibold mb-2">Informações do Usuário</h3>
           <p className="text-sm">Nome: {user?.name}</p>
@@ -171,11 +177,13 @@ export default function Header() {
                 Produtos
               </a>
             </li>
-            <li>
-              <a href="/profile" className="btn-accent w-full text-center">
-                Perfil
-              </a>
-            </li>
+            {isAuthenticated && (
+              <li>
+                <a href="/profile" className="btn-accent w-full text-center">
+                  Perfil
+                </a>
+              </li>
+            )}
             {isAdmin && (
               <>
                 <li>

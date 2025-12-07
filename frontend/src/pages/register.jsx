@@ -1,56 +1,18 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function Register() {
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const { loginWithRedirect, isAuthenticated, user } = useAuth0();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError("");
-
-    if (password !== confirmPassword) {
-      setError("As senhas não coincidem.");
-      return;
-    }
-
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/auth/register`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Falha no cadastro. Verifique os dados.");
-      }
-
-      const data = await response.json();
-
-      // ✅ Log para verificar o que o backend retorna
-      console.log("Resposta do backend (register):", data);
-
-      // ✅ Salva token e role no localStorage
-      localStorage.setItem("token", data.token);
-      if (data.role) {
-        localStorage.setItem("role", data.role.toLowerCase());
-      }
-
-      // ✅ Redireciona conforme role
-      if (data.role === "ADMIN") {
-        navigate("/admin/products");
-      } else {
-        navigate("/dashboard");
-      }
+      await loginWithRedirect({
+        screen_hint: "signup", // ✅ abre o fluxo de cadastro do Auth0
+      });
     } catch (err) {
-      setError(err.message);
+      console.error("Erro no cadastro:", err);
     }
   };
 
@@ -70,63 +32,34 @@ export default function Register() {
           Cadastro
         </h2>
 
-        {/* Formulário */}
-        <form onSubmit={handleRegister} className="space-y-4">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
-            placeholder="Nome completo"
-            type="text"
-            required
-          />
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
-            placeholder="E-mail"
-            type="email"
-            required
-          />
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
-            placeholder="Senha"
-            type="password"
-            required
-          />
-          <input
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-2 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
-            placeholder="Confirmar senha"
-            type="password"
-            required
-          />
-
-          {error && (
-            <p className="text-red-500 text-sm text-center select-none">
-              {error}
-            </p>
-          )}
-
-          {/* Botões de ação */}
-          <div className="flex flex-col md:flex-row gap-4 mt-8">
+        {!isAuthenticated ? (
+          <form onSubmit={handleRegister} className="space-y-4">
             <button
               type="submit"
-              className="flex-1 px-6 py-3 text-lg font-semibold text-brand-text rounded-full bg-brand-accent hover:opacity-90 transition-colors duration-500 select-none"
+              className="w-full px-6 py-3 text-lg font-semibold text-brand-text rounded-full bg-brand-accent hover:opacity-90 transition-colors duration-500 select-none"
             >
-              Cadastrar
+              Criar conta com Auth0
             </button>
+
             <Link
               to="/"
-              className="flex-1 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center select-none"
+              className="block mt-4 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center select-none"
             >
               Voltar à página inicial
             </Link>
+          </form>
+        ) : (
+          <div className="text-center text-brand-text">
+            <p>Você já está cadastrado e logado como:</p>
+            <p className="font-bold">{user?.email}</p>
+            <Link
+              to="/dashboard"
+              className="btn-accent mt-6 inline-block select-none"
+            >
+              Ir para Dashboard
+            </Link>
           </div>
-        </form>
+        )}
       </div>
     </main>
   );

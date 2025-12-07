@@ -1,17 +1,18 @@
 // src/components/ProductCard.jsx
 import { useCart } from "../context/cartProvider";
-import { useAuth } from "../context/authProvider";
+import { useAuth0 } from "@auth0/auth0-react"; // ✅ usar o hook oficial do Auth0
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function ProductCard({ id, name, price, imageUrl }) {
   const { addToCart } = useCart();
-  const { user } = useAuth();
+  const { user, isAuthenticated, loginWithRedirect } = useAuth0(); // ✅ destructuring correto
   const navigate = useNavigate();
 
   const handleAdd = () => {
-    if (!user) {
-      navigate("/login"); // ✅ redireciona para login se não estiver logado
+    if (!isAuthenticated) {
+      // ✅ redireciona para login se não estiver logado
+      loginWithRedirect();
       return;
     }
     addToCart({ id, name, price, imageUrl, quantity: 1 });

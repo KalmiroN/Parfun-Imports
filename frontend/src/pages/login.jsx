@@ -1,48 +1,17 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+// src/pages/Login.jsx
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const { loginWithRedirect, isAuthenticated, user } = useAuth0();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
-
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Falha no login. Verifique suas credenciais.");
-      }
-
-      const data = await response.json();
-
-      // ✅ Salva token e role no localStorage
-      localStorage.setItem("token", data.token);
-      if (data.role) {
-        localStorage.setItem("role", data.role.toLowerCase());
-      }
-
-      // ✅ Redireciona conforme role
-      if (data.role === "ADMIN") {
-        navigate("/admin/products");
-      } else {
-        navigate("/dashboard");
-      }
+      await loginWithRedirect(); // ✅ redireciona para Auth0
     } catch (err) {
-      setError(err.message);
+      console.error("Erro no login:", err);
     }
   };
 
@@ -62,59 +31,39 @@ export default function Login() {
           Login
         </h2>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="E-mail"
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-3 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
-            required
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Senha"
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-3 text-brand-text placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
-            required
-          />
-
-          {error && (
-            <p className="text-red-500 text-sm text-center select-none">
-              {error}
-            </p>
-          )}
-
-          <div className="flex justify-between items-center text-sm mt-2">
-            <label className="flex items-center gap-2 text-brand-text select-none">
-              <input type="checkbox" className="accent-brand-accent" />
-              Lembrar-me
-            </label>
-            <Link
-              to="/forgot-password"
-              className="text-brand-accent hover:underline transition-colors duration-300 select-none"
+        {!isAuthenticated ? (
+          <form onSubmit={handleLogin} className="space-y-6">
+            <button
+              type="submit"
+              className="btn-accent w-full mt-4 select-none"
             >
-              Esqueci minha senha
+              Entrar com Auth0
+            </button>
+
+            <div className="flex justify-between mt-6">
+              <Link
+                to="/register"
+                className="btn-secondary text-center select-none"
+              >
+                Inscrever-se
+              </Link>
+              <Link to="/" className="btn-secondary text-center select-none">
+                Sair
+              </Link>
+            </div>
+          </form>
+        ) : (
+          <div className="text-center text-brand-text">
+            <p>Você já está logado como:</p>
+            <p className="font-bold">{user?.email}</p>
+            <Link
+              to="/dashboard"
+              className="btn-accent mt-6 inline-block select-none"
+            >
+              Ir para Dashboard
             </Link>
           </div>
-
-          <button type="submit" className="btn-accent w-full mt-4 select-none">
-            Login
-          </button>
-
-          <div className="flex justify-between mt-6">
-            <Link
-              to="/register"
-              className="btn-secondary text-center select-none"
-            >
-              Inscrever-se
-            </Link>
-            <Link to="/" className="btn-secondary text-center select-none">
-              Sair
-            </Link>
-          </div>
-        </form>
+        )}
       </div>
     </main>
   );
