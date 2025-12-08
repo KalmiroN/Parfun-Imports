@@ -1,0 +1,65 @@
+### Listar todos os produtos (precisa da permission read:products)
+GET http://localhost:8080/api/products
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9.eyJpc3MiOiJodHRwczovL2Rldi13NG00ZWdvOHJ4bDBqanpxLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiIwOWtSQXN0cXpvUlZpQk9na0x6MjFBWUQyVTdubXp3MUBjbGllbnRzIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL2FwaSIsImlhdCI6MTc2NTEyNzU3NSwiZXhwIjoxNzY1MjEzOTc1LCJzY29wZSI6InJlYWQ6cHJvZHVjdHMgY3JlYXRlOnByb2R1Y3RzIGRlbGV0ZTpvcmRlcnMiLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJhenAiOiIwOWtSQXN0cXpvUlZpQk9na0x6MjFBWUQyVTdubXp3MSIsInBlcm1pc3Npb25zIjpbInJlYWQ6cHJvZHVjdHMiLCJjcmVhdGU6cHJvZHVjdHMiLCJkZWxldGU6b3JkZXJzIl19.OfI1dliVu0Mz92DNEpbSoaCe1Pul6Rizmd11zF8LjxPyg62L_FfyMAc1lGEZReIsuf1n-7FNGQW8uP7YchMpq8G_HK-FV7mttJuYsqenWPeB59PQ5w28PQTqDSDB3TTtzVMsLzyi8QNA-MCLMrpHPLWBq43lPTqAHiueuTZhI99rHImh872ETcx3lMdo4ZYCQ7M2wMBx36Cj4XvpDAaIK4AGJfQDpAxDRlTGBmujV7_l9qY4i9lYWYoqyX1YhlrYZEOyNXK72RPPsmc-7IZAomW4DZnhg2nxGHGk40-061nlrr8bO3FKBYjx1mtk1PSIO32mB9olsHoiZQDPNQcZng
+
+### Buscar produto por ID (precisa da permission read:products)
+GET http://localhost:8080/api/products/1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9...
+
+### Criar novo produto (precisa da permission create:products)
+POST http://localhost:8080/api/products
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9...
+Content-Type: application/json
+
+{
+  "name": "Perfume Teste",
+  "price": 199.90
+}
+
+### Atualizar produto existente (precisa da permission create:products)
+PUT http://localhost:8080/api/products/1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9...
+Content-Type: application/json
+
+{
+  "name": "Perfume Atualizado",
+  "price": 249.90
+}
+
+### Deletar produto (precisa da permission delete:orders)
+DELETE http://localhost:8080/api/products/1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9...
+
+---
+
+### Listar todos os pedidos (precisa da permission read:products)
+GET http://localhost:8080/api/orders
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9...
+
+### Buscar pedido por ID (precisa da permission read:products)
+GET http://localhost:8080/api/orders/1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9...
+
+### Criar novo pedido (precisa da permission create:products)
+POST http://localhost:8080/api/orders
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9...
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 2
+}
+
+### Atualizar pedido existente (precisa da permission create:products)
+PUT http://localhost:8080/api/orders/1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9...
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 3
+}
+
+### Deletar pedido (precisa da permission delete:orders)
+DELETE http://localhost:8080/api/orders/1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9...
