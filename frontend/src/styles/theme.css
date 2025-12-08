@@ -1,0 +1,124 @@
+/* ===========================================================
+   Importa Tailwind e habilita o tema padrão
+   =========================================================== */
+@import "tailwindcss";
+
+/* ===========================================================
+   Registro inicial das variáveis customizadas (necessário para
+   que o Tailwind gere as classes utilitárias correspondentes)
+   =========================================================== */
+@theme {
+  --color-brand-bg: #ffffff;
+  --color-brand-text: #000000;
+  --color-brand-muted: #666666;
+  --color-brand-primary: #d4af37; /* dourado elegante */
+  --color-brand-accent: #f59e0b; /* laranja vivo */
+  --color-brand-border: #d4af37; /* borda dourada */
+  --color-brand-surface: #ffffff;
+  --color-brand-overlay: rgba(255, 255, 255, 0.55);
+}
+
+/* ===========================================================
+   Logo - animações e hover
+   =========================================================== */
+@keyframes logoPulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(212, 175, 55, 0));
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.6));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(212, 175, 55, 0));
+  }
+}
+
+.logo-highlight {
+  animation: logoPulse 2s ease-in-out;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+/* ===========================================================
+   Animações extras
+   =========================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.7s ease-out forwards;
+}
+
+@keyframes borderGlow {
+  0% {
+    border-color: transparent;
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    border-color: var(--color-brand-primary);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+  }
+  100% {
+    border-color: transparent;
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.4);
+  }
+}
+
+.animate-borderGlow {
+  animation: borderGlow 2s linear infinite;
+}
+
+/* ===========================================================
+   Temas customizados (sobrescrevem os valores das variáveis)
+   =========================================================== */
+
+/* Tema Gold */
+html.theme-gold {
+  --color-brand-bg: #fffdf5; /* fundo suave */
+  --color-brand-text: #1a1a1a;
+  --color-brand-muted: #7a7a7a; /* cinza mais vivo */
+  --color-brand-primary: #d4af37; /* dourado */
+  --color-brand-accent: #fbbf24; /* amarelo-ouro vibrante */
+  --color-brand-border: #d4af37; /* borda dourada */
+  --color-brand-surface: #ffffff;
+  --color-brand-overlay: rgba(255, 255, 255, 0.65);
+}
+
+/* Tema Orange */
+html.theme-orange {
+  --color-brand-bg: #fff4e6; /* fundo pêssego suave */
+  --color-brand-text: #2c2c2c;
+  --color-brand-muted: #6f6f6f;
+  --color-brand-primary: #d4af37; /* dourado */
+  --color-brand-accent: #f97316; /* laranja vivo */
+  --color-brand-border: #d4af37; /* borda dourada */
+  --color-brand-surface: #ffffff;
+  --color-brand-overlay: rgba(255, 255, 255, 0.65);
+}
+
+/* Tema Dark */
+html.theme-dark {
+  --color-brand-bg: #1a1a1a;
+  --color-brand-text: #f5f5f5;
+  --color-brand-muted: #bdbdbd;
+  --color-brand-primary: #d4af37; /* dourado */
+  --color-brand-accent: #f59e0b; /* laranja vivo */
+  --color-brand-border: #d4af37; /* borda dourada */
+  --color-brand-surface: #151517;
+  --color-brand-overlay: rgba(0, 0, 0, 0.65);
+}
