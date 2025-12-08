@@ -1,5 +1,9 @@
 package com.parfunimports.backend.dto.auth;
 
+/**
+ * DTO para requisição de login.
+ * Contém email e senha do usuário.
+ */
 public class LoginRequest {
 
     private String email;
@@ -12,7 +16,9 @@ public class LoginRequest {
         this.password = password;
     }
 
+    // =========================
     // Getters e Setters
+    // =========================
     public String getEmail() {
         return email;
     }

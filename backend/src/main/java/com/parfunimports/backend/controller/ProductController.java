@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controller para endpoints relacionados a produtos (Product).
+ * Protegido por permissions via Spring Security integrado ao Auth0.
+ */
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -18,43 +22,41 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // Listar todos os produtos (USER e ADMIN)
+    // Listar todos os produtos (precisa da permission "read:products")
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAuthority('read:products')")
     public ResponseEntity<List<Product>> getAllProducts() {
         return ResponseEntity.ok(productService.findAll());
     }
 
-    // Buscar produto por ID (USER e ADMIN)
+    // Buscar produto por ID (precisa da permission "read:products")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAuthority('read:products')")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Product product = productService.findById(id);
         return product != null ? ResponseEntity.ok(product) : ResponseEntity.notFound().build();
     }
 
-    // Criar novo produto (somente ADMIN)
+    // Criar novo produto (precisa da permission "create:products")
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('create:products')")
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         Product savedProduct = productService.createProduct(product);
         return ResponseEntity.ok(savedProduct);
     }
 
-    // Atualizar produto existente (somente ADMIN)
+    // Atualizar produto existente (precisa da permission "create:products")
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('create:products')")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
         Product updatedProduct = productService.updateProduct(id, product);
         return updatedProduct != null ? ResponseEntity.ok(updatedProduct) : ResponseEntity.notFound().build();
     }
 
-    // Deletar produto (somente ADMIN)
+    // Deletar produto (precisa da permission "delete:orders")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('delete:orders')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         return productService.deleteProduct(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
-
-

@@ -1,27 +1,18 @@
 package com.parfunimports.backend.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-/**
- * Classe de configuração que mapeia as propriedades do Auth0
- * definidas no application.properties (prefixo "auth0").
- *
- * Exemplo no application.properties:
- * auth0.domain=dev-w4m4ego8rxl0jjzq.us.auth0.com
- * auth0.clientId=KmRuw4lo6QGVTSkcozRtxVzlQFLch2o8
- * auth0.clientSecret=${AUTH0_CLIENT_SECRET}
- * auth0.audience=http://localhost:8080/api
- */
-@Component
+@Configuration
 @ConfigurationProperties(prefix = "auth0")
-public class JwtProperties {
+public class Auth0Properties {
 
     private String domain;
     private String clientId;
     private String clientSecret;
     private String audience;
 
+    // Getters e Setters
     public String getDomain() {
         return domain;
     }

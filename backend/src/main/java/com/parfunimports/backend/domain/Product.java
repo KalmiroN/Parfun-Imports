@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Entidade Product que representa um produto.
+ * Cada produto pode aparecer em vários pedidos.
+ */
 @Entity
 @Table(name = "products") // nome plural para tabela
 public class Product {
@@ -28,22 +32,48 @@ public class Product {
     @ManyToMany(mappedBy = "products")
     private List<Order> orders;
 
+    // =========================
     // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // =========================
+    public Long getId() { 
+        return id; 
+    }
+    public void setId(Long id) { 
+        this.id = id; 
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getName() { 
+        return name; 
+    }
+    public void setName(String name) { 
+        this.name = name; 
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getDescription() { 
+        return description; 
+    }
+    public void setDescription(String description) { 
+        this.description = description; 
+    }
 
-    public BigDecimal getPrice() { return price; }
-    public void setPrice(BigDecimal price) { this.price = price; }
+    public BigDecimal getPrice() { 
+        return price; 
+    }
+    public void setPrice(BigDecimal price) { 
+        this.price = price; 
+    }
 
-    public Integer getStock() { return stock; }
-    public void setStock(Integer stock) { this.stock = stock; }
+    public Integer getStock() { 
+        return stock; 
+    }
+    public void setStock(Integer stock) { 
+        this.stock = stock; 
+    }
 
-    public List<Order> getOrders() { return orders; }
-    public void setOrders(List<Order> orders) { this.orders = orders; }
+    public List<Order> getOrders() { 
+        return orders; 
+    }
+    public void setOrders(List<Order> orders) { 
+        this.orders = orders; 
+    }
 }

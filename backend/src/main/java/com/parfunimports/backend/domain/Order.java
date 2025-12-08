@@ -5,8 +5,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entidade Order que representa um pedido.
+ * Cada pedido pertence a um usuário e pode conter vários produtos.
+ */
 @Entity
-@Table(name = "orders") // evita conflito com palavra reservada
+@Table(name = "orders") // evita conflito com palavra reservada no SQL
 public class Order {
 
     @Id
@@ -44,7 +48,9 @@ public class Order {
     )
     private List<Product> products = new ArrayList<>();
 
+    // =========================
     // Getters e Setters
+    // =========================
     public Long getId() {
         return id;
     }

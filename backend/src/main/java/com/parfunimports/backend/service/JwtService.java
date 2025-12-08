@@ -1,79 +1,67 @@
 package com.parfunimports.backend.service;
 
-import com.parfunimports.backend.domain.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
-import java.util.Date;
-import java.util.function.Function;
-
+/**
+ * Serviço utilitário para manipulação de tokens JWT emitidos pelo Auth0.
+ * Utiliza a biblioteca java-jwt da Auth0.
+ * OBS: A validação completa (assinatura, issuer, audience) é feita pelo JwtDecoder/JwtConfig.
+ */
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String secretKey;
-
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
-
-    // Gera a chave de assinatura a partir da secretKey
-    private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes());
-    }
-
-    // Extrair email (username) do token
+    /**
+     * Extrai o e-mail do claim "email" do token.
+     * Se não existir, usa o "sub" como identificador.
+     *
+     * @param token JWT emitido pelo Auth0
+     * @return email ou identificador único do usuário
+     */
     public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
+        try {
+            DecodedJWT decoded = JWT.decode(token);
+            String email = decoded.getClaim("email").asString();
+            if (email == null || email.isBlank()) {
+                email = decoded.getSubject(); // fallback para sub
+            }
+            return email;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    // ✅ Extrair role do token
+    /**
+     * Extrai o role do claim "roles" do token.
+     * Esse claim precisa estar configurado no Auth0 (Rules ou Actions).
+     *
+     * @param token JWT emitido pelo Auth0
+     * @return role do usuário ou null se não existir
+     */
     public String extractRole(String token) {
-        return extractClaim(token, claims -> claims.get("role", String.class));
+        try {
+            DecodedJWT decoded = JWT.decode(token);
+            return decoded.getClaim("roles").asString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    // Extrair qualquer claim
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    // Gerar token para um usuário
-    public String generateToken(User user) {
-        return Jwts.builder()
-                .setSubject(user.getEmail())
-                .claim("role", user.getRole().toString()) // ✅ adiciona role no token
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    // Validar token
-    public boolean isTokenValid(String token, User user) {
-        final String email = extractEmail(token);
-        return (email.equals(user.getEmail())) && !isTokenExpired(token);
-    }
-
-    // Verificar se token expirou
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+    /**
+     * Verifica se o token é sintaticamente válido.
+     * OBS: Não valida assinatura, issuer ou audience.
+     * Para validação completa, use JwtDecoder (JwtConfig).
+     *
+     * @param token JWT emitido pelo Auth0
+     * @return true se o token é válido sintaticamente, false caso contrário
+     */
+    public boolean isTokenValid(String token) {
+        try {
+            JWT.decode(token); // se decodificar sem erro, é válido sintaticamente
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
-

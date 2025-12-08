@@ -21,6 +21,8 @@ coverage/
 # BACKEND – Spring Boot (Maven)
 # =====================================================
 
+src/main/resources/application-prod.properties
+
 # Maven
 target/
 pom.xml.tag
@@ -73,5 +75,3 @@ Thumbs.db
 *.swo
 *.bak
 .cache/
-
-

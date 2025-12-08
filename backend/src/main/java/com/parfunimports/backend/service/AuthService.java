@@ -9,45 +9,51 @@ import com.parfunimports.backend.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Serviço de autenticação local.
+ * OBS: Tokens JWT não são mais gerados aqui, pois usamos Auth0.
+ * O Auth0 é responsável por emitir tokens. O backend apenas valida.
+ */
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
 
     public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       JwtService jwtService) {
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
     }
 
-    // ✅ Registrar novo usuário
+    /**
+     * Registrar novo usuário local.
+     * O token JWT não é gerado aqui — Auth0 é quem fornece.
+     */
     public AuthResponse register(RegisterRequest request) {
-        // Verifica se email já existe
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email já está em uso: " + request.getEmail());
         }
 
-        // Cria novo usuário com role fixo USER
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.USER); // sempre USER por padrão
+        user.setRole(Role.USER);
 
         userRepository.save(user);
 
-        // Gera token JWT para o novo usuário
-        String token = jwtService.generateToken(user);
-
-        // ✅ Retorna também o role
-        return new AuthResponse("Usuário registrado com sucesso", token, user.getRole().name());
+        return new AuthResponse(
+                "Usuário registrado com sucesso. Faça login via Auth0.",
+                null,
+                user.getRole().name()
+        );
     }
 
-    // ✅ Autenticar usuário
+    /**
+     * Autenticar usuário local.
+     * O token JWT não é gerado aqui — Auth0 é quem fornece.
+     */
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -56,10 +62,10 @@ public class AuthService {
             throw new RuntimeException("Senha inválida");
         }
 
-        // Gera token JWT para o usuário autenticado
-        String token = jwtService.generateToken(user);
-
-        // ✅ Retorna também o role
-        return new AuthResponse("Login realizado com sucesso", token, user.getRole().name());
+        return new AuthResponse(
+                "Login realizado com sucesso. Token deve ser obtido via Auth0.",
+                null,
+                user.getRole().name()
+        );
     }
 }
