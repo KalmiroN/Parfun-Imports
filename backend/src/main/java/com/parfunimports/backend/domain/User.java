@@ -7,6 +7,10 @@ import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * Entidade User que representa os usuários da aplicação.
+ * Implementa UserDetails para integração com Spring Security.
+ */
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -15,18 +19,21 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     // =========================
-    // Getters e Setters normais
+    // Getters e Setters
     // =========================
     public Long getId() {
         return id;
@@ -44,7 +51,7 @@ public class User implements UserDetails {
         this.name = name;
     }
 
-    public String getEmail() {   // ✅ agora existe
+    public String getEmail() {   
         return email;
     }
 
@@ -74,31 +81,33 @@ public class User implements UserDetails {
     // =========================
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Spring Security exige prefixo "ROLE_" para diferenciar permissões
         return Collections.singleton(() -> "ROLE_" + role.name());
     }
 
     @Override
     public String getUsername() {
-        return email; // usamos email como username
+        // usamos email como identificador único
+        return email;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return true; // conta nunca expira
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return true; // conta nunca é bloqueada
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return true; // credenciais nunca expiram
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return true; // usuário sempre habilitado
     }
 }

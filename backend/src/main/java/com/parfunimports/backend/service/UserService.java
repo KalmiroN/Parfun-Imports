@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Serviço responsável por operações relacionadas a usuários.
+ * Inclui criação, atualização, exclusão e busca.
+ */
 @Service
 public class UserService {
 
@@ -22,18 +26,22 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Listar todos os usuários
+    // =========================
+    // CRUD de Usuários
+    // =========================
+
+    /** Listar todos os usuários */
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
-    // Buscar usuário por ID
+    /** Buscar usuário por ID */
     public User findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    // Criar novo usuário (com validação de email duplicado)
+    /** Criar novo usuário (com validação de email duplicado) */
     public User createUser(User user) {
         userRepository.findByEmail(user.getEmail()).ifPresent(existing -> {
             throw new EmailAlreadyExistsException(user.getEmail());
@@ -43,17 +51,17 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // Registrar usuário (alias para createUser)
+    /** Registrar usuário (alias para createUser) */
     public User registerUser(User user) {
         return createUser(user);
     }
 
-    // Buscar usuário por email
+    /** Buscar usuário por email */
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    // Atualizar usuário existente (re-encode da senha só se alterada)
+    /** Atualizar usuário existente (re-encode da senha só se alterada) */
     public User updateUser(Long id, User userDetails) {
         return userRepository.findById(id)
                 .map(existing -> {
@@ -71,7 +79,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    // Deletar usuário
+    /** Deletar usuário */
     public boolean deleteUser(Long id) {
         return userRepository.findById(id)
                 .map(user -> {
@@ -81,4 +89,3 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 }
-

@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Serviço para operações relacionadas a produtos (Product).
+ * Fornece métodos de CRUD e validações básicas.
+ */
 @Service
 public class ProductService {
 

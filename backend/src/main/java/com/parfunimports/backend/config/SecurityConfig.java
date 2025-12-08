@@ -1,71 +1,65 @@
 package com.parfunimports.backend.config;
 
-import com.parfunimports.backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Configuração de segurança do Spring Boot integrada ao Auth0.
+ * Define endpoints públicos e restritos, valida tokens JWT e aplica permissões.
+ */
 @Configuration
+@EnableMethodSecurity // 🔑 habilita @PreAuthorize nos controllers
 public class SecurityConfig {
-
-    private final JwtAuthenticationFilter jwtAuthFilter;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // usado para criptografar senhas
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // em APIs REST geralmente desativamos CSRF
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT => stateless
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Endpoints públicos (ex.: cadastro e login)
+                // Endpoints públicos
                 .requestMatchers("/api/auth/**", "/api/public/**").permitAll()
 
                 // Produtos
-                .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("USER","ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/products/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/products/**").hasAuthority("read:products")
+                .requestMatchers(HttpMethod.POST, "/api/products/**").hasAuthority("create:products")
+                .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAuthority("update:products")
+                .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("delete:products")
 
                 // Pedidos
-                .requestMatchers(HttpMethod.POST, "/api/orders/**").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/orders/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/orders/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/orders/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/orders/**").hasAuthority("read:orders")
+                .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAuthority("create:orders")
+                .requestMatchers(HttpMethod.PUT, "/api/orders/**").hasAuthority("update:orders")
+                .requestMatchers(HttpMethod.DELETE, "/api/orders/**").hasAuthority("delete:orders")
 
-                // Endpoints restritos para ADMIN
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                // Usuários
+                .requestMatchers(HttpMethod.GET, "/api/users/**").hasAuthority("read:users")
+                .requestMatchers(HttpMethod.POST, "/api/users/**").hasAuthority("create:users")
+                .requestMatchers(HttpMethod.PUT, "/api/users/**").hasAuthority("update:users")
+                .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAuthority("delete:users")
 
-                // Endpoints restritos para USER
-                .requestMatchers("/api/user/**").hasRole("USER")
+                // Endpoints restritos adicionais
+                .requestMatchers("/api/admin/**").hasAuthority("admin:manage")
+                .requestMatchers("/api/user/**").hasAuthority("read:profile")
 
-                // Qualquer outro endpoint precisa estar autenticado
+                // Qualquer outra requisição precisa estar autenticada
                 .anyRequest().authenticated()
             )
-            // adiciona o filtro JWT antes do filtro padrão de autenticação
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            // Integração com Auth0 usando nosso JwtAuthConverter
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtAuthConverter())));
 
         return http.build();
     }
 }
-

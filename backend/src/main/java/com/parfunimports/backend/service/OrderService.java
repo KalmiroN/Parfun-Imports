@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Serviço para operações relacionadas a pedidos (Order).
+ * Fornece métodos de CRUD e validações básicas.
+ */
 @Service
 public class OrderService {
 
@@ -39,7 +43,7 @@ public class OrderService {
                     existing.setStatus(orderDetails.getStatus());
                     existing.setTotal(orderDetails.getTotal());
                     existing.setUser(orderDetails.getUser());
-                    existing.setProducts(orderDetails.getProducts()); // ✅ lista de produtos
+                    existing.setProducts(orderDetails.getProducts()); // lista de produtos
                     return orderRepository.save(existing);
                 })
                 .orElseThrow(() -> new OrderNotFoundException(id));

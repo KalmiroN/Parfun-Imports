@@ -1,133 +1,37 @@
-### ============================
-### USERS
-### ============================
+### Listar todos os usuários (precisa da permission read:users)
+GET http://localhost:8080/api/users
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9.eyJpc3MiOiJodHRwczovL2Rldi13NG00ZWdvOHJ4bDBqanpxLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiIwOWtSQXN0cXpvUlZpQk9na0x6MjFBWUQyVTdubXp3MUBjbGllbnRzIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL2FwaSIsImlhdCI6MTc2NTEyOTAwNywiZXhwIjoxNzY1MjE1NDA3LCJzY29wZSI6InJlYWQ6cHJvZHVjdHMgY3JlYXRlOnByb2R1Y3RzIGRlbGV0ZTpvcmRlcnMgcmVhZDp1c2VycyIsImd0eSI6ImNsaWVudC1jcmVkZW50aWFscyIsImF6cCI6IjA5a1JBc3Rxem9SVmlCT2drTHoyMUFZRDJVN25tencxIiwicGVybWlzc2lvbnMiOlsicmVhZDpwcm9kdWN0cyIsImNyZWF0ZTpwcm9kdWN0cyIsImRlbGV0ZTpvcmRlcnMiLCJyZWFkOnVzZXJzIl19.hbViRKKDJh8h4er-tGkLebyfsKZgRuO4VUgVN0WSZnA9JWFFZQYp8uPxSXpy5f92Z5dBHVsqAtEBcen5boCGnT1tVELnWVzoT9h4GF9NmsP-o6L-Bj89wEgjzIy3Bitk26wYEvluNgvOSUbFkogoIT7l4n2-ZypIts5JurGxd4CgIzyxKzTDV0Bnha8pf3cjwRdDoeT0lt6s_T33-vMAHCdqrvnckwW4qWyuj2BGQcwxPGTG-R-ElmabZXHUOzM7PdhRFZ2Zak1Ave6eZiLIC7qi4Esmt9w8SOgsh3eZxH_3PEiC1gaZy0uUe0xMpKhri24nqSNEKTqEx-2-wfxN0w
 
-# Listar todos os usuários
-GET http://localhost:8080/users
-Authorization: Basic admin 123456
+### Buscar usuário por ID (precisa da permission read:users)
+GET http://localhost:8080/api/users/1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9.eyJpc3MiOiJodHRwczovL2Rldi13NG00ZWdvOHJ4bDBqanpxLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiIwOWtSQXN0cXpvUlZpQk9na0x6MjFBWUQyVTdubXp3MUBjbGllbnRzIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL2FwaSIsImlhdCI6MTc2NTEyOTAwNywiZXhwIjoxNzY1MjE1NDA3LCJzY29wZSI6InJlYWQ6cHJvZHVjdHMgY3JlYXRlOnByb2R1Y3RzIGRlbGV0ZTpvcmRlcnMgcmVhZDp1c2VycyIsImd0eSI6ImNsaWVudC1jcmVkZW50aWFscyIsImF6cCI6IjA5a1JBc3Rxem9SVmlCT2drTHoyMUFZRDJVN25tencxIiwicGVybWlzc2lvbnMiOlsicmVhZDpwcm9kdWN0cyIsImNyZWF0ZTpwcm9kdWN0cyIsImRlbGV0ZTpvcmRlcnMiLCJyZWFkOnVzZXJzIl19.hbViRKKDJh8h4er-tGkLebyfsKZgRuO4VUgVN0WSZnA9JWFFZQYp8uPxSXpy5f92Z5dBHVsqAtEBcen5boCGnT1tVELnWVzoT9h4GF9NmsP-o6L-Bj89wEgjzIy3Bitk26wYEvluNgvOSUbFkogoIT7l4n2-ZypIts5JurGxd4CgIzyxKzTDV0Bnha8pf3cjwRdDoeT0lt6s_T33-vMAHCdqrvnckwW4qWyuj2BGQcwxPGTG-R-ElmabZXHUOzM7PdhRFZ2Zak1Ave6eZiLIC7qi4Esmt9w8SOgsh3eZxH_3PEiC1gaZy0uUe0xMpKhri24nqSNEKTqEx-2-wfxN0w
 
-###
+### Buscar usuário por email (precisa da permission read:users)
+GET http://localhost:8080/api/users/email/fulano@teste.com
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9.eyJpc3MiOiJodHRwczovL2Rldi13NG00ZWdvOHJ4bDBqanpxLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiIwOWtSQXN0cXpvUlZpQk9na0x6MjFBWUQyVTdubXp3MUBjbGllbnRzIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL2FwaSIsImlhdCI6MTc2NTEyOTAwNywiZXhwIjoxNzY1MjE1NDA3LCJzY29wZSI6InJlYWQ6cHJvZHVjdHMgY3JlYXRlOnByb2R1Y3RzIGRlbGV0ZTpvcmRlcnMgcmVhZDp1c2VycyIsImd0eSI6ImNsaWVudC1jcmVkZW50aWFscyIsImF6cCI6IjA5a1JBc3Rxem9SVmlCT2drTHoyMUFZRDJVN25tencxIiwicGVybWlzc2lvbnMiOlsicmVhZDpwcm9kdWN0cyIsImNyZWF0ZTpwcm9kdWN0cyIsImRlbGV0ZTpvcmRlcnMiLCJyZWFkOnVzZXJzIl19.hbViRKKDJh8h4er-tGkLebyfsKZgRuO4VUgVN0WSZnA9JWFFZQYp8uPxSXpy5f92Z5dBHVsqAtEBcen5boCGnT1tVELnWVzoT9h4GF9NmsP-o6L-Bj89wEgjzIy3Bitk26wYEvluNgvOSUbFkogoIT7l4n2-ZypIts5JurGxd4CgIzyxKzTDV0Bnha8pf3cjwRdDoeT0lt6s_T33-vMAHCdqrvnckwW4qWyuj2BGQcwxPGTG-R-ElmabZXHUOzM7PdhRFZ2Zak1Ave6eZiLIC7qi4Esmt9w8SOgsh3eZxH_3PEiC1gaZy0uUe0xMpKhri24nqSNEKTqEx-2-wfxN0w
 
-# Buscar usuário por ID
-GET http://localhost:8080/users/1
-Authorization: Basic admin 123456
-
-###
-
-# Criar novo usuário
-POST http://localhost:8080/users
+### Criar novo usuário (precisa da permission create:users)
+POST http://localhost:8080/api/users
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9.eyJpc3MiOiJodHRwczovL2Rldi13NG00ZWdvOHJ4bDBqanpxLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiIwOWtSQXN0cXpvUlZpQk9na0x6MjFBWUQyVTdubXp3MUBjbGllbnRzIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL2FwaSIsImlhdCI6MTc2NTEyOTAwNywiZXhwIjoxNzY1MjE1NDA3LCJzY29wZSI6InJlYWQ6cHJvZHVjdHMgY3JlYXRlOnByb2R1Y3RzIGRlbGV0ZTpvcmRlcnMgcmVhZDp1c2VycyIsImd0eSI6ImNsaWVudC1jcmVkZW50aWFscyIsImF6cCI6IjA5a1JBc3Rxem9SVmlCT2drTHoyMUFZRDJVN25tencxIiwicGVybWlzc2lvbnMiOlsicmVhZDpwcm9kdWN0cyIsImNyZWF0ZTpwcm9kdWN0cyIsImRlbGV0ZTpvcmRlcnMiLCJyZWFkOnVzZXJzIl19.hbViRKKDJh8h4er-tGkLebyfsKZgRuO4VUgVN0WSZnA9JWFFZQYp8uPxSXpy5f92Z5dBHVsqAtEBcen5boCGnT1tVELnWVzoT9h4GF9NmsP-o6L-Bj89wEgjzIy3Bitk26wYEvluNgvOSUbFkogoIT7l4n2-ZypIts5JurGxd4CgIzyxKzTDV0Bnha8pf3cjwRdDoeT0lt6s_T33-vMAHCdqrvnckwW4qWyuj2BGQcwxPGTG-R-ElmabZXHUOzM7PdhRFZ2Zak1Ave6eZiLIC7qi4Esmt9w8SOgsh3eZxH_3PEiC1gaZy0uUe0xMpKhri24nqSNEKTqEx-2-wfxN0w
 Content-Type: application/json
-Authorization: Basic admin 123456
 
 {
-  "name": "Almir",
-  "email": "almir@email.com",
-  "password": "123456",
-  "role": "USER"
+  "name": "Fulano de Tal",
+  "email": "fulano@teste.com",
+  "password": "123456"
 }
 
-###
-
-# Atualizar usuário existente
-PUT http://localhost:8080/users/1
+### Atualizar usuário existente (precisa da permission create:users)
+PUT http://localhost:8080/api/users/1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9.eyJpc3MiOiJodHRwczovL2Rldi13NG00ZWdvOHJ4bDBqanpxLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiIwOWtSQXN0cXpvUlZpQk9na0x6MjFBWUQyVTdubXp3MUBjbGllbnRzIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL2FwaSIsImlhdCI6MTc2NTEyOTAwNywiZXhwIjoxNzY1MjE1NDA3LCJzY29wZSI6InJlYWQ6cHJvZHVjdHMgY3JlYXRlOnByb2R1Y3RzIGRlbGV0ZTpvcmRlcnMgcmVhZDp1c2VycyIsImd0eSI6ImNsaWVudC1jcmVkZW50aWFscyIsImF6cCI6IjA5a1JBc3Rxem9SVmlCT2drTHoyMUFZRDJVN25tencxIiwicGVybWlzc2lvbnMiOlsicmVhZDpwcm9kdWN0cyIsImNyZWF0ZTpwcm9kdWN0cyIsImRlbGV0ZTpvcmRlcnMiLCJyZWFkOnVzZXJzIl19.hbViRKKDJh8h4er-tGkLebyfsKZgRuO4VUgVN0WSZnA9JWFFZQYp8uPxSXpy5f92Z5dBHVsqAtEBcen5boCGnT1tVELnWVzoT9h4GF9NmsP-o6L-Bj89wEgjzIy3Bitk26wYEvluNgvOSUbFkogoIT7l4n2-ZypIts5JurGxd4CgIzyxKzTDV0Bnha8pf3cjwRdDoeT0lt6s_T33-vMAHCdqrvnckwW4qWyuj2BGQcwxPGTG-R-ElmabZXHUOzM7PdhRFZ2Zak1Ave6eZiLIC7qi4Esmt9w8SOgsh3eZxH_3PEiC1gaZy0uUe0xMpKhri24nqSNEKTqEx-2-wfxN0w
 Content-Type: application/json
-Authorization: Basic admin 123456
 
 {
-  "name": "Almir Atualizado",
-  "email": "almir@email.com",
-  "password": "654321",
-  "role": "ADMIN"
+  "name": "Fulano Atualizado",
+  "email": "fulano@teste.com",
+  "password": "654321"
 }
 
-###
-
-# Deletar usuário
-DELETE http://localhost:8080/users/1
-Authorization: Basic admin 123456
-
-
-### ============================
-### PRODUCTS
-### ============================
-
-# Listar todos os produtos
-GET http://localhost:8080/products
-Authorization: Basic admin 123456
-
-###
-
-# Criar novo produto
-POST http://localhost:8080/products
-Content-Type: application/json
-Authorization: Basic admin 123456
-
-{
-  "name": "Perfume X",
-  "description": "Fragrância importada",
-  "price": 199.90,
-  "stock": 50
-}
-
-###
-
-# Atualizar produto
-PUT http://localhost:8080/products/1
-Content-Type: application/json
-Authorization: Basic admin 123456
-
-{
-  "name": "Perfume Y",
-  "description": "Fragrância premium",
-  "price": 249.90,
-  "stock": 30
-}
-
-###
-
-# Deletar produto
-DELETE http://localhost:8080/products/1
-Authorization: Basic admin 123456
-
-
-### ============================
-### ORDERS
-### ============================
-
-# Listar todos os pedidos
-GET http://localhost:8080/orders
-Authorization: Basic admin 123456
-
-###
-
-# Criar novo pedido
-POST http://localhost:8080/orders
-Content-Type: application/json
-Authorization: Basic admin 123456
-
-{
-  "status": "PENDING",
-  "total": 199.90,
-  "user": { "id": 1 },
-  "product": { "id": 1 }
-}
-
-###
-
-# Atualizar pedido
-PUT http://localhost:8080/orders/1
-Content-Type: application/json
-Authorization: Basic admin 123456
-
-{
-  "status": "COMPLETED",
-  "total": 199.90,
-  "user": { "id": 1 },
-  "product": { "id": 1 }
-}
-
-###
-
-# Deletar pedido
-DELETE http://localhost:8080/orders/1
-Authorization: Basic admin 123456
+### Deletar usuário (precisa da permission delete:users)
+DELETE http://localhost:8080/api/users/1
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRScW10QldhYVZZODd6UlZmVzdsXyJ9.eyJpc3MiOiJodHRwczovL2Rldi13NG00ZWdvOHJ4bDBqanpxLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiIwOWtSQXN0cXpvUlZpQk9na0x6MjFBWUQyVTdubXp3MUBjbGllbnRzIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL2FwaSIsImlhdCI6MTc2NTEyOTAwNywiZXhwIjoxNzY1MjE1NDA3LCJzY29wZSI6InJlYWQ6cHJvZHVjdHMgY3JlYXRlOnByb2R1Y3RzIGRlbGV0ZTpvcmRlcnMgcmVhZDp1c2VycyIsImd0eSI6ImNsaWVudC1jcmVkZW50aWFscyIsImF6cCI6IjA5a1JBc3Rxem9SVmlCT2drTHoyMUFZRDJVN25tencxIiwicGVybWlzc2lvbnMiOlsicmVhZDpwcm9kdWN0cyIsImNyZWF0ZTpwcm9kdWN0cyIsImRlbGV0ZTpvcmRlcnMiLCJyZWFkOnVzZXJzIl19.hbViRKKDJh8h4er-tGkLebyfsKZgRuO4VUgVN0WSZnA9JWFFZQYp8uPxSXpy5f92Z5dBHVsqAtEBcen5boCGnT1tVELnWVzoT9h4GF9NmsP-o6L-Bj89wEgjzIy3Bitk26wYEvluNgvOSUbFkogoIT7l4n2-ZypIts5JurGxd4CgIzyxKzTDV0Bnha8pf3cjwRdDoeT0lt6s_T33-vMAHCdqrvnckwW4qWyuj2BGQcwxPGTG-R-ElmabZXHUOzM7PdhRFZ2Zak1Ave6eZiLIC7qi4Esmt9w8SOgsh3eZxH_3PEiC1gaZy0uUe0xMpKhri24nqSNEKTqEx-2-wfxN0w
