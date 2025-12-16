@@ -1,12 +1,17 @@
-// src/pages/Profile.jsx
+// ===== Profile.jsx — Parte 1/2 =====
+
 import React, { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react"; // ✅ hook oficial do Auth0
 import { authFetch } from "../utils/authFetch"; // utilitário para fetch com token
 import { toast } from "react-toastify";
+import { useRoles } from "../hooks/useRoles"; // ✅ hook para roles
+import PasswordResetForm from "../components/PasswordResetForm"; // ✅ formulário modular de alteração de senha
 
 export default function Profile() {
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } =
-    useAuth0(); // ✅ inclui getAccessTokenSilently
+    useAuth0();
+  const { roles, isAdmin, isAdminSecondary, isClient } = useRoles();
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -18,7 +23,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!isAuthenticated) {
-        loginWithRedirect(); // redireciona para login se não estiver autenticado
+        loginWithRedirect();
         return;
       }
 
@@ -26,7 +31,13 @@ export default function Profile() {
         const response = await authFetch(
           `${import.meta.env.VITE_API_URL}/user/me`,
           {},
-          getAccessTokenSilently // ✅ passa o método aqui
+          () =>
+            getAccessTokenSilently({
+              authorizationParams: {
+                audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+                scope: "openid profile email",
+              },
+            })
         );
 
         if (!response.ok) {
@@ -38,7 +49,7 @@ export default function Profile() {
         setEmail(data.email || "");
         setPhone(data.phone || "");
         setAddress(data.address || "");
-        setError(""); // limpa erro se carregar com sucesso
+        setError("");
       } catch (err) {
         setError(err.message);
       } finally {
@@ -51,7 +62,7 @@ export default function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // limpa antes de tentar salvar
+    setError("");
 
     try {
       const response = await authFetch(
@@ -60,7 +71,13 @@ export default function Profile() {
           method: "PUT",
           body: JSON.stringify({ name, phone, email, address }),
         },
-        getAccessTokenSilently // ✅ também passa aqui
+        () =>
+          getAccessTokenSilently({
+            authorizationParams: {
+              audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+              scope: "openid profile email",
+            },
+          })
       );
 
       if (!response.ok) {
@@ -68,7 +85,7 @@ export default function Profile() {
       }
 
       toast.success("Perfil atualizado com sucesso!");
-      setError(""); // limpa erro se salvar com sucesso
+      setError("");
     } catch (err) {
       setError(err.message);
       toast.error(err.message);
@@ -93,7 +110,7 @@ export default function Profile() {
           "url('/images/background_files/gold-backgraund-02.jpg')",
       }}
     >
-      {/* Overlay para contraste */}
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black/40" />
 
       {/* Conteúdo centralizado */}
@@ -104,6 +121,68 @@ export default function Profile() {
 
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
+        {/* ✅ Informações básicas do usuário */}
+        <div className="mb-8 space-y-4">
+          <div className="p-4 border border-brand-border rounded-lg bg-white/40">
+            <h3 className="text-lg font-semibold text-brand-text">Nome</h3>
+            <p className="text-brand-textMuted">
+              {user?.name || user?.nickname}
+            </p>
+          </div>
+
+          <div className="p-4 border border-brand-border rounded-lg bg-white/40">
+            <h3 className="text-lg font-semibold text-brand-text">Email</h3>
+            <p className="text-brand-textMuted">{user?.email}</p>
+          </div>
+
+          <div className="p-4 border border-brand-border rounded-lg bg-white/40">
+            <h3 className="text-lg font-semibold text-brand-text">Roles</h3>
+            {roles.length > 0 ? (
+              <ul className="list-disc list-inside text-brand-textMuted">
+                {roles.map((role, idx) => (
+                  <li key={idx}>{role}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-brand-textMuted">Nenhuma role atribuída</p>
+            )}
+          </div>
+        </div>
+
+        {/* ✅ Botões diferentes por role */}
+        <div className="mb-8">
+          {isClient && (
+            <div className="flex flex-col gap-4">
+              <a href="/my-orders" className="btn-accent w-full">
+                Meus Pedidos
+              </a>
+              <a href="/wishlist" className="btn-accent w-full">
+                Minha Wishlist
+              </a>
+            </div>
+          )}
+
+          {isAdminSecondary && (
+            <div className="flex flex-col gap-4">
+              <a href="/admin/products" className="btn-accent w-full">
+                Gerenciar Produtos
+              </a>
+              <a href="/admin/orders" className="btn-accent w-full">
+                Gerenciar Pedidos
+              </a>
+            </div>
+          )}
+
+          {isAdmin && (
+            <div className="flex flex-col gap-4">
+              <a href="/admin/manage-roles" className="btn-secondary w-full">
+                Gerenciar Usuários / Roles
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* ✅ Formulário de edição */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-brand-text mb-2">Nome</label>
@@ -159,6 +238,9 @@ export default function Profile() {
             Salvar
           </button>
         </form>
+
+        {/* ✅ Bloco modular de alteração de senha (reutilizável com PasswordInput) */}
+        <PasswordResetForm emailOverride={user?.email} />
       </div>
     </div>
   );

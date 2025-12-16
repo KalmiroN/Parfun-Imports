@@ -1,5 +1,3 @@
-// src/utils/authFetch.js
-
 /**
  * Faz requisições autenticadas ao backend usando o Access Token do Auth0.
  *
@@ -9,8 +7,13 @@
  */
 export async function authFetch(url, options = {}, getAccessTokenSilently) {
   try {
-    // ✅ obtém o token do Auth0
-    const token = await getAccessTokenSilently();
+    // ✅ obtém o token do Auth0 com audience e scope do .env
+    const token = await getAccessTokenSilently({
+      authorizationParams: {
+        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        scope: import.meta.env.VITE_AUTH0_SCOPE,
+      },
+    });
 
     const headers = {
       "Content-Type": "application/json",
@@ -25,8 +28,6 @@ export async function authFetch(url, options = {}, getAccessTokenSilently) {
 
     if (response.status === 401) {
       console.error("Token inválido ou expirado");
-      // Opcional: redirecionar para login
-      // window.location.href = "/login";
     }
 
     return response;

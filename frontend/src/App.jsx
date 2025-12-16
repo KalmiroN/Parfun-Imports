@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./context/themeProvider";
 import { CartProvider } from "./context/cartProvider";
@@ -18,6 +17,7 @@ import MyOrders from "./pages/myOrders";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Logout from "./pages/Logout";
+import LoggedOut from "./pages/LoggedOut"; // ✅ nova página pública
 import ForgotPassword from "./pages/forgotPassword";
 import Profile from "./pages/profile";
 import Wishlist from "./pages/wishlist";
@@ -44,10 +44,11 @@ export default function App() {
             {/* Login e Cadastro fora do Layout */}
             <Route path="/login" element={<Login />} />
             <Route path="/logout" element={<Logout />} />
+            <Route path="/logged-out" element={<LoggedOut />} />{" "}
+            {/* ✅ nova rota */}
             <Route path="/register" element={<Register />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/access-denied" element={<AccessDenied />} />
-
             {/* Rotas protegidas para CLIENTE */}
             <Route
               path="/dashboard"
@@ -59,17 +60,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/cart"
-              element={
-                <ProtectedRoute
-                  allowedRoles={["client", "admin", "admin_secondary"]}
-                  redirectTo="/login"
-                >
-                  <Cart />
-                </ProtectedRoute>
-              }
-            />
+            {/* ✅ Carrinho agora é público */}
+            <Route path="/cart" element={<Cart />} />
             <Route
               path="/checkout"
               element={
@@ -101,7 +93,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-
             {/* Rotas principais com Layout (públicas) */}
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />

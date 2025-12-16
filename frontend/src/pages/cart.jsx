@@ -1,23 +1,31 @@
 import { useCart } from "../context/cartProvider";
 import { toast } from "react-toastify";
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import CheckoutCard from "../components/CheckoutCard";
 import CheckoutAside from "../components/CheckoutAside";
 import SaveLaterAside from "../components/SaveLaterAside";
-import { authFetch } from "../utils/authFetch"; // ✅ importa utilitário
+import { authFetch } from "../utils/authFetch";
 
 export default function Cart() {
   const { cartItems, setCartItems } = useCart();
+  const navigate = useNavigate();
 
   const [showCheckout, setShowCheckout] = useState(false);
   const [showSaveLater, setShowSaveLater] = useState(false);
 
   const mainRef = useRef(null);
+  const headerRef = useRef(null);
+  const cardsRef = useRef(null);
+
   const [mainMetrics, setMainMetrics] = useState({ top: 0, height: 0 });
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [cardsHeight, setCardsHeight] = useState(0);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ✅ Buscar carrinho do backend ao carregar
+  // ✅ Buscar carrinho do backend
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -30,7 +38,7 @@ export default function Cart() {
         }
 
         const data = await response.json();
-        setCartItems(data.items || []); // backend retorna { items: [...] }
+        setCartItems(data.items || []);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -41,16 +49,31 @@ export default function Cart() {
     fetchCart();
   }, [setCartItems]);
 
+  // ✅ Atualizar métricas
   useEffect(() => {
     const update = () => {
       const top = mainRef.current?.offsetTop || 0;
       const height = mainRef.current?.offsetHeight || window.innerHeight;
       setMainMetrics({ top, height });
+      if (headerRef.current) {
+        setHeaderHeight(headerRef.current.offsetHeight);
+      }
+      if (cardsRef.current) {
+        setCardsHeight(cardsRef.current.offsetHeight);
+      }
     };
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, []);
+  }, [cartItems]);
+
+  // ✅ Esconder mensagens de erro após 25s
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 25000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   const handleRemove = async (index) => {
     const updated = [...cartItems];
@@ -58,7 +81,6 @@ export default function Cart() {
     updated.splice(index, 1);
     setCartItems(updated);
 
-    // ✅ Remove também no backend
     try {
       await authFetch(`${import.meta.env.VITE_API_URL}/cart/remove`, {
         method: "POST",
@@ -76,7 +98,6 @@ export default function Cart() {
     updated[index].quantity = Math.max(1, newQty);
     setCartItems(updated);
 
-    // ✅ Atualiza também no backend
     try {
       await authFetch(`${import.meta.env.VITE_API_URL}/cart/update`, {
         method: "POST",
@@ -106,7 +127,6 @@ export default function Cart() {
     return acc + priceValue * qty;
   }, 0);
 
-  // Regras de altura
   const bothActive = showCheckout && showSaveLater;
   const singleHeight = mainMetrics.height * 0.9;
   const asideHeight = mainMetrics.height * 0.44;
@@ -121,12 +141,21 @@ export default function Cart() {
 
   return (
     <>
+      {/* Cabeçalho fixo */}
+      <div
+        ref={headerRef}
+        className="fixed top-0 left-0 w-full flex justify-between items-center bg-brand-surface shadow-md px-4 py-2 z-40"
+      >
+        <h1 className="text-3xl font-display">Carrinho de Compras</h1>
+        <button className="btn-secondary" onClick={() => navigate("/")}>
+          Sair
+        </button>
+      </div>
+
       <main
         ref={mainRef}
-        className="bg-brand-bg text-brand-text min-h-screen px-4 py-12"
+        className="bg-brand-bg text-brand-text min-h-screen px-4 py-12 pt-24"
       >
-        <h1 className="text-3xl font-display mb-8">Carrinho de Compras</h1>
-
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
         {cartItems.length === 0 ? (
@@ -137,7 +166,7 @@ export default function Cart() {
           </div>
         ) : (
           <>
-            <div className="space-y-6">
+            <div ref={cardsRef} className="space-y-4 w-[70%] mx-auto">
               {cartItems.map((rawItem, idx) => {
                 const item = {
                   id: rawItem?.id,
@@ -173,23 +202,29 @@ export default function Cart() {
               </p>
             </div>
 
-            <div className="flex justify-center mt-8">
+            <div className="flex justify-center gap-4 mt-8">
               <button
                 onClick={() => setShowCheckout(true)}
                 className="btn-accent text-lg"
               >
                 Finalizar compra
               </button>
+              <button
+                onClick={() => navigate("/products")}
+                className="btn-secondary text-lg"
+              >
+                Voltar a comprar
+              </button>
             </div>
           </>
         )}
       </main>
 
-      {/* Asides */}
+      {/* Asides — começam abaixo dos cards */}
       {showCheckout && !bothActive && (
         <CheckoutAside
           show={showCheckout}
-          top={mainMetrics.top + 20}
+          top={cardsHeight + headerHeight + 40} // ✅ abaixo dos cards
           height={singleHeight}
           width={320}
           onClose={() => setShowCheckout(false)}
@@ -199,7 +234,7 @@ export default function Cart() {
       {showSaveLater && !bothActive && (
         <SaveLaterAside
           show={showSaveLater}
-          top={mainMetrics.top + 20}
+          top={cardsHeight + headerHeight + 40} // ✅ abaixo dos cards
           height={singleHeight}
           width={320}
           onClose={() => setShowSaveLater(false)}
@@ -210,14 +245,14 @@ export default function Cart() {
         <>
           <CheckoutAside
             show={showCheckout}
-            top={mainMetrics.top + 20}
+            top={cardsHeight + headerHeight + 40}
             height={asideHeight}
             width={320}
             onClose={() => setShowCheckout(false)}
           />
           <SaveLaterAside
             show={showSaveLater}
-            top={mainMetrics.top + 20 + asideHeight + 3}
+            top={cardsHeight + headerHeight + 40 + asideHeight + 3}
             height={asideHeight}
             width={320}
             onClose={() => setShowSaveLater(false)}

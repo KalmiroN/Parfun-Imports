@@ -48,7 +48,7 @@ export default function Wishlist() {
                   onClick={() =>
                     setFavorites(favorites.filter((f) => f.id !== item.id))
                   }
-                  className="mt-4 w-full px-4 py-2 rounded-full bg-brand-accent text-black hover:opacity-90 transition-colors duration-500"
+                  className="mt-4 w-full px-4 py-2 rounded-full border border-brand-border text-brand-text bg-transparent shadow-strong hover:bg-brand-accent hover:text-black transition-colors duration-300 select-none"
                 >
                   Remover
                 </button>
