@@ -20,7 +20,6 @@ function PasswordInput({ value, onChange, placeholder = "Digite sua senha" }) {
 
   return (
     <div className="relative w-full">
-      {/* Usa a mesma classe visual dos outros inputs (borda dourada) */}
       <input
         type={show ? "text" : "password"}
         value={value}
@@ -73,6 +72,8 @@ export default function Login() {
             password: password,
             client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
             client_secret: import.meta.env.VITE_AUTH0_CLIENT_SECRET,
+            audience: import.meta.env.VITE_AUTH0_AUDIENCE, // ✅ incluído
+            scope: import.meta.env.VITE_AUTH0_SCOPE, // ✅ incluído
           }),
         }
       );
@@ -133,7 +134,6 @@ export default function Login() {
 
           <div>
             <label className="block text-brand-text mb-2">Senha</label>
-            {/* ✅ Usa PasswordInput com borda dourada (input-field) */}
             <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}

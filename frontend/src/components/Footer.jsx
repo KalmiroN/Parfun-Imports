@@ -1,6 +1,12 @@
 import React from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Footer() {
+  const { isAuthenticated } = useAuth0();
+  const navigate = useNavigate();
+
   return (
     <footer className="bg-brand-surface border-t border-brand-border shadow-soft mt-12">
       <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-8">
@@ -22,9 +28,18 @@ export default function Footer() {
           <a href="/products" className="hover:text-brand-accent transition">
             Produtos
           </a>
-          <a href="/profile" className="hover:text-brand-accent transition">
+          <button
+            className="hover:text-brand-accent transition text-left"
+            onClick={() => {
+              if (isAuthenticated) {
+                navigate("/profile");
+              } else {
+                toast.info("Você precisa estar logado para acessar o perfil.");
+              }
+            }}
+          >
             Perfil
-          </a>
+          </button>
           <a href="/cart" className="hover:text-brand-accent transition">
             Carrinho
           </a>

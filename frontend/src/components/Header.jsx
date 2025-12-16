@@ -1,5 +1,3 @@
-// ===== Header.jsx — Parte 1/2 =====
-
 import { useTheme } from "../context/themeProvider";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useRef, useEffect } from "react";
@@ -12,7 +10,6 @@ export default function Header() {
   const [showUserBox, setShowUserBox] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-
   const triggerRef = useRef(null);
   const userBoxRef = useRef(null);
 
@@ -89,32 +86,43 @@ export default function Header() {
 
       {/* Menu desktop */}
       <nav className="hidden md:flex flex-1 justify-center">
-        <ul className="flex gap-4">
-          <li>
+        <ul className="flex gap-4 items-center">
+          {" "}
+          {/* ✅ alinhamento vertical */}
+          <li className="flex items-center">
             <Link to="/" className="btn-accent">
               Home
             </Link>
           </li>
-          <li>
+          <li className="flex items-center">
             <Link to="/products" className="btn-accent">
               Produtos
             </Link>
           </li>
-          {isAuthenticated && (
-            <li>
-              <Link to="/profile" className="btn-accent">
-                Perfil
-              </Link>
-            </li>
-          )}
+          <li className="flex items-center">
+            <button
+              className="btn-accent"
+              onClick={() => {
+                if (isAuthenticated) {
+                  navigate("/profile");
+                } else {
+                  toast.info(
+                    "Você precisa estar logado para acessar o perfil."
+                  );
+                }
+              }}
+            >
+              Perfil
+            </button>
+          </li>
           {isAdmin && (
             <>
-              <li>
+              <li className="flex items-center">
                 <Link to="/admin/products" className="btn-accent">
                   Admin Produtos
                 </Link>
               </li>
-              <li>
+              <li className="flex items-center">
                 <Link to="/admin/orders" className="btn-accent">
                   Admin Pedidos
                 </Link>
@@ -123,7 +131,6 @@ export default function Header() {
           )}
         </ul>
       </nav>
-
       {/* Ícones à direita */}
       <div className="flex items-center gap-6">
         {/* Carrinho */}
@@ -154,12 +161,6 @@ export default function Header() {
             onClick={(e) => {
               e.stopPropagation();
               setShowUserBox((prev) => !prev);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setShowUserBox((prev) => !prev);
-              }
             }}
             aria-haspopup="menu"
             aria-expanded={showUserBox}
@@ -194,24 +195,32 @@ export default function Header() {
                   <p className="text-sm">Email: {user?.email}</p>
 
                   <div className="flex flex-col gap-2 mt-4">
-                    <Link
-                      to="/profile"
+                    <button
                       className="btn-accent w-full text-center"
+                      onClick={() => navigate("/profile")}
                     >
                       Endereço
-                    </Link>
+                    </button>
                     <Link
                       to="/wallet"
                       className="btn-accent w-full text-center"
                     >
                       Vale Desconto
                     </Link>
-                    <Link
-                      to="/profile"
+                    <button
                       className="btn-accent w-full text-center"
+                      onClick={() => {
+                        if (isAuthenticated) {
+                          navigate("/profile");
+                        } else {
+                          toast.info(
+                            "Você precisa estar logado para acessar o perfil."
+                          );
+                        }
+                      }}
                     >
                       Perfil
-                    </Link>
+                    </button>
                     <Link
                       to="/my-orders"
                       className="btn-accent w-full text-center"
@@ -250,7 +259,7 @@ export default function Header() {
           )}
         </div>
 
-        {/* Login (ícone separado, continua visível) */}
+        {/* Login (ícone separado) */}
         {!isAuthenticated && (
           <div className="relative group">
             <Link to="/login" aria-label="Ir para login">
@@ -270,27 +279,36 @@ export default function Header() {
       {/* Menu mobile */}
       {menuOpen && (
         <nav className="absolute top-full left-0 w-full bg-brand-surface shadow-strong p-6 md:hidden z-50">
-          <ul className="flex flex-col gap-4">
-            <li>
+          <ul className="flex flex-col gap-4 items-center">
+            <li className="flex items-center">
               <Link to="/" className="btn-accent w-full text-center">
                 Home
               </Link>
             </li>
-            <li>
+            <li className="flex items-center">
               <Link to="/products" className="btn-accent w-full text-center">
                 Produtos
               </Link>
             </li>
-            {isAuthenticated && (
-              <li>
-                <Link to="/profile" className="btn-accent w-full text-center">
-                  Perfil
-                </Link>
-              </li>
-            )}
+            <li className="flex items-center">
+              <button
+                className="btn-accent w-full text-center"
+                onClick={() => {
+                  if (isAuthenticated) {
+                    navigate("/profile");
+                  } else {
+                    toast.info(
+                      "Você precisa estar logado para acessar o perfil."
+                    );
+                  }
+                }}
+              >
+                Perfil
+              </button>
+            </li>
             {isAdmin && (
               <>
-                <li>
+                <li className="flex items-center">
                   <Link
                     to="/admin/products"
                     className="btn-accent w-full text-center"
@@ -298,7 +316,7 @@ export default function Header() {
                     Admin Produtos
                   </Link>
                 </li>
-                <li>
+                <li className="flex items-center">
                   <Link
                     to="/admin/orders"
                     className="btn-accent w-full text-center"

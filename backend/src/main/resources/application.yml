@@ -31,19 +31,12 @@ spring:
     console:
       enabled: false
 
-# ===============================
-# Configuração JWT
-# ===============================
-jwt:
-  secret: umaChaveSecretaBemGrandeParaSeguranca123456
-  expiration: 3600000
-
-# ===============================
-# Logs detalhados
-# ===============================
-logging:
-  level:
-    org.springframework: INFO
-    com.parfunimports: DEBUG
-    "[org.hibernate.SQL]": DEBUG
-    "[org.hibernate.type.descriptor.sql.BasicBinder]": TRACE
+  # ===============================
+  # Configuração Auth0 / Resource Server
+  # ===============================
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-w4m4ego8rxl0jjzq.us.auth0.com/
+          # audience não é suportado aqui, precisa ser validado via código
