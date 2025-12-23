@@ -1,62 +1,39 @@
 package com.parfunimports.backend.controller;
 
-import com.parfunimports.backend.domain.Order;
-import com.parfunimports.backend.service.OrderService;
+import com.parfunimports.backend.model.Order;
+import com.parfunimports.backend.repository.OrderRepository;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controller para endpoints relacionados a pedidos (Order).
- * Protegido por permissions via Spring Security integrado ao Auth0.
- */
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
 
-    private final OrderService orderService;
+    private final OrderRepository orderRepository;
 
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
+    public OrderController(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
     }
 
-    // Listar todos os pedidos (precisa da permission "read:products")
+    // Listar todos os pedidos
     @GetMapping
-    @PreAuthorize("hasAuthority('read:products')")
-    public ResponseEntity<List<Order>> getAllOrders() {
-        return ResponseEntity.ok(orderService.findAll());
+    public List<Order> getAll() {
+        return orderRepository.findAll();
     }
 
-    // Buscar pedido por ID (precisa da permission "read:products")
+    // Buscar pedido por ID
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('read:products')")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
-        Order order = orderService.findById(id);
-        return order != null ? ResponseEntity.ok(order) : ResponseEntity.notFound().build();
+    public ResponseEntity<Order> getById(@PathVariable Long id) {
+        return orderRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // Criar novo pedido (precisa da permission "create:products")
+    // Criar novo pedido
     @PostMapping
-    @PreAuthorize("hasAuthority('create:products')")
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-        Order savedOrder = orderService.createOrder(order);
-        return ResponseEntity.ok(savedOrder);
-    }
-
-    // Atualizar pedido existente (precisa da permission "create:products")
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('create:products')")
-    public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order order) {
-        Order updatedOrder = orderService.updateOrder(id, order);
-        return updatedOrder != null ? ResponseEntity.ok(updatedOrder) : ResponseEntity.notFound().build();
-    }
-
-    // Deletar pedido (precisa da permission "delete:orders")
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('delete:orders')")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        return orderService.deleteOrder(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    public Order create(@RequestBody Order order) {
+        return orderRepository.save(order);
     }
 }

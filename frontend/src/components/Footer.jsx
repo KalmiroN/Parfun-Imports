@@ -1,11 +1,12 @@
 import React from "react";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function Footer() {
-  const { isAuthenticated } = useAuth0();
   const navigate = useNavigate();
+
+  // Checa se existe usuário logado no localStorage
+  const isAuthenticated = !!localStorage.getItem("user");
 
   return (
     <footer className="bg-brand-surface border-t border-brand-border shadow-soft mt-12">

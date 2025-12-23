@@ -12,14 +12,10 @@ export default function AdminOrders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await authFetch(
-          `${import.meta.env.VITE_API_URL}/orders`
-        );
-        if (!response.ok) throw new Error("Erro ao carregar pedidos");
-        const data = await response.json();
-        setOrders(data);
+        const res = await authFetch(`${import.meta.env.VITE_API_URL}/orders`);
+        setOrders(res.data || []);
       } catch (err) {
-        toast.error(err.message);
+        toast.error(err.message || "Erro ao carregar pedidos");
       } finally {
         setLoading(false);
       }
@@ -95,14 +91,13 @@ export default function AdminOrders() {
           onClose={() => setSelectedOrder(null)}
           onSave={async (updated) => {
             try {
-              const response = await authFetch(
+              await authFetch(
                 `${import.meta.env.VITE_API_URL}/orders/${updated.id}`,
                 {
                   method: "PUT",
                   body: JSON.stringify(updated),
                 }
               );
-              if (!response.ok) throw new Error("Erro ao atualizar pedido");
               toast.success("Pedido atualizado!");
               setSelectedOrder(null);
               // Atualiza lista local
@@ -110,7 +105,7 @@ export default function AdminOrders() {
                 prev.map((o) => (o.id === updated.id ? updated : o))
               );
             } catch (err) {
-              toast.error(err.message);
+              toast.error(err.message || "Erro ao atualizar pedido");
             }
           }}
         />

@@ -12,20 +12,28 @@ export default function AdminProducts() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await authFetch(
-          `${import.meta.env.VITE_API_URL}/products`
-        );
-        if (!response.ok) throw new Error("Erro ao carregar produtos");
-        const data = await response.json();
-        setProducts(data);
+        const res = await authFetch(`${import.meta.env.VITE_API_URL}/products`);
+        setProducts(res.data || []);
       } catch (err) {
-        toast.error(err.message);
+        toast.error(err.message || "Erro ao carregar produtos");
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
   }, []);
+
+  const handleRemove = async (id) => {
+    try {
+      await authFetch(`${import.meta.env.VITE_API_URL}/products/${id}`, {
+        method: "DELETE",
+      });
+      toast.success("Produto removido!");
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      toast.error(err.message || "Erro ao remover produto");
+    }
+  };
 
   if (loading) return <p>Carregando produtos...</p>;
 
@@ -61,7 +69,10 @@ export default function AdminProducts() {
                   >
                     Editar
                   </button>
-                  <button className="px-4 py-2 rounded-full bg-red-500 text-white hover:opacity-90 transition-colors duration-500">
+                  <button
+                    onClick={() => handleRemove(p.id)}
+                    className="px-4 py-2 rounded-full bg-red-500 text-white hover:opacity-90 transition-colors duration-500"
+                  >
                     Remover
                   </button>
                 </div>
@@ -93,21 +104,20 @@ export default function AdminProducts() {
           onClose={() => setSelectedProduct(null)}
           onSave={async (updated) => {
             try {
-              const response = await authFetch(
+              await authFetch(
                 `${import.meta.env.VITE_API_URL}/products/${updated.id}`,
                 {
                   method: "PUT",
                   body: JSON.stringify(updated),
                 }
               );
-              if (!response.ok) throw new Error("Erro ao atualizar produto");
               toast.success("Produto atualizado!");
               setSelectedProduct(null);
               setProducts((prev) =>
                 prev.map((p) => (p.id === updated.id ? updated : p))
               );
             } catch (err) {
-              toast.error(err.message);
+              toast.error(err.message || "Erro ao atualizar produto");
             }
           }}
         />

@@ -5,18 +5,28 @@ export default function Dashboard() {
   const { isAdmin, isAdminSecondary, isClient, roles } = useRoles();
 
   return (
-    <main className="min-h-screen bg-brand-bg px-6 py-12">
-      <div className="max-w-5xl mx-auto bg-brand-surface rounded-xl shadow-soft p-8">
-        <h2 className="text-3xl font-display text-brand-text mb-6">
+    <main
+      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
+      style={{
+        backgroundImage:
+          "url('/images/background_files/gold-backgraund-02.jpg')",
+      }}
+    >
+      {/* Overlay escuro para contraste */}
+      <div className="absolute inset-0 bg-black/40" />
+
+      {/* Card central */}
+      <div className="relative z-10 max-w-5xl w-full p-12 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-strong">
+        <h2 className="font-display text-4xl text-brand-text mb-6 text-center select-none">
           Bem-vindo ao Dashboard
         </h2>
-        <p className="text-brand-textMuted">
+        <p className="text-brand-textMuted text-center mb-10">
           Seu painel personalizado de acordo com seu perfil de acesso.
         </p>
 
         {/* Seções para CLIENTE */}
         {isClient && (
-          <div className="mt-8">
+          <section className="mt-8">
             <h3 className="text-xl font-semibold text-brand-text mb-4">
               Área do Cliente
             </h3>
@@ -40,16 +50,16 @@ export default function Dashboard() {
                 Meu Perfil
               </a>
             </div>
-          </div>
+          </section>
         )}
 
         {/* Seções para ADMIN SECUNDÁRIO */}
         {isAdminSecondary && (
-          <div className="mt-12">
+          <section className="mt-12">
             <h3 className="text-xl font-semibold text-brand-text mb-4">
               Área Administrativa (Secundário)
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <a
                 href="/admin/products"
                 className="btn-accent text-center py-4 rounded-xl shadow-md hover:scale-105 transition"
@@ -63,12 +73,12 @@ export default function Dashboard() {
                 Gerenciar Pedidos
               </a>
             </div>
-          </div>
+          </section>
         )}
 
         {/* Seções para ADMIN */}
         {isAdmin && (
-          <div className="mt-12">
+          <section className="mt-12">
             <h3 className="text-xl font-semibold text-brand-text mb-4">
               Área Administrativa (Admin)
             </h3>
@@ -92,14 +102,15 @@ export default function Dashboard() {
                 Gerenciar Roles
               </a>
             </div>
-          </div>
+          </section>
         )}
 
         {/* Informações extras */}
         <div className="mt-12 text-sm text-brand-muted text-center">
           Último acesso: {new Date().toLocaleString("pt-BR")}
           <br />
-          Suas roles: {roles.join(", ")}
+          Suas roles:{" "}
+          {roles.length > 0 ? roles.join(", ") : "Nenhuma role atribuída"}
         </div>
       </div>
     </main>

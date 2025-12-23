@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import usePasswordValidation from "../hooks/usePasswordValidation";
+import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../context/themeProvider";
+import { useAuth } from "../context/authProvider"; // 👈 usamos apenas o contexto
 
 /* ===========================
    Componente local PasswordInput
@@ -12,7 +12,6 @@ function PasswordInput({ value, onChange, placeholder = "Digite sua senha" }) {
 
   const eyeIcon =
     theme === "dark" ? "/images/eye_white.png" : "/images/eye_black.png";
-
   const offIcon =
     theme === "dark"
       ? "/images/visibility_off_white.png"
@@ -45,61 +44,24 @@ function PasswordInput({ value, onChange, placeholder = "Digite sua senha" }) {
 }
 
 export default function Login() {
+  const { login, isAuthenticated, user } = useAuth(); // 👈 usamos login do contexto
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [message, setMessage] = useState("");
-
-  const { validate, getMessage } = usePasswordValidation();
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (!validate(password)) {
-      setMessage(getMessage());
-      return;
-    }
-
     try {
-      const response = await fetch(
-        `https://${import.meta.env.VITE_AUTH0_DOMAIN}/oauth/token`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            grant_type: "password",
-            username: email,
-            password: password,
-            client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
-            client_secret: import.meta.env.VITE_AUTH0_CLIENT_SECRET,
-            audience: import.meta.env.VITE_AUTH0_AUDIENCE, // ✅ incluído
-            scope: import.meta.env.VITE_AUTH0_SCOPE, // ✅ incluído
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.error) {
-        setMessage(
-          `❌ Erro: ${data.error_description || "Credenciais inválidas"}`
-        );
-        return;
-      }
-
-      if (data.access_token) {
-        if (rememberMe) {
-          localStorage.setItem("auth_token", data.access_token);
-        } else {
-          sessionStorage.setItem("auth_token", data.access_token);
-        }
-        window.location.href = "/dashboard";
+      const success = await login(email, password); // ✅ strings simples
+      if (success) {
+        navigate("/"); // redireciona após login
       } else {
-        setMessage("❌ Credenciais inválidas");
+        setMessage("❌ Falha no login. Verifique suas credenciais.");
       }
     } catch (err) {
-      console.error(err);
-      setMessage("❌ Erro ao fazer login");
+      console.error("Erro no login:", err);
+      setMessage("❌ Falha no login. Verifique suas credenciais.");
     }
   };
 
@@ -117,61 +79,47 @@ export default function Login() {
           Login
         </h2>
 
-        <form onSubmit={handleLogin} className="space-y-8">
-          <div>
-            <label className="block text-brand-text mb-2">
-              Email ou Usuário
-            </label>
+        {isAuthenticated ? (
+          <div className="space-y-6 text-center text-brand-text">
+            <p>
+              Você já está logado como{" "}
+              <strong>{user?.name || user?.email}</strong> 👋
+            </p>
+            <Link to="/" className="btn-accent w-full text-center">
+              Ir para Home
+            </Link>
+          </div>
+        ) : (
+          <form onSubmit={handleLogin} className="space-y-6">
             <input
-              type="text"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Digite seu email ou usuário"
+              placeholder="Digite seu email"
               className="input-field"
               required
             />
-          </div>
 
-          <div>
-            <label className="block text-brand-text mb-2">Senha</label>
             <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Digite sua senha"
             />
-          </div>
 
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 text-brand-text">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              Lembrar-me
-            </label>
-            <Link
-              to="/forgot-password"
-              className="text-sm text-brand-accent hover:underline"
-            >
-              Esqueci a senha
-            </Link>
-          </div>
+            <button type="submit" className="w-full btn-accent mt-4">
+              Entrar
+            </button>
 
-          <div className="flex justify-between mt-6 gap-4">
-            <Link to="/register" className="flex-1 btn-accent text-center">
-              Inscrever-se
-            </Link>
-
-            <Link to="/" className="flex-1 btn-secondary text-center">
-              Sair
-            </Link>
-          </div>
-
-          <button type="submit" className="w-full btn-accent mt-4">
-            Entrar
-          </button>
-        </form>
+            <div className="flex justify-between mt-6 gap-4">
+              <Link to="/register" className="flex-1 btn-accent text-center">
+                Inscrever-se
+              </Link>
+              <Link to="/" className="flex-1 btn-secondary text-center">
+                Sair
+              </Link>
+            </div>
+          </form>
+        )}
 
         {message && (
           <p className="mt-6 text-sm text-brand-text text-center">{message}</p>

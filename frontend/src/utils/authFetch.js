@@ -1,38 +1,55 @@
 /**
- * Faz requisições autenticadas ao backend usando o Access Token do Auth0.
+ * Faz requisições autenticadas ao backend usando o Access Token do AuthProvider.
  *
  * @param {string} url - URL da requisição
  * @param {object} options - opções do fetch (headers, body, etc.)
- * @param {function} getAccessTokenSilently - função obtida via useAuth0() para pegar o token
+ * @param {string} token - access_token obtido do AuthProvider
  */
-export async function authFetch(url, options = {}, getAccessTokenSilently) {
+export async function authFetch(url, options = {}, token) {
   try {
-    // ✅ obtém o token do Auth0 com audience e scope do .env
-    const token = await getAccessTokenSilently({
-      authorizationParams: {
-        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-        scope: import.meta.env.VITE_AUTH0_SCOPE,
-      },
-    });
-
     const headers = {
-      "Content-Type": "application/json",
       ...(options.headers || {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
+    if (!headers["Content-Type"]) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000); // timeout de 10s
+
     const response = await fetch(url, {
       ...options,
       headers,
+      signal: controller.signal,
     });
 
-    if (response.status === 401) {
-      console.error("Token inválido ou expirado");
+    clearTimeout(timeout);
+
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
     }
 
-    return response;
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Sessão expirada. Faça login novamente.");
+      }
+      const message = data?.message || `Erro ${response.status}`;
+      throw new Error(message);
+    }
+
+    return {
+      ok: response.ok,
+      status: response.status,
+      data,
+      headers: response.headers,
+    };
   } catch (err) {
-    console.error("Erro ao obter token:", err);
+    console.error("Erro na requisição autenticada:", err);
     throw err;
   }
 }

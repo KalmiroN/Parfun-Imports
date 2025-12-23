@@ -1,17 +1,35 @@
-# ParfunImports Backend
+```markdown
+# 🛍️ ParfunImports Backend
 
-Backend da aplicação **ParfunImports**, desenvolvido em **Spring Boot** com integração ao **MySQL** e autenticação via **Auth0**.
+Backend da aplicação **ParfunImports**, desenvolvido em **Spring Boot** com integração ao **MySQL** e autenticação via **JWT interno**.  
+Responsável por fornecer a API REST que conecta o frontend (React) ao banco de dados e serviços de autenticação.
 
 ---
 
 ## 🚀 Tecnologias
 
-- Java 17
-- Spring Boot 3.3.5
-- Spring Data JPA / Hibernate
-- MySQL 8
-- Auth0 (JWT Authentication)
-- Maven
+- **Java 17**
+- **Spring Boot 3.3.5**
+- **Spring Data JPA / Hibernate**
+- **MySQL 8**
+- **JWT (JSON Web Token)**
+- **Maven**
+
+---
+
+## 📂 Estrutura de pastas
+```
+
+backend/
+├── src/
+│ ├── main/
+│ │ ├── java/com/parfunimports/... # Código fonte principal
+│ │ └── resources/ # application.properties, configs
+│ └── test/ # Testes automatizados
+├── pom.xml # Configuração Maven
+└── README.md
+
+````
 
 ---
 
@@ -23,7 +41,7 @@ Crie o banco de dados no MySQL:
 
 ```sql
 CREATE DATABASE parfun_imports;
-```
+````
 
 ### 2. Variáveis de Ambiente
 
@@ -32,10 +50,8 @@ Defina as variáveis necessárias:
 - `DB_URL` → URL JDBC do banco (ex.: `jdbc:mysql://localhost:3306/parfun_imports?useSSL=false&serverTimezone=UTC`)
 - `DB_USER` → usuário do MySQL (ex.: `root`)
 - `DB_PASSWORD` → senha do MySQL
-- `AUTH0_DOMAIN` → domínio do Auth0 (ex.: `dev-w4m4ego8rxl0jjzq.us.auth0.com`)
-- `AUTH0_CLIENT_ID` → Client ID da aplicação no Auth0
-- `AUTH0_CLIENT_SECRET` → Client Secret da aplicação no Auth0
-- `AUTH0_AUDIENCE` → identificador da API configurada no Auth0 (ex.: `https://parfunimports/api`)
+- `JWT_SECRET` → chave secreta usada para assinar os tokens JWT
+- `JWT_EXPIRATION` → tempo de expiração dos tokens (em ms, ex.: `86400000` para 24h)
 
 No PowerShell:
 
@@ -43,15 +59,13 @@ No PowerShell:
 $env:DB_URL="jdbc:mysql://localhost:3306/parfun_imports?useSSL=false&serverTimezone=UTC"
 $env:DB_USER="root"
 $env:DB_PASSWORD="sua_senha"
-$env:AUTH0_DOMAIN="dev-w4m4ego8rxl0jjzq.us.auth0.com"
-$env:AUTH0_CLIENT_ID="SEU_CLIENT_ID"
-$env:AUTH0_CLIENT_SECRET="SEU_CLIENT_SECRET"
-$env:AUTH0_AUDIENCE="https://parfunimports/api"
+$env:JWT_SECRET="uma_chave_secreta_segura"
+$env:JWT_EXPIRATION="86400000"
 ```
 
 ### 3. Rodando o projeto
 
-```powershell
+```bash
 mvn spring-boot:run
 ```
 
@@ -71,10 +85,8 @@ http://localhost:8080
    - `DB_URL`
    - `DB_USER`
    - `DB_PASSWORD`
-   - `AUTH0_DOMAIN`
-   - `AUTH0_CLIENT_ID`
-   - `AUTH0_CLIENT_SECRET`
-   - `AUTH0_AUDIENCE`
+   - `JWT_SECRET`
+   - `JWT_EXPIRATION`
 4. Faça o deploy do backend.  
    Railway injeta automaticamente a variável `PORT`, usada pelo Spring Boot.
 
@@ -86,34 +98,24 @@ https://parfunimports-backend.up.railway.app
 
 ---
 
-## 🔑 Autenticação
+## 🔑 Autenticação com JWT
 
-O backend utiliza **Auth0** para autenticação JWT.
+O backend utiliza **JWT interno** para autenticação.
 
-### Gerar Token
+### Fluxo de autenticação
 
-Faça uma requisição para o Auth0:
+1. **Registro de usuário** → `POST /api/auth/register`
 
-```
-POST https://dev-w4m4ego8rxl0jjzq.us.auth0.com/oauth/token
-```
+   - Cria um novo usuário no banco.
+   - Retorna dados básicos do usuário.
 
-Body:
+2. **Login** → `POST /api/auth/login`
 
-```json
-{
-  "client_id": "SEU_CLIENT_ID",
-  "client_secret": "SEU_CLIENT_SECRET",
-  "audience": "https://parfunimports/api",
-  "grant_type": "client_credentials"
-}
-```
+   - Valida credenciais.
+   - Retorna um `access_token` JWT assinado com `JWT_SECRET`.
 
-A resposta conterá `access_token`.
-
-### Usar Token
-
-Inclua o token no header:
+3. **Uso do token**
+   - Inclua o token no header das requisições protegidas:
 
 ```
 Authorization: Bearer <access_token>
@@ -123,29 +125,36 @@ Authorization: Bearer <access_token>
 
 ## 📡 Endpoints principais
 
-### Autenticação
+| Endpoint             | Método | Descrição                        | Autenticação |
+| -------------------- | ------ | -------------------------------- | ------------ |
+| `/api/auth/register` | POST   | Registrar usuário                | ❌           |
+| `/api/auth/login`    | POST   | Login e geração de JWT           | ❌           |
+| `/api/products`      | GET    | Listar produtos                  | ❌           |
+| `/api/products`      | POST   | Criar produto                    | ✅ (admin)   |
+| `/api/orders`        | GET    | Listar pedidos                   | ✅           |
+| `/api/orders/my`     | GET    | Listar pedidos do usuário logado | ✅           |
+| `/api/orders`        | POST   | Criar pedido                     | ✅           |
+| `/api/users`         | GET    | Listar usuários                  | ✅ (admin)   |
+| `/api/users/{id}`    | GET    | Buscar usuário por ID            | ✅           |
 
-- `POST /api/auth/register` → registrar usuário
-- `POST /api/auth/login` → login via Auth0
+---
 
-### Produtos
+## 🛠️ Melhorias futuras
 
-- `GET /api/products` → listar produtos
-- `POST /api/products` → criar produto (requer token)
-
-### Pedidos
-
-- `GET /api/orders` → listar pedidos
-- `POST /api/orders` → criar pedido
-
-### Usuários
-
-- `GET /api/users` → listar usuários
-- `GET /api/users/{id}` → buscar usuário por ID
+- Implementar testes automatizados com **JUnit**.
+- Adicionar documentação da API com **Swagger/OpenAPI**.
+- Melhorar logs e monitoramento com **Spring Actuator**.
+- Persistência de carrinho e wishlist no banco de dados.
+- Integração com serviços de pagamento reais (ex.: Stripe, PayPal).
 
 ---
 
 ## 👨‍💻 Desenvolvedores
 
 Este README serve para orientar quem for trabalhar no backend do **ParfunImports**.  
-Para dúvidas sobre variáveis de ambiente e deploy, consulte a documentação da Railway e do Auth0.
+Para dúvidas sobre variáveis de ambiente e deploy, consulte a documentação da **Railway**.
+
+```
+
+---
+```

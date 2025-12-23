@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { useAuth0 } from "@auth0/auth0-react";
 import usePasswordValidation from "../hooks/usePasswordValidation";
 import { useTheme } from "../context/themeProvider";
+import { useAuth } from "../context/authProvider"; // 👈 agora usamos nosso AuthProvider
+import { authFetch } from "../utils/authFetch"; // 👈 utilitário atualizado
 
 /* ===========================
    Componente local PasswordInput
@@ -47,7 +48,7 @@ function PasswordInput({ value, onChange, placeholder, name }) {
 }
 
 export default function PasswordResetForm({ emailOverride }) {
-  const { user } = useAuth0();
+  const { user, token } = useAuth(); // 👈 pega user e token do contexto
   const { validate, getMessage } = usePasswordValidation();
 
   const [newPassword, setNewPassword] = useState("");
@@ -68,29 +69,24 @@ export default function PasswordResetForm({ emailOverride }) {
     }
 
     try {
-      const response = await fetch(
-        `https://${
-          import.meta.env.VITE_AUTH0_DOMAIN
-        }/dbconnections/change_password`,
+      // ✅ chama seu backend para alterar a senha
+      const response = await authFetch(
+        `${import.meta.env.VITE_API_URL}/user/change-password`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
             email: emailOverride || user?.email,
-            connection: "Username-Password-Authentication",
+            newPassword,
           }),
-        }
+        },
+        token
       );
 
-      const data = await response.json();
-
-      if (data.error) {
-        setError(`❌ Erro: ${data.error_description || data.error}`);
-        return;
+      if (!response.ok) {
+        throw new Error("Erro ao solicitar redefinição de senha.");
       }
 
-      toast.success("✅ Link de redefinição enviado para seu email.");
+      toast.success("✅ Senha redefinida com sucesso!");
       setError("");
       setNewPassword("");
       setConfirmPassword("");
@@ -130,7 +126,7 @@ export default function PasswordResetForm({ emailOverride }) {
         </div>
 
         <button type="submit" className="btn-accent w-full">
-          Enviar link de redefinição
+          Redefinir senha
         </button>
       </form>
 

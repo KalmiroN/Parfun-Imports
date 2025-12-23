@@ -1,84 +1,170 @@
-// src/context/cartProvider.jsx
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { authFetch } from "../utils/authFetch";
+import { useAuth } from "./authProvider";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  // Inicializa do localStorage
-  const [cartItems, setCartItems] = useState(() => {
-    try {
-      const data = localStorage.getItem("cart");
-      return data ? JSON.parse(data) : [];
-    } catch {
-      return [];
-    }
-  });
+  const { user, token, isAuthenticated } = useAuth();
+  const [cartItems, setCartItems] = useState([]);
 
-  // Persiste a cada mudança
+  // ✅ Buscar carrinho do backend ao carregar
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!isAuthenticated || !user?.email) {
+        setCartItems([]);
+        return;
+      }
+      try {
+        const res = await authFetch(
+          `${import.meta.env.VITE_API_URL}/api/cart/${user.email}`,
+          { method: "GET" },
+          token
+        );
+        if (res.ok) {
+          setCartItems(res.data || []);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar carrinho:", err);
+      }
+    };
+    fetchCart();
+  }, [isAuthenticated, user, token]);
+
+  // ✅ Persistência local
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Normaliza preço em número (aceita "R$ 1.234,56")
-  const parsePrice = (price) => {
-    if (typeof price === "number") return price;
-    const clean = price
-      .replace("R$", "")
-      .replace(/\s/g, "")
-      .replace(/\./g, "")
-      .replace(",", ".");
-    const val = parseFloat(clean);
-    return Number.isNaN(val) ? 0 : val;
+  // ➕ Adicionar item ao carrinho
+  const addToCart = async (product) => {
+    if (!isAuthenticated || !user?.email) return;
+
+    // 🔎 Normalização segura
+    const normalizedItem = {
+      productId: parseInt(product.productId || product.id, 10), // garante número
+      name: product.name,
+      price: parseFloat(
+        String(product.price)
+          .replace("R$", "")
+          .replace(/\./g, "") // remove pontos de milhar
+          .replace(",", ".") // troca vírgula por ponto
+          .trim()
+      ), // garante número decimal
+      imageUrl: product.imageUrl,
+      quantity: Number(product.quantity) || 1,
+      userEmail: user.email,
+    };
+
+    try {
+      const res = await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/cart`,
+        {
+          method: "POST",
+          body: JSON.stringify(normalizedItem),
+        },
+        token
+      );
+
+      if (res.ok) {
+        setCartItems((prev) => {
+          const existing = prev.find(
+            (p) =>
+              p.productId === normalizedItem.productId ||
+              p.id === normalizedItem.productId
+          );
+          if (existing) {
+            return prev.map((p) =>
+              p.productId === normalizedItem.productId ||
+              p.id === normalizedItem.productId
+                ? { ...p, quantity: p.quantity + normalizedItem.quantity }
+                : p
+            );
+          }
+          return [...prev, normalizedItem];
+        });
+      }
+    } catch (err) {
+      console.error("Erro ao adicionar ao carrinho:", err);
+    }
   };
 
-  // Adiciona item (merge por id se existir; senão por name)
-  const addToCart = (product) => {
-    setCartItems((prev) => {
-      const keyMatch = (p) =>
-        product.id != null ? p.id === product.id : p.name === product.name;
+  // ❌ Remover item
+  const removeById = async (id) => {
+    try {
+      await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/cart/${id}`,
+        { method: "DELETE" },
+        token
+      );
+      setCartItems((prev) =>
+        prev.filter((p) => p.id !== id && p.productId !== id)
+      );
+    } catch (err) {
+      console.error("Erro ao remover item:", err);
+    }
+  };
 
-      const existing = prev.find(keyMatch);
-      if (existing) {
-        return prev.map((p) =>
-          keyMatch(p) ? { ...p, quantity: (p.quantity || 1) + 1 } : p
+  // 🔄 Atualizar quantidade (agora compatível com backend)
+  const updateQuantity = async (id, newQuantity) => {
+    try {
+      const res = await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/cart/${id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ quantity: newQuantity }),
+        },
+        token
+      );
+      if (res.ok) {
+        setCartItems((prev) =>
+          prev.map((p) =>
+            p.id === id || p.productId === id
+              ? { ...p, quantity: newQuantity }
+              : p
+          )
         );
       }
-      return [
-        ...prev,
-        {
-          ...product,
-          quantity:
-            product.quantity && product.quantity > 0 ? product.quantity : 1,
-          priceValue: parsePrice(product.price),
-        },
-      ];
-    });
+    } catch (err) {
+      console.error("Erro ao atualizar quantidade:", err);
+    }
   };
 
-  const removeFromCart = (matcher) => {
-    setCartItems((prev) => prev.filter((p, idx) => !matcher(p, idx)));
+  // 🗑️ Limpar carrinho
+  const clearCart = async () => {
+    if (!isAuthenticated || !user?.email) return;
+    try {
+      await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/cart/user/${user.email}`,
+        { method: "DELETE" },
+        token
+      );
+      setCartItems([]);
+    } catch (err) {
+      console.error("Erro ao limpar carrinho:", err);
+    }
   };
 
-  const updateQuantity = (matcher, delta) => {
-    setCartItems((prev) =>
-      prev.map((p, idx) =>
-        matcher(p, idx)
-          ? { ...p, quantity: Math.max(1, (p.quantity || 1) + delta) }
-          : p
-      )
+  // 📊 Helpers
+  const getCartCount = () =>
+    cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
+
+  const getCartTotal = () =>
+    cartItems.reduce(
+      (acc, item) => acc + Number(item.price) * (item.quantity || 1),
+      0
     );
-  };
-
-  const clearCart = () => setCartItems([]);
 
   const value = useMemo(
     () => ({
       cartItems,
-      setCartItems, // caso você queira manipular diretamente
       addToCart,
-      removeFromCart,
+      removeById,
       updateQuantity,
       clearCart,
+      getCartCount,
+      getCartTotal,
+      setCartItems,
     }),
     [cartItems]
   );

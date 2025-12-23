@@ -1,0 +1,20 @@
+[
+  {
+    "id": 101,
+    "name": "Ameer Al Oud",
+    "price": 539.0,
+    "imageUrl": "/images/Asad-Lattafa-00.jpg"
+  },
+  {
+    "id": 102,
+    "name": "Noora",
+    "price": 429.0,
+    "imageUrl": "/images/Angel-Isabelle-La-Belle-00.jpg"
+  },
+  {
+    "id": 103,
+    "name": "Asad Lattafa",
+    "price": 499.0,
+    "imageUrl": "/images/Asad-Lattafa-01.jpg"
+  }
+]

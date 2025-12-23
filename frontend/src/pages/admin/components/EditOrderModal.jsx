@@ -1,10 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function EditOrderModal({ order, onClose, onSave }) {
   const [status, setStatus] = useState(order.status);
 
+  // ✅ Sincroniza status se o order mudar
+  useEffect(() => {
+    setStatus(order.status);
+  }, [order]);
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose(); // fecha ao clicar fora
+      }}
+    >
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
         <h3 className="text-xl mb-4">Atualizar Pedido #{order.id}</h3>
 

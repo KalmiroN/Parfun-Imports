@@ -1,4 +1,3 @@
-// src/hooks/usePasswordValidation.js
 export default function usePasswordValidation() {
   const validate = (pwd) => {
     const minLength = /.{8,}/;

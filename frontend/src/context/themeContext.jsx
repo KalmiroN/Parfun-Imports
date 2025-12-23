@@ -2,42 +2,40 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext(null);
 
+const themes = ["gold", "dark", "orange", "imperial"];
+const themeClasses = {
+  gold: "theme-gold",
+  dark: "theme-dark",
+  orange: "theme-orange",
+  imperial: "theme-imperial",
+};
+
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem("theme");
-    return saved || "gold";
+    return themes.includes(saved) ? saved : "gold";
   });
 
   useEffect(() => {
     localStorage.setItem("theme", theme);
     const html = document.documentElement;
-    html.classList.remove(
-      "theme-gold",
-      "theme-dark",
-      "theme-orange",
-      "theme-imperial"
-    );
-    if (theme === "gold") html.classList.add("theme-gold");
-    if (theme === "dark") html.classList.add("theme-dark");
-    if (theme === "orange") html.classList.add("theme-orange");
-    if (theme === "imperial") html.classList.add("theme-imperial"); // ✅ faltava isso
+
+    // Remove todas as classes de tema
+    Object.values(themeClasses).forEach((cls) => html.classList.remove(cls));
+
+    // Adiciona a classe correspondente ao tema atual
+    html.classList.add(themeClasses[theme]);
   }, [theme]);
 
-  // ✅ Agora o ciclo inclui o tema imperial
   const cycleTheme = () => {
-    setTheme((t) =>
-      t === "gold"
-        ? "dark"
-        : t === "dark"
-        ? "orange"
-        : t === "orange"
-        ? "imperial"
-        : "gold"
-    );
+    setTheme((t) => {
+      const idx = themes.indexOf(t);
+      return themes[(idx + 1) % themes.length];
+    });
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, cycleTheme }}>
+    <ThemeContext.Provider value={{ theme, cycleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

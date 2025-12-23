@@ -1,10 +1,10 @@
-// src/hooks/useRoles.js
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth } from "../context/authProvider";
 
 export function useRoles() {
-  const { user } = useAuth0();
+  const { user } = useAuth();
 
-  const roles = user?.["https://parfun-imports.com/roles"] || [];
+  // Agora roles vêm direto do objeto user
+  const roles = user?.roles || [];
 
   const hasRole = (role) =>
     roles.map((r) => r.toLowerCase()).includes(role.toLowerCase());

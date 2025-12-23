@@ -1,27 +1,34 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { authFetch } from "../utils/authFetch"; // ✅ corrigido
+import { toast } from "react-toastify";
+import { useCart } from "../context/cartProvider"; // ✅ corrigido
 
 export default function Search() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const { addToCart } = useCart();
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    // Placeholder: simula resultados
-    setResults([
-      {
-        id: 1,
-        name: "Perfume Exemplo A",
-        price: "R$ 249,90",
-        image: "/images/perfumeA.jpg", // **ALTERAR depois**
-      },
-      {
-        id: 2,
-        name: "Perfume Exemplo B",
-        price: "R$ 349,90",
-        image: "/images/perfumeB.jpg", // **ALTERAR depois**
-      },
-    ]);
+    if (!query.trim()) {
+      toast.info("Digite algo para buscar.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await authFetch(
+        `${import.meta.env.VITE_API_URL}/products?search=${encodeURIComponent(
+          query
+        )}`
+      );
+      setResults(res.data || []);
+    } catch (err) {
+      toast.error(err.message || "Erro ao buscar produtos.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,6 +45,7 @@ export default function Search() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-grow px-4 py-2 rounded-lg border border-brand-border bg-brand-surface text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+            aria-label="Campo de busca de perfumes"
           />
           <button
             type="submit"
@@ -47,7 +55,9 @@ export default function Search() {
           </button>
         </form>
 
-        {results.length === 0 ? (
+        {loading ? (
+          <p className="text-brand-text">Carregando resultados...</p>
+        ) : results.length === 0 ? (
           <p className="text-brand-textMuted">Nenhum resultado encontrado.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -57,18 +67,21 @@ export default function Search() {
                 className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-4 transition-colors duration-500"
               >
                 <img
-                  src={item.image}
+                  src={item.imageUrl}
                   alt={item.name}
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
                 <h3 className="text-lg font-display text-brand-text">
                   {item.name}
                 </h3>
-                <p className="text-brand-textMuted">{item.price}</p>
+                <p className="text-brand-textMuted">R$ {item.price}</p>
 
                 {/* Botões de ação */}
                 <div className="flex flex-col md:flex-row gap-4 mt-4">
-                  <button className="flex-1 px-4 py-2 rounded-full bg-brand-accent text-black hover:opacity-90 transition-colors duration-500">
+                  <button
+                    onClick={() => addToCart(item)}
+                    className="flex-1 px-4 py-2 rounded-full bg-brand-accent text-black hover:opacity-90 transition-colors duration-500"
+                  >
                     Adicionar ao carrinho
                   </button>
                   <Link

@@ -1,5 +1,40 @@
 import ProductCard from "../components/ProductCard";
 import { useTheme } from "../context/themeProvider";
+import Highlights from "../components/Highlights";
+
+// ✅ Array local de produtos, igual ao Products.jsx
+const produtos = [
+  {
+    id: 1,
+    name: "Ameeri",
+    price: 499.0,
+    imageUrl: "/images/Ameeri-Al-Wataniah-00.jpg",
+  },
+  {
+    id: 2,
+    name: "Noora",
+    price: 429.0,
+    imageUrl: "/images/Angel-Isabelle-La-Belle-00.jpg",
+  },
+  {
+    id: 3,
+    name: "Ameer Al Oud",
+    price: 539.0,
+    imageUrl: "/images/Asad-Lattafa-00.jpg",
+  },
+  {
+    id: 4,
+    name: "Ameer Al Oud",
+    price: 539.0,
+    imageUrl: "/images/Club-De-Nuit-Intense-Man-00.jpg",
+  },
+  {
+    id: 5,
+    name: "Ameer Al Oud",
+    price: 539.0,
+    imageUrl: "/images/Club-De-Nuit-Woman-00.jpg",
+  },
+];
 
 export default function Home() {
   const { theme } = useTheme();
@@ -21,17 +56,17 @@ export default function Home() {
           <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         )}
         <div className="relative z-10 px-4">
-          {/* Título principal com fonte Love Light */}
+          {/* Título principal */}
           <h1 className="love-light-regular text-[5rem] mb-6 text-white select-none">
             Parfun Imports
           </h1>
 
-          {/* Subtítulo aumentado */}
-          <p className="text-3xl mb-10 text-white select-none">
+          {/* Subtítulo */}
+          <p className="text-3xl mb-6 text-white select-none">
             Fragrâncias exclusivas que elevam sua presença.
           </p>
 
-          {/* Botões atualizados */}
+          {/* Botões principais */}
           <div className="flex gap-6 justify-center">
             <a
               href="/products"
@@ -49,26 +84,21 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Seção de destaques */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="text-2xl font-display mb-6 text-brand-text text-center select-none">
           Destaques
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
-          <ProductCard
-            name="Ameeri"
-            price="R$ 499,00"
-            imageUrl="/images/Ameeri-Al-Wataniah-00.jpg"
-          />
-          <ProductCard
-            name="Noora"
-            price="R$ 429,00"
-            imageUrl="/images/Angel-Isabelle-La-Belle-00.jpg"
-          />
-          <ProductCard
-            name="Ameer Al Oud"
-            price="R$ 539,00"
-            imageUrl="/images/Asad-Lattafa-00.jpg"
-          />
+          {produtos.slice(0, 3).map((p) => (
+            <ProductCard
+              key={p.id}
+              id={p.id}
+              name={p.name}
+              price={p.price}
+              imageUrl={p.imageUrl}
+            />
+          ))}
         </div>
       </section>
     </main>

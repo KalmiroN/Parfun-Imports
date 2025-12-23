@@ -40,14 +40,14 @@ export default function CheckoutCard({
           <div className="mt-4 flex items-center gap-3">
             <button
               onClick={() => onQuantityChange(index, -1)}
-              className="btn-secondary px-3 py-1"
+              className="btn-accent px-3 py-1"
             >
               −
             </button>
             <span className="min-w-8 text-center">{quantity}</span>
             <button
               onClick={() => onQuantityChange(index, +1)}
-              className="btn-secondary px-3 py-1"
+              className="btn-accent px-3 py-1"
             >
               +
             </button>
@@ -63,7 +63,7 @@ export default function CheckoutCard({
             </button>
             <button
               onClick={() => onSaveLater()}
-              className="btn-secondary text-sm"
+              className="btn-accent text-sm"
             >
               Salvar para depois
             </button>

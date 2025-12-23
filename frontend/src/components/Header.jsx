@@ -1,20 +1,23 @@
 import { useTheme } from "../context/themeProvider";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
+import { useRoles } from "../hooks/useRoles";
+import CartIcon from "../components/CartIcon";
 
 export default function Header() {
   const { theme, cycleTheme } = useTheme();
-  const { user, isAuthenticated, logout } = useAuth0();
   const [showUserBox, setShowUserBox] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const triggerRef = useRef(null);
   const userBoxRef = useRef(null);
 
-  const roles = user?.["https://parfun-imports.com/roles"] || [];
-  const isAdmin = roles.includes("admin");
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const isAuthenticated = !!user;
+
+  const { isAdmin, isAdminSecondary, isClient } = useRoles();
 
   const cartIcon =
     theme === "dark"
@@ -30,13 +33,12 @@ export default function Header() {
     theme === "dark" ? "/images/person_branco.png" : "/images/person_preto.png";
 
   const handleLogout = () => {
-    logout({
-      logoutParams: {
-        returnTo: import.meta.env.VITE_AUTH0_POST_LOGOUT_REDIRECT_URI,
-      },
+    localStorage.removeItem("user");
+    toast.info("Você saiu da sua conta.", {
+      position: "bottom-right",
+      autoClose: 2000,
     });
-    toast.info("Você saiu da sua conta.");
-    navigate("/logged-out");
+    navigate("/"); // ✅ agora vai para home
   };
 
   const toggleMenu = () => {
@@ -44,7 +46,6 @@ export default function Header() {
     setShowUserBox(false);
   };
 
-  // Fecha ao clicar fora
   useEffect(() => {
     function handleClickOutside(event) {
       if (!showUserBox) return;
@@ -61,245 +62,51 @@ export default function Header() {
   }, [showUserBox]);
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-brand-surface shadow-soft relative">
-      {/* Logo */}
-      <div
-        className="absolute top-2 left-6 z-50 cursor-pointer group animate-fadeInLeft"
-        onClick={cycleTheme}
-      >
-        <img
-          src="/images/logo.png"
-          alt="Parfun Imports"
-          className="h-36 w-36 rounded-full border-4 border-brand-border shadow-strong group-hover:scale-105 transition-transform duration-500"
-        />
-      </div>
-
-      {/* Botão hamburguer (mobile) */}
-      <button
-        className="md:hidden text-brand-text focus:outline-none ml-auto"
-        onClick={toggleMenu}
-        aria-label="Abrir menu"
-        type="button"
-      >
-        {menuOpen ? "✕" : "☰"}
-      </button>
-
-      {/* Menu desktop */}
-      <nav className="hidden md:flex flex-1 justify-center">
-        <ul className="flex gap-4 items-center">
-          {" "}
-          {/* ✅ alinhamento vertical */}
-          <li className="flex items-center">
-            <Link to="/" className="btn-accent">
-              Home
-            </Link>
-          </li>
-          <li className="flex items-center">
-            <Link to="/products" className="btn-accent">
-              Produtos
-            </Link>
-          </li>
-          <li className="flex items-center">
-            <button
-              className="btn-accent"
-              onClick={() => {
-                if (isAuthenticated) {
-                  navigate("/profile");
-                } else {
-                  toast.info(
-                    "Você precisa estar logado para acessar o perfil."
-                  );
-                }
-              }}
-            >
-              Perfil
-            </button>
-          </li>
-          {isAdmin && (
-            <>
-              <li className="flex items-center">
-                <Link to="/admin/products" className="btn-accent">
-                  Admin Produtos
-                </Link>
-              </li>
-              <li className="flex items-center">
-                <Link to="/admin/orders" className="btn-accent">
-                  Admin Pedidos
-                </Link>
-              </li>
-            </>
-          )}
-        </ul>
-      </nav>
-      {/* Ícones à direita */}
-      <div className="flex items-center gap-6">
-        {/* Carrinho */}
-        <div className="relative group">
-          <Link to="/cart" aria-label="Abrir carrinho">
-            <img
-              src={cartIcon}
-              alt="Carrinho"
-              className="h-8 w-8 hover:scale-105 transition-transform duration-300 pointer-events-auto"
-            />
-          </Link>
-          <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition delay-[1500ms]">
-            Carrinho
-          </span>
+    <>
+      <header className="flex items-center justify-between px-6 py-4 bg-brand-surface shadow-soft relative">
+        {/* Logo */}
+        <div
+          className="absolute top-2 left-6 z-50 cursor-pointer group animate-fadeInLeft"
+          onClick={cycleTheme}
+        >
+          <img
+            src="/images/logo.png"
+            alt="Parfun Imports"
+            className="h-36 w-36 rounded-full border-4 border-brand-border shadow-strong group-hover:scale-105 transition-transform duration-500"
+          />
         </div>
 
-        {/* Usuário */}
-        <div className="relative group flex items-center gap-2">
-          {isAuthenticated && (
-            <span className="text-sm text-brand-text">
-              Olá, {user?.name?.split(" ")[0]}
-            </span>
-          )}
-          <button
-            ref={triggerRef}
-            type="button"
-            className="p-0 m-0 bg-transparent rounded-full hover:scale-105 transition-transform duration-300 pointer-events-auto"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowUserBox((prev) => !prev);
-            }}
-            aria-haspopup="menu"
-            aria-expanded={showUserBox}
-            aria-label="Abrir menu do usuário"
-          >
-            <img
-              src={
-                isAuthenticated
-                  ? user?.picture || defaultUserIcon
-                  : defaultUserIcon
-              }
-              alt="Usuário"
-              className="h-8 w-8 rounded-full"
-            />
-          </button>
-          <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition delay-[1500ms]">
-            Usuário
-          </span>
+        {/* Hamburguer mobile */}
+        <button
+          className="md:hidden text-brand-text focus:outline-none ml-auto"
+          onClick={toggleMenu}
+          aria-label="Abrir menu"
+          type="button"
+        >
+          {menuOpen ? "✕" : "☰"}
+        </button>
 
-          {/* Caixa flutuante do usuário */}
-          {showUserBox && (
-            <div
-              ref={userBoxRef}
-              className="absolute right-0 top-12 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border z-50"
-            >
-              {isAuthenticated ? (
-                <>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Informações do Usuário
-                  </h3>
-                  <p className="text-sm">Nome: {user?.name}</p>
-                  <p className="text-sm">Email: {user?.email}</p>
-
-                  <div className="flex flex-col gap-2 mt-4">
-                    <button
-                      className="btn-accent w-full text-center"
-                      onClick={() => navigate("/profile")}
-                    >
-                      Endereço
-                    </button>
-                    <Link
-                      to="/wallet"
-                      className="btn-accent w-full text-center"
-                    >
-                      Vale Desconto
-                    </Link>
-                    <button
-                      className="btn-accent w-full text-center"
-                      onClick={() => {
-                        if (isAuthenticated) {
-                          navigate("/profile");
-                        } else {
-                          toast.info(
-                            "Você precisa estar logado para acessar o perfil."
-                          );
-                        }
-                      }}
-                    >
-                      Perfil
-                    </button>
-                    <Link
-                      to="/my-orders"
-                      className="btn-accent w-full text-center"
-                    >
-                      Meus Pedidos
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="btn-secondary w-full flex items-center justify-center gap-2"
-                    >
-                      <img src={logoutIcon} alt="Logout" className="w-5 h-5" />
-                      Logout
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-lg font-semibold mb-2">Bem-vindo!</h3>
-                  <p className="text-sm mb-4">
-                    Faça login ou cadastre-se para continuar.
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    <Link to="/login" className="btn-accent w-full text-center">
-                      Entrar
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="btn-secondary w-full text-center"
-                    >
-                      Registrar
-                    </Link>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Login (ícone separado) */}
-        {!isAuthenticated && (
-          <div className="relative group">
-            <Link to="/login" aria-label="Ir para login">
-              <img
-                src={loginIcon}
-                alt="Login"
-                className="h-10 w-10 hover:scale-105 transition-transform duration-300 pointer-events-auto"
-              />
-            </Link>
-            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition delay-[1500ms]">
-              Login
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Menu mobile */}
-      {menuOpen && (
-        <nav className="absolute top-full left-0 w-full bg-brand-surface shadow-strong p-6 md:hidden z-50">
-          <ul className="flex flex-col gap-4 items-center">
-            <li className="flex items-center">
-              <Link to="/" className="btn-accent w-full text-center">
+        {/* Menu desktop */}
+        <nav className="hidden md:flex flex-1 justify-center">
+          <ul className="flex gap-4 items-center">
+            <li>
+              <Link to="/" className="btn-accent">
                 Home
               </Link>
             </li>
-            <li className="flex items-center">
-              <Link to="/products" className="btn-accent w-full text-center">
+            <li>
+              <Link to="/products" className="btn-accent">
                 Produtos
               </Link>
             </li>
-            <li className="flex items-center">
+            <li>
               <button
-                className="btn-accent w-full text-center"
+                className="btn-accent"
                 onClick={() => {
                   if (isAuthenticated) {
                     navigate("/profile");
                   } else {
-                    toast.info(
-                      "Você precisa estar logado para acessar o perfil."
-                    );
+                    navigate("/login"); // ✅ agora vai para login
                   }
                 }}
               >
@@ -308,7 +115,206 @@ export default function Header() {
             </li>
             {isAdmin && (
               <>
-                <li className="flex items-center">
+                <li>
+                  <Link to="/admin/products" className="btn-accent">
+                    Admin Produtos
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/admin/orders" className="btn-accent">
+                    Admin Pedidos
+                  </Link>
+                </li>
+              </>
+            )}
+          </ul>
+        </nav>
+
+        {/* Ícones à direita */}
+        <div className="flex items-center gap-6">
+          {/* Carrinho */}
+          <div className="relative group">
+            <Link to="/cart" aria-label="Abrir carrinho">
+              <img
+                src={cartIcon}
+                alt="Carrinho"
+                className="h-8 w-8 hover:scale-105 transition-transform duration-300"
+              />
+            </Link>
+          </div>
+
+          {/* Usuário */}
+          <div className="relative group flex items-center gap-2">
+            {isAuthenticated && (
+              <span className="text-sm text-brand-text">
+                Olá, {user?.name?.split(" ")[0]}
+              </span>
+            )}
+            <button
+              ref={triggerRef}
+              type="button"
+              className="bg-transparent rounded-full hover:scale-105 transition-transform duration-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowUserBox((prev) => !prev);
+              }}
+            >
+              <img
+                src={
+                  isAuthenticated
+                    ? user?.picture || defaultUserIcon
+                    : defaultUserIcon
+                }
+                alt="Usuário"
+                className="h-8 w-8 rounded-full"
+              />
+            </button>
+
+            {/* ✅ Ícone login aparece quando não autenticado */}
+            {!isAuthenticated && (
+              <Link to="/login" aria-label="Login">
+                <img
+                  src={loginIcon}
+                  alt="Login"
+                  className="h-8 w-8 hover:scale-105 transition-transform duration-300"
+                />
+              </Link>
+            )}
+            {/* Caixa flutuante */}
+            {showUserBox && (
+              <div
+                ref={userBoxRef}
+                className="absolute right-0 top-12 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border z-50"
+              >
+                {isAuthenticated ? (
+                  <>
+                    <h3 className="text-lg font-semibold mb-2">
+                      Informações do Usuário
+                    </h3>
+                    <p className="text-sm">Nome: {user?.name}</p>
+                    <p className="text-sm">Email: {user?.email}</p>
+                    <p className="text-sm text-orange-400 font-semibold mt-1">
+                      Usuário:{" "}
+                      {isAdmin
+                        ? "Admin"
+                        : isAdminSecondary
+                        ? "Admin secundário"
+                        : isClient
+                        ? "Cliente"
+                        : "Usuário"}
+                    </p>
+
+                    <div className="flex flex-col gap-2 mt-4">
+                      <button
+                        className="btn-accent w-full text-center"
+                        onClick={() => navigate("/profile")}
+                      >
+                        Endereço
+                      </button>
+                      <Link
+                        to="/wallet"
+                        className="btn-accent w-full text-center"
+                      >
+                        Vale Desconto
+                      </Link>
+                      <Link
+                        to="/my-orders"
+                        className="btn-accent w-full text-center"
+                      >
+                        Meus Pedidos
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="btn-secondary w-full flex items-center justify-center gap-2"
+                      >
+                        <img
+                          src={logoutIcon}
+                          alt="Logout"
+                          className="w-5 h-5"
+                        />
+                        Logout
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-lg font-semibold mb-2">Bem-vindo!</h3>
+                    <p className="text-sm mb-4">
+                      Faça login ou cadastre-se para continuar.
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <Link
+                        to="/login"
+                        className="btn-accent w-full text-center"
+                      >
+                        Entrar
+                      </Link>
+                      <Link
+                        to="/register"
+                        className="btn-secondary w-full text-center"
+                      >
+                        Registrar
+                      </Link>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Menu mobile */}
+      {menuOpen && (
+        <nav className="absolute top-full left-0 w-full bg-brand-surface shadow-strong p-6 md:hidden z-50">
+          <ul className="flex flex-col gap-4 items-center">
+            <li>
+              <Link to="/" className="btn-accent w-full text-center">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/products" className="btn-accent w-full text-center">
+                Produtos
+              </Link>
+            </li>
+            <li>
+              <Link to="/cart" className="btn-accent w-full text-center">
+                Carrinho
+              </Link>
+            </li>
+            <li>
+              <button
+                className="btn-accent w-full text-center"
+                onClick={() => {
+                  if (isAuthenticated) {
+                    navigate("/profile");
+                  } else {
+                    navigate("/login"); // ✅ agora vai para login
+                  }
+                }}
+              >
+                Perfil
+              </button>
+            </li>
+
+            {/* Tipo de usuário no menu mobile */}
+            {isAuthenticated && (
+              <li className="text-sm text-orange-400 font-semibold">
+                Usuário:{" "}
+                {isAdmin
+                  ? "Admin"
+                  : isAdminSecondary
+                  ? "Admin secundário"
+                  : isClient
+                  ? "Cliente"
+                  : "Usuário"}
+              </li>
+            )}
+
+            {isAdmin && (
+              <>
+                <li>
                   <Link
                     to="/admin/products"
                     className="btn-accent w-full text-center"
@@ -316,7 +322,7 @@ export default function Header() {
                     Admin Produtos
                   </Link>
                 </li>
-                <li className="flex items-center">
+                <li>
                   <Link
                     to="/admin/orders"
                     className="btn-accent w-full text-center"
@@ -329,6 +335,6 @@ export default function Header() {
           </ul>
         </nav>
       )}
-    </header>
+    </>
   );
 }

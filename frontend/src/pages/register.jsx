@@ -1,22 +1,18 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../context/themeProvider";
+import { useAuth } from "../context/authProvider";
+import { authFetch } from "../utils/authFetch"; // ✅ agora usamos authFetch
 
 /* ===========================
    Componente local PasswordInput
    =========================== */
-function PasswordInput({
-  value,
-  onChange,
-  placeholder = "Digite sua senha",
-  name,
-}) {
+function PasswordInput({ value, onChange, placeholder = "Digite sua senha" }) {
   const [show, setShow] = useState(false);
   const { theme } = useTheme();
 
   const eyeIcon =
     theme === "dark" ? "/images/eye_white.png" : "/images/eye_black.png";
-
   const offIcon =
     theme === "dark"
       ? "/images/visibility_off_white.png"
@@ -26,11 +22,10 @@ function PasswordInput({
     <div className="relative w-full">
       <input
         type={show ? "text" : "password"}
-        name={name}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-3 text-brand-text shadow-strong placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+        className="input-field"
         required
       />
       <button
@@ -50,12 +45,14 @@ function PasswordInput({
 }
 
 export default function Register() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -66,36 +63,31 @@ export default function Register() {
     }
 
     try {
-      const response = await fetch(
-        `https://${import.meta.env.VITE_AUTH0_DOMAIN}/dbconnections/signup`,
+      const response = await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/user/register`, // ✅ rota correta
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
-            email,
-            password,
-            connection: "Username-Password-Authentication",
-            user_metadata: { name },
-          }),
+          body: JSON.stringify({ name, email, password }),
         }
       );
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (data.error) {
-        setMessage(`❌ Erro: ${data.error_description || data.error}`);
+      if (!response.ok) {
+        setMessage(`❌ ${data?.error || "Falha ao registrar."}`);
         return;
       }
 
-      if (data._id) {
-        setMessage("✅ Conta criada com sucesso! Agora você pode fazer login.");
-        navigate("/login");
-      } else {
-        setMessage("❌ Erro ao criar conta.");
-      }
+      const userData = { email: data.email, name: data.name };
+      const token = data.accessToken || "";
+      const roles = data.roles || ["client"];
+
+      login(userData, token, roles);
+      setMessage(data.message || "✅ Cadastro realizado com sucesso!");
+      navigate("/");
     } catch (err) {
-      setMessage("❌ Erro ao criar conta.");
+      console.error("Erro no cadastro:", err);
+      setMessage("❌ Falha ao registrar. Tente novamente.");
     }
   };
 
@@ -119,7 +111,7 @@ export default function Register() {
             placeholder="Nome"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-3 text-brand-text shadow-strong placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+            className="input-field"
             required
           />
 
@@ -128,39 +120,28 @@ export default function Register() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-brand-border bg-brand-surface/70 px-4 py-3 text-brand-text shadow-strong placeholder-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+            className="input-field"
             required
           />
 
-          {/* ✅ Campo de senha com toggle */}
           <PasswordInput
-            name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Digite sua senha"
           />
 
-          {/* ✅ Campo de confirmação de senha com toggle */}
           <PasswordInput
-            name="confirm"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             placeholder="Confirme sua senha"
           />
 
           <div className="flex gap-4 mt-6">
-            <button
-              type="submit"
-              className="flex-1 px-6 py-3 rounded-full bg-brand-accent text-black font-semibold shadow-strong hover:scale-105 transition-transform duration-500 select-none"
-            >
+            <button type="submit" className="flex-1 btn-accent">
               Criar Conta
             </button>
-
-            <Link
-              to="/"
-              className="flex-1 px-6 py-3 rounded-full border border-brand-border text-brand-text bg-transparent shadow-strong hover:bg-brand-accent hover:text-black transition-colors duration-300 text-center select-none"
-            >
-              Sair
+            <Link to="/" className="flex-1 btn-secondary text-center">
+              Cancelar
             </Link>
           </div>
         </form>

@@ -2,18 +2,27 @@ import Hero from "../components/Hero";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { authFetch } from "../utils/authFetch";
+import { useAuth } from "../context/authProvider";
 
 export default function OrderConfirmation() {
+  const { token } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!token) {
+      setError("Você precisa estar logado para ver seu pedido.");
+      setLoading(false);
+      return;
+    }
+
     const fetchLastOrder = async () => {
       try {
-        // ✅ Busca o último pedido do usuário logado
         const response = await authFetch(
-          `${import.meta.env.VITE_API_URL}/orders/last`
+          `${import.meta.env.VITE_API_URL}/orders/last`,
+          {},
+          token
         );
 
         if (!response.ok) {
@@ -30,7 +39,7 @@ export default function OrderConfirmation() {
     };
 
     fetchLastOrder();
-  }, []);
+  }, [token]);
 
   return (
     <main className="transition-colors duration-500">
@@ -42,7 +51,17 @@ export default function OrderConfirmation() {
 
       <div className="mx-auto max-w-4xl px-4 py-12 text-center">
         {loading && <p className="text-brand-text">Carregando detalhes...</p>}
-        {error && <p className="text-red-500">{error}</p>}
+        {error && (
+          <div>
+            <p className="text-red-500 mb-4">{error}</p>
+            <Link
+              to="/products"
+              className="px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500"
+            >
+              Voltar ao catálogo
+            </Link>
+          </div>
+        )}
 
         {order && (
           <div className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-6 mb-8">
@@ -50,7 +69,11 @@ export default function OrderConfirmation() {
               Pedido #{order.id}
             </h3>
             <p className="text-brand-textMuted">
-              Data: {order.date} | Total: R$ {order.total}
+              Data: {new Date(order.date).toLocaleDateString("pt-BR")} | Total:{" "}
+              {Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(order.total)}
             </p>
             <p className="text-brand-textMuted">Status: {order.status}</p>
           </div>

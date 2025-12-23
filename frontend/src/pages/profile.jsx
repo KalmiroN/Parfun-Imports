@@ -1,90 +1,58 @@
-// ===== Profile.jsx — Parte 1/2 =====
-
 import React, { useState, useEffect } from "react";
-import { useAuth0 } from "@auth0/auth0-react"; // ✅ hook oficial do Auth0
-import { authFetch } from "../utils/authFetch"; // utilitário para fetch com token
 import { toast } from "react-toastify";
-import { useRoles } from "../hooks/useRoles"; // ✅ hook para roles
-import PasswordResetForm from "../components/PasswordResetForm"; // ✅ formulário modular de alteração de senha
+import { useAuth } from "../context/authProvider";
+import { useRoles } from "../hooks/useRoles";
+import PasswordResetForm from "../components/PasswordResetForm";
+import { authFetch } from "../utils/authFetch";
 
 export default function Profile() {
-  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } =
-    useAuth0();
+  const { user, token, updateUser } = useAuth(); // 👈 agora usamos updateUser
   const { roles, isAdmin, isAdminSecondary, isClient } = useRoles();
 
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [name, setName] = useState(user?.name || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [address, setAddress] = useState(user?.address || "");
+  const [password, setPassword] = useState(""); // 👈 novo estado para senha
   const [error, setError] = useState("");
 
-  // ✅ Buscar dados do usuário no backend
+  // ✅ Atualiza os estados quando o user mudar
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!isAuthenticated) {
-        loginWithRedirect();
-        return;
-      }
-
-      try {
-        const response = await authFetch(
-          `${import.meta.env.VITE_API_URL}/user/me`,
-          {},
-          () =>
-            getAccessTokenSilently({
-              authorizationParams: {
-                audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-                scope: "openid profile email",
-              },
-            })
-        );
-
-        if (!response.ok) {
-          throw new Error("Erro ao carregar perfil.");
-        }
-
-        const data = await response.json();
-        setName(data.name || "");
-        setEmail(data.email || "");
-        setPhone(data.phone || "");
-        setAddress(data.address || "");
-        setError("");
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [isAuthenticated, loginWithRedirect, getAccessTokenSilently]);
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setPhone(user.phone || "");
+      setAddress(user.address || "");
+    }
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
+      // Monta payload dinamicamente
+      const payload = { name, phone, email, address };
+      if (password && password.trim() !== "") {
+        payload.password = password;
+      }
+
       const response = await authFetch(
-        `${import.meta.env.VITE_API_URL}/user/update`,
+        `${import.meta.env.VITE_API_URL}/api/user/update`,
         {
           method: "PUT",
-          body: JSON.stringify({ name, phone, email, address }),
+          body: JSON.stringify(payload),
         },
-        () =>
-          getAccessTokenSilently({
-            authorizationParams: {
-              audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-              scope: "openid profile email",
-            },
-          })
+        token
       );
 
-      if (!response.ok) {
-        throw new Error("Erro ao atualizar perfil.");
+      // ✅ Atualiza contexto com dados retornados pelo backend
+      if (response.ok && response.data) {
+        updateUser(response.data);
       }
 
       toast.success("Perfil atualizado com sucesso!");
+      setPassword(""); // limpa campo de senha após salvar
       setError("");
     } catch (err) {
       setError(err.message);
@@ -92,12 +60,10 @@ export default function Profile() {
     }
   };
 
-  if (!isAuthenticated) return null;
-
-  if (loading) {
+  if (!user) {
     return (
       <main className="flex items-center justify-center min-h-screen">
-        <p className="text-brand-text">Carregando perfil...</p>
+        <p className="text-brand-text">Você não está logado.</p>
       </main>
     );
   }
@@ -110,10 +76,8 @@ export default function Profile() {
           "url('/images/background_files/gold-backgraund-02.jpg')",
       }}
     >
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/40" />
 
-      {/* Conteúdo centralizado */}
       <div className="relative z-10 w-full max-w-lg p-10 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-soft animate-fadeInUp">
         <h2 className="love-light-regular text-3xl text-brand-text text-center mb-8">
           Meu Perfil
@@ -121,20 +85,24 @@ export default function Profile() {
 
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-        {/* ✅ Informações básicas do usuário */}
+        {/* Informações básicas */}
         <div className="mb-8 space-y-4">
           <div className="p-4 border border-brand-border rounded-lg bg-white/40">
             <h3 className="text-lg font-semibold text-brand-text">Nome</h3>
-            <p className="text-brand-textMuted">
-              {user?.name || user?.nickname}
-            </p>
+            <p className="text-brand-textMuted">{name}</p>
           </div>
-
           <div className="p-4 border border-brand-border rounded-lg bg-white/40">
             <h3 className="text-lg font-semibold text-brand-text">Email</h3>
-            <p className="text-brand-textMuted">{user?.email}</p>
+            <p className="text-brand-textMuted">{email}</p>
           </div>
-
+          <div className="p-4 border border-brand-border rounded-lg bg-white/40">
+            <h3 className="text-lg font-semibold text-brand-text">Telefone</h3>
+            <p className="text-brand-textMuted">{phone || "Não informado"}</p>
+          </div>
+          <div className="p-4 border border-brand-border rounded-lg bg-white/40">
+            <h3 className="text-lg font-semibold text-brand-text">Endereço</h3>
+            <p className="text-brand-textMuted">{address || "Não informado"}</p>
+          </div>
           <div className="p-4 border border-brand-border rounded-lg bg-white/40">
             <h3 className="text-lg font-semibold text-brand-text">Roles</h3>
             {roles.length > 0 ? (
@@ -149,7 +117,7 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* ✅ Botões diferentes por role */}
+        {/* Botões por role */}
         <div className="mb-8">
           {isClient && (
             <div className="flex flex-col gap-4">
@@ -161,7 +129,6 @@ export default function Profile() {
               </a>
             </div>
           )}
-
           {isAdminSecondary && (
             <div className="flex flex-col gap-4">
               <a href="/admin/products" className="btn-accent w-full">
@@ -172,7 +139,6 @@ export default function Profile() {
               </a>
             </div>
           )}
-
           {isAdmin && (
             <div className="flex flex-col gap-4">
               <a href="/admin/manage-roles" className="btn-secondary w-full">
@@ -182,7 +148,7 @@ export default function Profile() {
           )}
         </div>
 
-        {/* ✅ Formulário de edição */}
+        {/* Formulário de edição */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-brand-text mb-2">Nome</label>
@@ -190,57 +156,59 @@ export default function Profile() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              onFocus={() => setError("")}
-              placeholder="Digite seu nome"
               className="input-field"
               required
             />
           </div>
-
           <div>
             <label className="block text-brand-text mb-2">Telefone</label>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              onFocus={() => setError("")}
-              placeholder="(11) 99999-9999"
               className="input-field"
+              placeholder="Digite seu telefone"
             />
           </div>
-
           <div>
             <label className="block text-brand-text mb-2">E-mail</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onFocus={() => setError("")}
-              placeholder="Digite seu e-mail"
               className="input-field"
               required
             />
           </div>
-
           <div>
             <label className="block text-brand-text mb-2">Endereço</label>
             <input
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              onFocus={() => setError("")}
-              placeholder="Seu endereço"
               className="input-field"
+              placeholder="Digite seu endereço"
             />
           </div>
-
+          <div>
+            <label className="block text-brand-text mb-2">
+              Nova Senha (opcional)
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input-field"
+              placeholder="Digite uma nova senha"
+            />
+          </div>
           <button type="submit" className="btn-accent w-full">
             Salvar
           </button>
         </form>
 
-        {/* ✅ Bloco modular de alteração de senha (reutilizável com PasswordInput) */}
-        <PasswordResetForm emailOverride={user?.email} />
+        {/* Reset de senha */}
+        <PasswordResetForm emailOverride={email} />
       </div>
     </div>
   );

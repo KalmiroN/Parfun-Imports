@@ -1,21 +1,65 @@
 import { useCart } from "../context/cartProvider";
 import { toast } from "react-toastify";
-import { useAuth0 } from "@auth0/auth0-react";
-import { useState } from "react";
+import { useAuth } from "../context/authProvider";
+import { authFetch } from "../utils/authFetch";
 import { useTheme } from "../context/themeProvider";
 
 export default function ProductCard({ id, name, price, imageUrl }) {
   const { addToCart } = useCart();
-  const { isAuthenticated } = useAuth0();
+  const { isAuthenticated, user, token } = useAuth();
   const { theme } = useTheme();
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!isAuthenticated) {
       toast.error("Você precisa estar logado para adicionar ao carrinho.");
       return;
     }
-    addToCart({ id, name, price, imageUrl, quantity: 1 });
-    toast.success(`${name} foi adicionado ao carrinho!`);
+
+    // 🚨 valida ID e preço antes de enviar
+    const productId = Number(id);
+    const productPrice = Number(price);
+
+    if (!productId || isNaN(productId)) {
+      toast.error("Produto inválido. ID não encontrado.");
+      return;
+    }
+
+    if (!productPrice || isNaN(productPrice)) {
+      toast.error("Preço inválido.");
+      return;
+    }
+
+    try {
+      const payload = {
+        productId,
+        quantity: 1,
+        name: String(name).trim(),
+        price: productPrice,
+        imageUrl,
+        userEmail: user?.email,
+      };
+
+      console.log("Payload enviado ao backend:", payload);
+
+      const res = await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/cart`,
+        {
+          method: "POST",
+          body: JSON.stringify(payload),
+        },
+        token
+      );
+
+      if (!res.ok) {
+        throw new Error(res.data?.error || "Erro ao adicionar ao carrinho.");
+      }
+
+      toast.success(`${name} foi adicionado ao carrinho!`);
+      addToCart(payload);
+    } catch (err) {
+      console.error("Erro ao adicionar ao carrinho:", err);
+      toast.error(err.message || "Erro ao comunicar com a API.");
+    }
   };
 
   return (
@@ -38,7 +82,10 @@ export default function ProductCard({ id, name, price, imageUrl }) {
         </p>
         <div className="mt-4 flex items-center justify-between">
           <span className="font-medium text-brand-text select-none">
-            {price}
+            {Number(price).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
           </span>
           <button
             onClick={handleAdd}
@@ -49,43 +96,5 @@ export default function ProductCard({ id, name, price, imageUrl }) {
         </div>
       </div>
     </article>
-  );
-}
-
-/* ===========================
-   Componente de Input de Senha
-   =========================== */
-
-export function PasswordInput({ placeholder = "Digite sua senha" }) {
-  const [show, setShow] = useState(false);
-  const { theme } = useTheme();
-
-  const eyeIcon =
-    theme === "dark" ? "/images/eye_white.png" : "/images/eye_black.png";
-
-  const offIcon =
-    theme === "dark"
-      ? "/images/visibility_off_white.png"
-      : "/images/visibility_off_black.png";
-
-  return (
-    <div className="relative w-full">
-      <input
-        type={show ? "text" : "password"}
-        className="border rounded px-3 py-2 w-full text-brand-text bg-brand-surface"
-        placeholder={placeholder}
-      />
-      <button
-        type="button"
-        onClick={() => setShow(!show)}
-        className="absolute right-3 top-2"
-      >
-        <img
-          src={show ? offIcon : eyeIcon}
-          alt={show ? "Ocultar senha" : "Mostrar senha"}
-          className="w-6 h-6"
-        />
-      </button>
-    </div>
   );
 }

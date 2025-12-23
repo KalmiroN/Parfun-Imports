@@ -1,73 +1,52 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useAuth } from "../context/authProvider";
 
+/**
+ * ProtectedRoute (PrivateRoute)
+ * - Garante que apenas usuários autenticados acessem a rota.
+ * - Se `allowedRoles` for passado, também valida se o usuário tem a role necessária.
+ *
+ * Props:
+ * - children: componente/rota protegida
+ * - redirectTo: rota para redirecionar se não estiver autenticado (default: /login)
+ * - allowedRoles: lista de roles permitidas (ex.: ["admin", "client"])
+ */
 export default function ProtectedRoute({
   children,
   redirectTo = "/login",
   allowedRoles,
 }) {
-  const {
-    isAuthenticated,
-    user,
-    isLoading,
-    loginWithRedirect,
-    getAccessTokenSilently,
-  } = useAuth0();
-  const [checking, setChecking] = useState(true);
-  const [authorized, setAuthorized] = useState(false);
+  const { user, isAuthenticated, loadingAuth } = useAuth();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        if (!isAuthenticated) {
-          // tenta renovar token silenciosamente com audience e scope corretos
-          await getAccessTokenSilently({
-            authorizationParams: {
-              audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-              scope: import.meta.env.VITE_AUTH0_SCOPE,
-            },
-          });
-        }
-
-        // Recupera roles do usuário (claim customizada vinda da Action do Auth0)
-        const userRoles = user?.["https://parfun-imports.com/roles"] || [];
-
-        if (allowedRoles && allowedRoles.length > 0) {
-          const hasRole = allowedRoles.some((role) =>
-            userRoles.map((r) => r.toLowerCase()).includes(role.toLowerCase())
-          );
-          setAuthorized(hasRole);
-        } else {
-          setAuthorized(true);
-        }
-      } catch (err) {
-        console.error("Erro de autenticação:", err);
-
-        if (err.error === "login_required" || err.error === "access_denied") {
-          loginWithRedirect();
-        }
-      } finally {
-        setChecking(false);
-      }
-    };
-
-    checkAuth();
-  }, [
-    isAuthenticated,
-    loginWithRedirect,
-    getAccessTokenSilently,
-    user,
-    allowedRoles,
-  ]);
-
-  if (isLoading || checking) {
-    return <p>Carregando...</p>;
+  // Enquanto o estado de autenticação está carregando
+  if (loadingAuth) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-brand-text">Carregando...</p>
+      </div>
+    );
   }
 
-  if (!authorized) {
-    return <Navigate to="/unauthorized" replace />;
+  // Se não estiver autenticado, redireciona para login
+  if (!isAuthenticated) {
+    return <Navigate to={redirectTo} replace />;
   }
 
+  // Normaliza roles do usuário para lowercase
+  const userRoles = (user?.roles || []).map((r) => r.toLowerCase());
+
+  // Se a rota exigir roles específicas
+  if (allowedRoles && allowedRoles.length > 0) {
+    const hasRole = allowedRoles.some((role) =>
+      userRoles.includes(role.toLowerCase())
+    );
+    if (!hasRole) {
+      // Se não tiver a role necessária, redireciona para página de acesso negado
+      return <Navigate to="/unauthorized" replace />;
+    }
+  }
+
+  // Se passou em todas as verificações, renderiza o conteúdo protegido
   return children;
 }

@@ -14,7 +14,7 @@ Agora o repositório está organizado em **frontend** (React) e **backend** (Spr
 - [React](https://react.dev/)
 - [React Router DOM](https://reactrouter.com/)
 - [Vite](https://vitejs.dev/)
-- Context API para gerenciamento de tema (`ThemeProvider`)
+- Context API para gerenciamento de tema (`ThemeProvider`, `CartProvider`, `WishlistProvider`, `AuthProvider`)
 - TailwindCSS para estilização
 
 ### Backend
@@ -22,6 +22,7 @@ Agora o repositório está organizado em **frontend** (React) e **backend** (Spr
 - [Spring Boot](https://spring.io/projects/spring-boot)
 - [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
 - Banco de dados relacional (PostgreSQL/MySQL)
+- Autenticação JWT interna
 
 ---
 
@@ -71,14 +72,43 @@ O `ThemeProvider` gerencia o tema global da aplicação.
 
 ---
 
+## 🔗 Integração Frontend ↔ Backend
+
+A comunicação entre o **React (frontend)** e o **Spring Boot (backend)** é feita via **Fetch API**.
+Foi criado um utilitário `authFetch.js` que encapsula o `fetch` nativo do JavaScript, adicionando:
+
+- Headers padrão (`Content-Type: application/json`)
+- Token JWT no header (`Authorization: Bearer <token>`)
+- Tratamento de erros e respostas
+- Retorno estruturado (`{ ok, status, data }`)
+
+Exemplo de uso:
+
+```js
+import { authFetch } from "../utils/authFetch";
+
+const response = await authFetch(
+  `${import.meta.env.VITE_API_URL}/orders/my`,
+  {},
+  token
+);
+
+if (response.ok) {
+  console.log(response.data);
+}
+````
+
+---
+
 ## ⚙️ Como rodar o projeto
 
 ### Frontend
+
 ```bash
 cd frontend
 npm install
 npm run dev
-````
+```
 
 Abra no navegador: http://localhost:5173
 
@@ -117,9 +147,9 @@ mvn spring-boot:run
 ## 🛠️ Melhorias futuras
 
 - Integração completa entre frontend e backend via API REST.
-- Autenticação com JWT ou OAuth.
 - Persistência de carrinho e wishlist no banco de dados.
 - Testes automatizados com Jest/React Testing Library e JUnit.
+- Documentação da API com Swagger/OpenAPI.
 
 ---
 
@@ -130,8 +160,4 @@ Grupo de Alunos da Turma 23 do período noturno da Faculdade Nove de Julho (Unin
 ```
 
 ---
-
-👉 Agora o README está corrigido (sem o `---` inicial que causava erro) e atualizado com todas as mudanças que fizemos.
-
-Quer que eu já te mostre como adicionar esse novo `README.md` ao Git e enviar para o branch `backend-springboot` no GitHub?
 ```

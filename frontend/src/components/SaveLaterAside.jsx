@@ -1,28 +1,34 @@
 import React from "react";
 import { createPortal } from "react-dom";
 
-export default function SaveLaterAside({ show, top, height, width, onClose }) {
+export default function SaveLaterAside({ show, onClose, onSave, width = 320 }) {
   if (!show) return null;
 
   const node = (
     <div
-      className="fixed z-[1000] bg-brand-surface border border-brand-border rounded-lg shadow-soft p-4"
+      className="fixed top-0 right-0 z-[1000] bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-6 animate-slideInSlow"
       style={{
-        top: `${top}px`,
-        right: 0,
-        height: `${height}px`,
+        height: "100%",
         width: `${width}px`,
       }}
     >
-      <h2 className="text-xl font-semibold mb-4">Salvar para depois</h2>
+      <div className="flex items-start justify-between mb-4">
+        <h2 className="text-xl font-display">Salvar para depois</h2>
+        <button onClick={onClose} className="btn-secondary px-3 py-1 ml-4">
+          ✕
+        </button>
+      </div>
+
       <p className="text-brand-text mb-4">
         Os itens salvos ficarão disponíveis para você finalizar mais tarde.
       </p>
+
+      {/* Botão para salvar itens (chama função passada pelo Cart.jsx) */}
       <button
-        onClick={onClose}
-        className="btn-secondary mt-4 flex items-center justify-center gap-2"
+        onClick={onSave}
+        className="btn-accent w-full mt-2 flex items-center justify-center gap-2"
       >
-        ✕ Fechar
+        💾 Salvar itens
       </button>
     </div>
   );

@@ -1,17 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { authFetch } from "../utils/authFetch"; // ✅ importa o utilitário
+import { authFetch } from "../utils/authFetch";
+import { useAuth } from "../context/authProvider";
 
 export default function MyOrders() {
+  const { token } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!token) {
+      setError("Você precisa estar logado para ver seus pedidos.");
+      setLoading(false);
+      return;
+    }
+
     const fetchOrders = async () => {
       try {
         const response = await authFetch(
-          `${import.meta.env.VITE_API_URL}/orders/my`
+          `${import.meta.env.VITE_API_URL}/orders/my`,
+          {},
+          token
         );
 
         if (!response.ok) {
@@ -19,7 +29,7 @@ export default function MyOrders() {
         }
 
         const data = await response.json();
-        setOrders(data); // ✅ backend retorna lista de pedidos
+        setOrders(data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -28,7 +38,7 @@ export default function MyOrders() {
     };
 
     fetchOrders();
-  }, []);
+  }, [token]);
 
   if (loading) {
     return (
@@ -60,11 +70,15 @@ export default function MyOrders() {
                   Pedido #{order.id}
                 </h3>
                 <p className="text-brand-textMuted">
-                  Data: {order.date} | Total: {order.total}
+                  Data: {new Date(order.date).toLocaleDateString("pt-BR")} |
+                  Total:{" "}
+                  {Intl.NumberFormat("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  }).format(order.total)}
                 </p>
                 <p className="text-brand-textMuted">Status: {order.status}</p>
 
-                {/* Botões de ação */}
                 <div className="flex flex-col md:flex-row gap-4 mt-4">
                   <Link
                     to={`/order/${order.id}`}

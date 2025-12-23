@@ -1,32 +1,23 @@
-// src/pages/admin/ManageRoles.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useAuth0 } from "@auth0/auth0-react";
+import { toast } from "react-toastify";
+import { useAuth } from "../../context/authProvider"; // 👈 pega token do contexto
+import { authFetch } from "../../utils/authFetch"; // ✅ corrigido
 
 export default function ManageRoles() {
-  const { getAccessTokenSilently } = useAuth0();
+  const { token } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ⚠️ Configure seu domínio Auth0
-  const DOMAIN = "SEU_DOMINIO.auth0.com"; // ex: dev-abc123.us.auth0.com
-
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // ✅ obtém token via Auth0 (se configurado)
-        const token = await getAccessTokenSilently({
-          audience: `https://${DOMAIN}/api/v2/`,
-          scope: "read:users update:users",
-        });
-
-        const res = await axios.get(`https://${DOMAIN}/api/v2/users`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setUsers(res.data);
+        const res = await authFetch(
+          `${import.meta.env.VITE_API_URL}/admin/users`,
+          {},
+          token
+        );
+        setUsers(res.data || []);
       } catch (err) {
         console.error("Erro ao buscar usuários:", err);
         setError("Não foi possível carregar usuários.");
@@ -35,49 +26,40 @@ export default function ManageRoles() {
       }
     };
 
-    fetchUsers();
-  }, [getAccessTokenSilently]);
+    if (token) fetchUsers();
+  }, [token]);
 
-  const assignRole = async (userId, roleId) => {
+  const assignRole = async (userId, role) => {
     try {
-      const token = await getAccessTokenSilently({
-        audience: `https://${DOMAIN}/api/v2/`,
-        scope: "update:users",
-      });
-
-      await axios.post(
-        `https://${DOMAIN}/api/v2/users/${userId}/roles`,
-        { roles: [roleId] },
+      await authFetch(
+        `${import.meta.env.VITE_API_URL}/admin/users/${userId}/roles`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+          method: "POST",
+          body: JSON.stringify({ role }),
+        },
+        token
       );
-      alert("Role atribuída com sucesso!");
+      toast.success("Role atribuída com sucesso!");
     } catch (err) {
       console.error("Erro ao atribuir role:", err);
-      alert("Erro ao atribuir role.");
+      toast.error(err.message || "Erro ao atribuir role.");
     }
   };
 
-  const removeRole = async (userId, roleId) => {
+  const removeRole = async (userId, role) => {
     try {
-      const token = await getAccessTokenSilently({
-        audience: `https://${DOMAIN}/api/v2/`,
-        scope: "update:users",
-      });
-
-      await axios.delete(`https://${DOMAIN}/api/v2/users/${userId}/roles`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await authFetch(
+        `${import.meta.env.VITE_API_URL}/admin/users/${userId}/roles`,
+        {
+          method: "DELETE",
+          body: JSON.stringify({ role }),
         },
-        data: { roles: [roleId] },
-      });
-      alert("Role removida com sucesso!");
+        token
+      );
+      toast.success("Role removida com sucesso!");
     } catch (err) {
       console.error("Erro ao remover role:", err);
-      alert("Erro ao remover role.");
+      toast.error(err.message || "Erro ao remover role.");
     }
   };
 
@@ -85,38 +67,48 @@ export default function ManageRoles() {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div>
-      <h1>Gerenciar Roles</h1>
-      <table border="1" cellPadding="10">
+    <div className="p-8 bg-brand-surface rounded-xl shadow-soft">
+      <h1 className="text-2xl font-display text-brand-text mb-6">
+        Gerenciar Roles
+      </h1>
+      <table className="w-full border-collapse">
         <thead>
-          <tr>
-            <th>Email</th>
-            <th>Roles</th>
-            <th>Ações</th>
+          <tr className="bg-brand-bg">
+            <th className="p-3 text-left">Email</th>
+            <th className="p-3 text-left">Roles</th>
+            <th className="p-3 text-left">Ações</th>
           </tr>
         </thead>
         <tbody>
           {users.map((u) => (
-            <tr key={u.user_id}>
-              <td>{u.email}</td>
-              <td>{u.app_metadata?.roles?.join(", ") || "Nenhuma"}</td>
-              <td>
+            <tr key={u.id} className="border-t border-brand-border">
+              <td className="p-3">{u.email}</td>
+              <td className="p-3">
+                {u.roles?.length > 0 ? u.roles.join(", ") : "Nenhuma"}
+              </td>
+              <td className="p-3 space-x-2">
                 <button
-                  onClick={() => assignRole(u.user_id, "ROLE_ID_CLIENTE")}
+                  onClick={() => assignRole(u.id, "client")}
+                  className="btn-accent"
                 >
                   Tornar Cliente
                 </button>
                 <button
-                  onClick={() =>
-                    assignRole(u.user_id, "ROLE_ID_ADMIN_SECUNDARIO")
-                  }
+                  onClick={() => assignRole(u.id, "admin_secondary")}
+                  className="btn-accent"
                 >
                   Tornar Admin Secundário
                 </button>
-                <button onClick={() => assignRole(u.user_id, "ROLE_ID_ADMIN")}>
+                <button
+                  onClick={() => assignRole(u.id, "admin")}
+                  className="btn-accent"
+                >
                   Tornar Admin
                 </button>
-                <button onClick={() => removeRole(u.user_id, "ROLE_ID_ADMIN")}>
+                <button
+                  onClick={() => removeRole(u.id, "admin")}
+                  className="btn-secondary"
+                >
                   Revogar Admin
                 </button>
               </td>

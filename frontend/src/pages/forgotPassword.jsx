@@ -2,9 +2,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../context/themeProvider";
 
-/* ===========================
-   Componente local PasswordInput
-   =========================== */
 function PasswordInput({
   value,
   onChange,
@@ -16,7 +13,6 @@ function PasswordInput({
 
   const eyeIcon =
     theme === "dark" ? "/images/eye_white.png" : "/images/eye_black.png";
-
   const offIcon =
     theme === "dark"
       ? "/images/visibility_off_white.png"
@@ -64,11 +60,23 @@ export default function ForgotPassword() {
     }
 
     try {
-      // Aqui você chamaria sua API de reset de senha
-      // Exemplo fictício:
-      // await fetch(`${API_URL}/reset-password`, { ... })
+      // ✅ Chamada real à sua API de reset de senha
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/reset-password`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, newPassword }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao redefinir senha");
+      }
+
       setMessage("✅ Senha redefinida com sucesso!");
     } catch (err) {
+      console.error("Erro ao redefinir senha:", err);
       setMessage("❌ Erro ao redefinir senha.");
     }
   };
@@ -78,19 +86,17 @@ export default function ForgotPassword() {
       className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
       style={{
         backgroundImage:
-          "url('/images/background_files/gold-backgraund-02.jpg')", // mesma imagem da tela de login
+          "url('/images/background_files/gold-backgraund-02.jpg')",
       }}
     >
       <div className="absolute inset-0 bg-black/40" />
 
-      {/* Mesmo tamanho da tela de login */}
       <div className="relative w-full max-w-4xl p-20 rounded-2xl bg-white/30 backdrop-blur-md border border-brand-border shadow-strong">
         <h2 className="font-display text-3xl text-brand-text text-center mb-6 select-none">
           Recuperar Senha
         </h2>
 
         <form onSubmit={handleReset} className="space-y-6">
-          {/* Campo de email */}
           <input
             type="email"
             placeholder="Digite seu e-mail"
@@ -100,7 +106,6 @@ export default function ForgotPassword() {
             required
           />
 
-          {/* Campo de nova senha */}
           <PasswordInput
             name="newPassword"
             value={newPassword}
@@ -108,7 +113,6 @@ export default function ForgotPassword() {
             placeholder="Digite sua nova senha"
           />
 
-          {/* Campo de confirmação de senha */}
           <PasswordInput
             name="confirmPassword"
             value={confirm}
@@ -124,7 +128,6 @@ export default function ForgotPassword() {
           </button>
         </form>
 
-        {/* Botão Voltar */}
         <Link
           to="/login"
           className="mt-6 block px-6 py-3 rounded-full border border-brand-border text-brand-text bg-transparent shadow-strong hover:bg-brand-accent hover:text-black transition-colors duration-300 text-center select-none"

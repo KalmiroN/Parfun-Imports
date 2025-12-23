@@ -14,9 +14,9 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB;
 
 -- ============================
--- Tabela PRODUCT
+-- Tabela PRODUCTS
 -- ============================
-CREATE TABLE IF NOT EXISTS product (
+CREATE TABLE IF NOT EXISTS products (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255),
@@ -32,7 +32,18 @@ CREATE TABLE IF NOT EXISTS orders (
     status VARCHAR(50) NOT NULL,
     total DECIMAL(10,2) NOT NULL,
     user_id BIGINT,
-    product_id BIGINT,
-    CONSTRAINT fk_orders_users FOREIGN KEY (user_id) REFERENCES users(id),
-    CONSTRAINT fk_orders_product FOREIGN KEY (product_id) REFERENCES product(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_orders_users FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+-- ============================
+-- Tabela ORDER_PRODUCTS (itens do pedido)
+-- ============================
+CREATE TABLE IF NOT EXISTS order_products (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    CONSTRAINT fk_order_products_orders FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    CONSTRAINT fk_order_products_products FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;

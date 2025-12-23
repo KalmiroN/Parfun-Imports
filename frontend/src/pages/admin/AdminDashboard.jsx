@@ -13,17 +13,15 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const response = await authFetch(
+        const res = await authFetch(
           `${import.meta.env.VITE_API_URL}/company/config`
         );
-        if (!response.ok) throw new Error("Erro ao carregar configurações");
-        const data = await response.json();
         setCompanyConfig({
-          cnpj: data.cnpj || "",
-          invoicePrefix: data.invoicePrefix || "",
+          cnpj: res.data?.cnpj || "",
+          invoicePrefix: res.data?.invoicePrefix || "",
         });
       } catch (err) {
-        toast.error(err.message);
+        toast.error(err.message || "Erro ao carregar configurações");
       } finally {
         setLoading(false);
       }
@@ -34,17 +32,13 @@ export default function AdminDashboard() {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      const response = await authFetch(
-        `${import.meta.env.VITE_API_URL}/company/config`,
-        {
-          method: "PUT",
-          body: JSON.stringify(companyConfig),
-        }
-      );
-      if (!response.ok) throw new Error("Erro ao salvar configurações");
+      await authFetch(`${import.meta.env.VITE_API_URL}/company/config`, {
+        method: "PUT",
+        body: JSON.stringify(companyConfig),
+      });
       toast.success("Configurações da empresa atualizadas!");
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || "Erro ao salvar configurações");
     }
   };
 
