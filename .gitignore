@@ -18,9 +18,10 @@ pnpm-debug.log*
 coverage/
 
 # =====================================================
-# BACKEND – Spring Boot (Maven)
+# BACKEND – Spring Boot (Maven/Gradle)
 # =====================================================
 
+# Configs sensíveis
 src/main/resources/application-prod.properties
 
 # Maven
@@ -35,12 +36,16 @@ release.properties
 .gradle/
 !gradle-wrapper.jar
 
-# JVM / Java
+# JVM / Java artefatos
 *.class
 *.war
 *.jar
+
+# Logs
 *.log
 logs/
+backend/**/*.log*
+backend/**/*.gz
 
 # =====================================================
 # IDE & TOOLS
@@ -57,7 +62,7 @@ logs/
 .settings/
 
 # VSCode
-.vscode/*
+.vscode/
 !.vscode/settings.json
 !.vscode/extensions.json
 
@@ -75,3 +80,17 @@ Thumbs.db
 *.swo
 *.bak
 .cache/
+
+# =====================================================
+# BUILD / DEPENDÊNCIAS
+# =====================================================
+backend/target/
+frontend/dist/
+frontend/node_modules/
+backend/node/
+backend/.npm/
+
+# =====================================================
+# AMBIENTE
+# =====================================================
+**/.env
