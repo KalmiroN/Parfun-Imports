@@ -3,13 +3,13 @@ import { toast } from "react-toastify";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CheckoutCard from "../components/CheckoutCard";
-import AsideContainer from "../components/AsideContainer";
+import AsideContainer from "../components/AsideContainer"; // ✅ mantém AsideContainer
 import { authFetch } from "../utils/authFetch";
 import { useAuth } from "../context/authProvider";
 
 export default function Cart() {
-  const { cartItems, setCartItems } = useCart();
-  const { user, token, loadingAuth } = useAuth();
+  const { cartItems, setCartItems, saveForLater, checkout } = useCart();
+  const { user, token, loadingAuth, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [showCheckout, setShowCheckout] = useState(false);
@@ -25,7 +25,7 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ✅ Buscar carrinho do backend
+  // Buscar carrinho do backend
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -57,7 +57,7 @@ export default function Cart() {
     }
   }, [setCartItems, user, token, loadingAuth]);
 
-  // ✅ Atualizar métricas para o AsideContainer
+  // Atualizar métricas para posicionar aside
   useEffect(() => {
     const update = () => {
       const top = mainRef.current?.offsetTop || 0;
@@ -66,7 +66,7 @@ export default function Cart() {
 
       if (cardsRef.current) {
         const rect = cardsRef.current.getBoundingClientRect();
-        setCardsTopAbs(rect.top + window.scrollY); // topo absoluto dos cards
+        setCardsTopAbs(rect.top + window.scrollY);
       }
     };
     update();
@@ -78,7 +78,7 @@ export default function Cart() {
     };
   }, [cartItems]);
 
-  // ✅ Esconder mensagens de erro após 25s
+  // Esconder mensagens de erro após 25s
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => setError(""), 25000);
@@ -131,33 +131,38 @@ export default function Cart() {
     }
   };
 
-  // ✅ Salvar itens para depois (backend)
-  const handleSaveLater = async () => {
+  // Salvar item específico para depois (usando rawItem)
+  const handleSaveLater = (rawItem) => {
     try {
-      for (const item of cartItems) {
-        await authFetch(
-          `${import.meta.env.VITE_API_URL}/api/savelater`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              productId: item.productId || item.id,
-              name: item.name,
-              price: item.price,
-              imageUrl: item.imageUrl,
-              quantity: item.quantity,
-              userEmail: user.email,
-            }),
-          },
-          token
-        );
-      }
-      toast.success("Itens salvos para depois!");
-      setShowSaveLater(false);
+      saveForLater(rawItem); // ✅ usa o objeto original do carrinho
+      toast.success(`${rawItem?.name || "Item"} salvo para depois!`);
+      setShowSaveLater(true);
     } catch (err) {
-      console.error("Erro ao salvar itens para depois:", err);
-      toast.error("Erro ao salvar itens para depois.");
+      console.error("Erro ao salvar item:", err);
+      toast.error("Erro ao salvar item para depois.");
     }
   };
+  // Checkout com Pix/Cartão
+  const handleCheckout = async (method) => {
+    if (!isAuthenticated) {
+      toast.error("Você precisa estar logado para finalizar a compra.");
+      return;
+    }
+    try {
+      const res = await checkout(method);
+      if (res.ok) {
+        toast.success("Compra finalizada com sucesso!");
+        setCartItems([]);
+        setShowCheckout(false);
+      } else {
+        toast.error("Erro ao finalizar compra.");
+      }
+    } catch (err) {
+      console.error("Erro ao finalizar compra:", err);
+      toast.error("Erro ao finalizar compra.");
+    }
+  };
+
   const subtotal = cartItems.reduce((acc, item) => {
     const qty = item?.quantity || 1;
     let priceValue = 0;
@@ -179,37 +184,16 @@ export default function Cart() {
     );
   }
 
-  const handleCheckout = async () => {
-    if (!user?.email) {
-      toast.error("Você precisa estar logado para finalizar a compra.");
-      return;
-    }
-    try {
-      await authFetch(
-        `${import.meta.env.VITE_API_URL}/api/cart/user/${user.email}`,
-        { method: "DELETE" },
-        token
-      );
-      setCartItems([]);
-      toast.success("Carrinho limpo após checkout!");
-      setShowCheckout(false);
-    } catch (err) {
-      console.error("Erro ao finalizar compra:", err);
-      toast.error("Erro ao finalizar compra.");
-    }
-  };
-
   return (
     <>
-      {/* Cabeçalho fixo */}
+      {/* Cabeçalho fixo centralizado */}
       <div
         ref={headerRef}
-        className="fixed top-0 left-0 w-full flex justify-between items-center bg-brand-surface shadow-md px-4 py-2 z-40"
+        className="fixed top-0 left-0 w-full flex justify-center items-center bg-brand-surface shadow-md px-4 py-2 z-40"
       >
-        <h1 className="text-3xl font-display">Carrinho de Compras</h1>
-        <button className="btn-secondary" onClick={() => navigate("/")}>
-          Sair
-        </button>
+        <h1 className="love-light-regular text-[2.7rem] text-brand-text select-none">
+          Carrinho de Compras
+        </h1>
       </div>
 
       {/* Conteúdo principal */}
@@ -238,6 +222,7 @@ export default function Cart() {
               {cartItems.map((rawItem, idx) => {
                 const item = {
                   id: rawItem?.id,
+                  productId: rawItem?.productId,
                   name: rawItem?.name || "Produto",
                   price:
                     typeof rawItem?.price === "number"
@@ -257,7 +242,7 @@ export default function Cart() {
                       index={idx}
                       onRemove={handleRemove}
                       onQuantityChange={handleQuantityChange}
-                      onSaveLater={() => setShowSaveLater(true)}
+                      onSaveLater={() => handleSaveLater(rawItem)} // ✅ usa rawItem original
                     />
                   </div>
                 );
@@ -288,7 +273,7 @@ export default function Cart() {
         )}
       </main>
 
-      {/* AsideContainer flutuante — fixed + portal */}
+      {/* AsideContainer flutuante — controla checkout e salvar para depois */}
       <AsideContainer
         showCheckout={showCheckout}
         showSaveLater={showSaveLater}
@@ -296,8 +281,8 @@ export default function Cart() {
         onCloseSaveLater={() => setShowSaveLater(false)}
         onCheckout={handleCheckout}
         onSave={handleSaveLater}
-        cardsTopAbs={cardsTopAbs} // 👈 topo absoluto dos cards
-        mainHeight={mainMetrics.height} // 👈 altura total da área principal
+        cardsTopAbs={cardsTopAbs}
+        mainHeight={mainMetrics.height}
       />
     </>
   );

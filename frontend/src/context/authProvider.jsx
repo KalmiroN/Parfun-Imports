@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const navigate = useNavigate();
 
-  // ✅ Carregar dados salvos no localStorage ao iniciar
+  // Carregar dados salvos no localStorage ao iniciar
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("access_token");
@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
     setLoadingAuth(false);
   }, []);
 
-  // ✅ Persistir user/token no localStorage sempre que mudarem
+  // Persistir user/token no localStorage sempre que mudarem
   useEffect(() => {
     if (user) localStorage.setItem("user", JSON.stringify(user));
     else localStorage.removeItem("user");
@@ -37,20 +37,28 @@ export function AuthProvider({ children }) {
     else localStorage.removeItem("access_token");
   }, [user, token]);
 
-  // ✅ Revalidar token automaticamente ao iniciar
+  // Revalidar token automaticamente ao iniciar
   useEffect(() => {
     const validateToken = async () => {
       if (token) {
         try {
           const res = await authFetch(
             `${import.meta.env.VITE_API_URL}/api/user/me`,
-            {},
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`, // ✅ garante envio do token
+              },
+            },
             token
           );
+
           if (res.ok) {
-            setUser(res.data); // atualiza user com dados completos do backend
+            setUser(res.data);
           } else {
-            logout(); // token inválido → força logout
+            console.warn("Token inválido ou expirado, fazendo logout...");
+            logout();
           }
         } catch (err) {
           console.error("Erro ao validar token:", err);
@@ -61,7 +69,7 @@ export function AuthProvider({ children }) {
     validateToken();
   }, [token]);
 
-  // ✅ Login integrado com backend
+  // Login integrado com backend
   const login = async (email, password) => {
     try {
       const res = await fetch(
@@ -87,6 +95,10 @@ export function AuthProvider({ children }) {
 
       setUser(userData);
       setToken(data.accessToken);
+
+      // ✅ Redireciona para Home após login
+      navigate("/");
+
       return true;
     } catch (err) {
       console.error("Erro no login:", err);
@@ -94,7 +106,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // ✅ Atualizar dados do usuário no contexto
+  // Atualizar dados do usuário no contexto
   const updateUser = (updatedData) => {
     setUser((prev) => ({
       ...prev,
@@ -102,12 +114,17 @@ export function AuthProvider({ children }) {
     }));
   };
 
+  // Logout: limpa sessão e carrinho local
   const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("access_token");
-    setUser(null);
-    setToken(null);
-    navigate("/");
+    try {
+      localStorage.removeItem("user");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("cart"); // garante limpeza local do carrinho
+    } finally {
+      setUser(null);
+      setToken(null);
+      navigate("/");
+    }
   };
 
   const isAuthenticated = Boolean(user && token);

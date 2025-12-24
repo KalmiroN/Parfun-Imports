@@ -51,7 +51,7 @@ export default function App() {
               <Route
                 path="/login"
                 element={
-                  <PublicRoute redirectTo="/profile">
+                  <PublicRoute redirectTo="/">
                     <Login />
                   </PublicRoute>
                 }
@@ -59,7 +59,7 @@ export default function App() {
               <Route
                 path="/register"
                 element={
-                  <PublicRoute redirectTo="/profile">
+                  <PublicRoute redirectTo="/">
                     <Register />
                   </PublicRoute>
                 }

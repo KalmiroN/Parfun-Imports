@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import { useRoles } from "../hooks/useRoles";
 import CartIcon from "../components/CartIcon";
+import { useAuth } from "../context/authProvider";
 
 export default function Header() {
   const { theme, cycleTheme } = useTheme();
@@ -13,9 +14,7 @@ export default function Header() {
   const triggerRef = useRef(null);
   const userBoxRef = useRef(null);
 
-  const storedUser = localStorage.getItem("user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
-  const isAuthenticated = !!user;
+  const { user, isAuthenticated, logout } = useAuth();
 
   const { isAdmin, isAdminSecondary, isClient } = useRoles();
 
@@ -33,12 +32,12 @@ export default function Header() {
     theme === "dark" ? "/images/person_branco.png" : "/images/person_preto.png";
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    logout();
     toast.info("Você saiu da sua conta.", {
       position: "bottom-right",
       autoClose: 2000,
     });
-    navigate("/"); // ✅ agora vai para home
+    // navigate("/") já é feito dentro do logout()
   };
 
   const toggleMenu = () => {
@@ -106,7 +105,14 @@ export default function Header() {
                   if (isAuthenticated) {
                     navigate("/profile");
                   } else {
-                    navigate("/login"); // ✅ agora vai para login
+                    toast.warn(
+                      "Você precisa estar logado para acessar o perfil.",
+                      {
+                        position: "bottom-right",
+                        autoClose: 2000,
+                      }
+                    );
+                    navigate("/login");
                   }
                 }}
               >
@@ -134,7 +140,18 @@ export default function Header() {
         <div className="flex items-center gap-6">
           {/* Carrinho */}
           <div className="relative group">
-            <Link to="/cart" aria-label="Abrir carrinho">
+            <Link
+              to={isAuthenticated ? "/cart" : "/login"}
+              aria-label="Abrir carrinho"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  toast.warn("Faça login para acessar o carrinho.", {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                  });
+                }
+              }}
+            >
               <img
                 src={cartIcon}
                 alt="Carrinho"
@@ -170,7 +187,7 @@ export default function Header() {
               />
             </button>
 
-            {/* ✅ Ícone login aparece quando não autenticado */}
+            {/* Ícone login aparece quando não autenticado */}
             {!isAuthenticated && (
               <Link to="/login" aria-label="Login">
                 <img
@@ -180,6 +197,7 @@ export default function Header() {
                 />
               </Link>
             )}
+
             {/* Caixa flutuante */}
             {showUserBox && (
               <div
@@ -279,7 +297,18 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link to="/cart" className="btn-accent w-full text-center">
+              <Link
+                to={isAuthenticated ? "/cart" : "/login"}
+                className="btn-accent w-full text-center"
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    toast.warn("Faça login para acessar o carrinho.", {
+                      position: "bottom-right",
+                      autoClose: 2000,
+                    });
+                  }
+                }}
+              >
                 Carrinho
               </Link>
             </li>
@@ -290,7 +319,14 @@ export default function Header() {
                   if (isAuthenticated) {
                     navigate("/profile");
                   } else {
-                    navigate("/login"); // ✅ agora vai para login
+                    toast.warn(
+                      "Você precisa estar logado para acessar o perfil.",
+                      {
+                        position: "bottom-right",
+                        autoClose: 2000,
+                      }
+                    );
+                    navigate("/login");
                   }
                 }}
               >
@@ -298,7 +334,6 @@ export default function Header() {
               </button>
             </li>
 
-            {/* Tipo de usuário no menu mobile */}
             {isAuthenticated && (
               <li className="text-sm text-orange-400 font-semibold">
                 Usuário:{" "}
