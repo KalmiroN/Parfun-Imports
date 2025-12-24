@@ -8,6 +8,8 @@ export function CartProvider({ children }) {
   const { user, token, isAuthenticated } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [saveLaterItems, setSaveLaterItems] = useState([]);
+  // ✅ estado global para controlar o aside "Itens Salvos"
+  const [showSaveLater, setShowSaveLater] = useState(false);
 
   // Buscar carrinho do backend ao carregar
   useEffect(() => {
@@ -42,6 +44,7 @@ export function CartProvider({ children }) {
     if (!isAuthenticated) {
       setCartItems([]);
       setSaveLaterItems([]);
+      setShowSaveLater(false); // ✅ fecha aside ao deslogar
       localStorage.removeItem("cart");
     }
   }, [isAuthenticated]);
@@ -163,18 +166,17 @@ export function CartProvider({ children }) {
   const saveForLater = (item) => {
     setCartItems((prev) =>
       prev.filter((p) => (p.id || p.productId) !== (item.id || item.productId))
-    ); // ✅ remove do carrinho
-
-    setSaveLaterItems((prev) => [...prev, item]); // ✅ adiciona no "salvar para depois"
+    );
+    setSaveLaterItems((prev) => [...prev, item]);
+    setShowSaveLater(true); // ✅ abre aside ao salvar
   };
 
   // Mover de volta do 'salvos' para carrinho
   const moveBackToCart = (item) => {
     setSaveLaterItems((prev) =>
       prev.filter((p) => (p.id || p.productId) !== (item.id || item.productId))
-    ); // ✅ remove do "salvar para depois"
-
-    setCartItems((prev) => [...prev, item]); // ✅ adiciona de volta ao carrinho
+    );
+    setCartItems((prev) => [...prev, item]);
   };
 
   // Checkout (Pix/Cartão)
@@ -215,6 +217,8 @@ export function CartProvider({ children }) {
     () => ({
       cartItems,
       saveLaterItems,
+      showSaveLater,
+      setShowSaveLater, // ✅ exposto no contexto
       addToCart,
       removeById,
       updateQuantity,
@@ -227,7 +231,7 @@ export function CartProvider({ children }) {
       setCartItems,
       setSaveLaterItems,
     }),
-    [cartItems, saveLaterItems]
+    [cartItems, saveLaterItems, showSaveLater]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

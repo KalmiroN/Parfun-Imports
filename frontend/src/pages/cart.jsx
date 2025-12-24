@@ -3,20 +3,25 @@ import { toast } from "react-toastify";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CheckoutCard from "../components/CheckoutCard";
-import AsideContainer from "../components/AsideContainer"; // ✅ mantém AsideContainer
+import AsideContainer from "../components/AsideContainer";
 import { authFetch } from "../utils/authFetch";
 import { useAuth } from "../context/authProvider";
 
 export default function Cart() {
-  const { cartItems, setCartItems, saveForLater, checkout } = useCart();
+  const {
+    cartItems,
+    setCartItems,
+    saveForLater,
+    checkout,
+    showSaveLater,
+    setShowSaveLater,
+  } = useCart(); // ✅ agora usamos showSaveLater do contexto
   const { user, token, loadingAuth, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [showCheckout, setShowCheckout] = useState(false);
-  const [showSaveLater, setShowSaveLater] = useState(false);
 
   const mainRef = useRef(null);
-  const headerRef = useRef(null);
   const cardsRef = useRef(null);
 
   const [mainMetrics, setMainMetrics] = useState({ top: 0, height: 0 });
@@ -134,9 +139,9 @@ export default function Cart() {
   // Salvar item específico para depois (usando rawItem)
   const handleSaveLater = (rawItem) => {
     try {
-      saveForLater(rawItem); // ✅ usa o objeto original do carrinho
+      saveForLater(rawItem);
       toast.success(`${rawItem?.name || "Item"} salvo para depois!`);
-      setShowSaveLater(true);
+      setShowSaveLater(true); // ✅ abre aside ao salvar
     } catch (err) {
       console.error("Erro ao salvar item:", err);
       toast.error("Erro ao salvar item para depois.");
@@ -186,20 +191,10 @@ export default function Cart() {
 
   return (
     <>
-      {/* Cabeçalho fixo centralizado */}
-      <div
-        ref={headerRef}
-        className="fixed top-0 left-0 w-full flex justify-center items-center bg-brand-surface shadow-md px-4 py-2 z-40"
-      >
-        <h1 className="love-light-regular text-[2.7rem] text-brand-text select-none">
-          Carrinho de Compras
-        </h1>
-      </div>
-
       {/* Conteúdo principal */}
       <main
         ref={mainRef}
-        className="bg-brand-bg text-brand-text min-h-screen px-4 py-12 pt-24"
+        className="bg-brand-bg text-brand-text min-h-screen px-4 py-12 pt-24 overflow-x-auto"
       >
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
@@ -218,7 +213,12 @@ export default function Cart() {
           </div>
         ) : (
           <>
-            <div ref={cardsRef} className="space-y-4 w-[70%] mx-auto">
+            {/* Cards */}
+            <div
+              ref={cardsRef}
+              className="space-y-4 mx-auto"
+              style={{ maxWidth: "850px", minWidth: "650px", width: "100%" }}
+            >
               {cartItems.map((rawItem, idx) => {
                 const item = {
                   id: rawItem?.id,
@@ -242,7 +242,7 @@ export default function Cart() {
                       index={idx}
                       onRemove={handleRemove}
                       onQuantityChange={handleQuantityChange}
-                      onSaveLater={() => handleSaveLater(rawItem)} // ✅ usa rawItem original
+                      onSaveLater={() => handleSaveLater(rawItem)}
                     />
                   </div>
                 );
@@ -271,19 +271,19 @@ export default function Cart() {
             </div>
           </>
         )}
-      </main>
 
-      {/* AsideContainer flutuante — controla checkout e salvar para depois */}
-      <AsideContainer
-        showCheckout={showCheckout}
-        showSaveLater={showSaveLater}
-        onCloseCheckout={() => setShowCheckout(false)}
-        onCloseSaveLater={() => setShowSaveLater(false)}
-        onCheckout={handleCheckout}
-        onSave={handleSaveLater}
-        cardsTopAbs={cardsTopAbs}
-        mainHeight={mainMetrics.height}
-      />
+        {/* ✅ AsideContainer SEMPRE renderizado */}
+        <AsideContainer
+          showCheckout={showCheckout}
+          showSaveLater={showSaveLater}
+          onCloseCheckout={() => setShowCheckout(false)}
+          onCloseSaveLater={() => setShowSaveLater(false)}
+          onCheckout={handleCheckout}
+          onSave={handleSaveLater}
+          cardsTopAbs={cardsTopAbs}
+          mainHeight={mainMetrics.height}
+        />
+      </main>
     </>
   );
 }

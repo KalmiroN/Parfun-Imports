@@ -98,26 +98,29 @@ export default function AsideContainer({
 
   const aside = (
     <div
-      className="fixed z-[1000]"
-      style={{ right: 0, top: topOffset, width: "20rem" }}
+      className="fixed z-[1000] overflow-x-auto"
+      style={{
+        right: 0,
+        top: topOffset,
+        width: "clamp(20rem, 30vw, 30rem)", // responsivo
+      }}
     >
       {/* Aside: Finalizar compra */}
       {showCheckout && (
         <div
           onMouseEnter={() => setHovered("checkout")}
           onMouseLeave={() => setHovered(null)}
-          className="bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-4 transition-transform duration-300"
+          className="bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-4 transition-transform duration-300 flex flex-col"
           style={{
             height:
               showCheckout && showSaveLater
                 ? hovered === "checkout"
-                  ? Math.floor(halfHeight * 1.25) // cresce 25% quando em foco
+                  ? Math.floor(halfHeight * 1.25)
                   : hovered === "save"
-                  ? Math.floor(halfHeight * 0.75) // diminui 25% quando o outro está em foco
-                  : halfHeight // padrão: metade
-                : baseHeight, // somente ele ativo: altura cheia
+                  ? Math.floor(halfHeight * 0.75)
+                  : halfHeight
+                : baseHeight,
             maxHeight: Math.round(mainHeight * 0.9),
-            overflowY: "auto",
           }}
         >
           <h2 className="text-xl font-display mb-3">Finalizar compra</h2>
@@ -150,7 +153,7 @@ export default function AsideContainer({
           )}
 
           {paymentMode === "PIX" && (
-            <div className="mb-4">
+            <div className="flex-1 min-h-0 overflow-y-auto mb-4">
               {pixDiscountActive && (
                 <p className="text-sm text-green-600 mb-2">
                   Pagando com PIX você ganha R$ {pixDiscountValue} de desconto!
@@ -176,7 +179,7 @@ export default function AsideContainer({
           )}
           {/* Modo Cartão */}
           {paymentMode === "CARD" && (
-            <div className="mb-4">
+            <div className="flex-1 min-h-0 overflow-y-auto mb-4">
               <form className="flex flex-col gap-2 mb-3">
                 <input
                   type="text"
@@ -217,7 +220,7 @@ export default function AsideContainer({
           )}
 
           {/* Vale desconto */}
-          <div className="mt-2">
+          <div className="flex-1 min-h-0 overflow-y-auto mt-2">
             <input
               type="text"
               value={discountCode}
@@ -236,8 +239,8 @@ export default function AsideContainer({
             )}
           </div>
 
-          {/* Rodapé */}
-          <div className="mt-6 flex flex-col gap-2">
+          {/* Rodapé fixado embaixo */}
+          <div className="mt-auto flex flex-col gap-2">
             <button onClick={onCheckout} className="btn-accent w-full">
               ✅ Finalizar compra
             </button>
@@ -253,7 +256,7 @@ export default function AsideContainer({
         <div
           onMouseEnter={() => setHovered("save")}
           onMouseLeave={() => setHovered(null)}
-          className="bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-4 transition-transform duration-300"
+          className="bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-4 transition-transform duration-300 flex flex-col"
           style={{
             height:
               showCheckout && showSaveLater
@@ -264,7 +267,7 @@ export default function AsideContainer({
                   : halfHeight
                 : baseHeight,
             maxHeight: Math.round(mainHeight * 0.9),
-            overflowY: "auto",
+            width: "clamp(20rem, 30vw, 30rem)", // responsivo
           }}
         >
           <h2 className="text-xl font-display mb-3">Salvar para depois</h2>
@@ -272,31 +275,35 @@ export default function AsideContainer({
             Os itens salvos ficarão disponíveis para você finalizar mais tarde.
           </p>
 
-          {saveLaterItems.length === 0 ? (
-            <p className="text-xs text-brand-text">Nenhum item salvo ainda.</p>
-          ) : (
-            saveLaterItems.map((item, idx) => (
-              <MiniCard
-                key={idx}
-                item={item}
-                onAddToCart={moveBackToCart}
-                onDelete={(it) =>
-                  setSaveLaterItems((prev) =>
-                    prev.filter(
-                      (p) => (p.id || p.productId) !== (it.id || it.productId)
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {saveLaterItems.length === 0 ? (
+              <p className="text-xs text-brand-text">
+                Nenhum item salvo ainda.
+              </p>
+            ) : (
+              saveLaterItems.map((item, idx) => (
+                <MiniCard
+                  key={idx}
+                  item={item}
+                  onAddToCart={moveBackToCart}
+                  onDelete={(it) =>
+                    setSaveLaterItems((prev) =>
+                      prev.filter(
+                        (p) => (p.id || p.productId) !== (it.id || it.productId)
+                      )
                     )
-                  )
-                }
-              />
-            ))
-          )}
+                  }
+                />
+              ))
+            )}
+          </div>
 
-          <button
-            onClick={onCloseSaveLater}
-            className="btn-secondary w-full mt-3"
-          >
-            ✕ Fechar
-          </button>
+          {/* Rodapé fixado embaixo */}
+          <div className="mt-auto flex flex-col gap-2">
+            <button onClick={onCloseSaveLater} className="btn-secondary w-full">
+              ✕ Fechar
+            </button>
+          </div>
         </div>
       )}
     </div>

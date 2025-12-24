@@ -1,22 +1,23 @@
 import { useTheme } from "../context/themeProvider";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useRoles } from "../hooks/useRoles";
-import CartIcon from "../components/CartIcon";
 import { useAuth } from "../context/authProvider";
+import { useCart } from "../context/cartProvider"; // ✅ agora usamos direto o contexto
 
 export default function Header() {
   const { theme, cycleTheme } = useTheme();
   const [showUserBox, setShowUserBox] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const triggerRef = useRef(null);
   const userBoxRef = useRef(null);
 
   const { user, isAuthenticated, logout } = useAuth();
-
   const { isAdmin, isAdminSecondary, isClient } = useRoles();
+  const { setShowSaveLater } = useCart(); // ✅ pega direto do contexto
 
   const cartIcon =
     theme === "dark"
@@ -37,7 +38,6 @@ export default function Header() {
       position: "bottom-right",
       autoClose: 2000,
     });
-    // navigate("/") já é feito dentro do logout()
   };
 
   const toggleMenu = () => {
@@ -119,6 +119,19 @@ export default function Header() {
                 Perfil
               </button>
             </li>
+
+            {/* Novo botão Itens Salvos (apenas na tela do carrinho) */}
+            {location.pathname === "/cart" && (
+              <li>
+                <button
+                  className="btn-accent"
+                  onClick={() => setShowSaveLater(true)} // ✅ abre aside
+                >
+                  Itens Salvos
+                </button>
+              </li>
+            )}
+
             {isAdmin && (
               <>
                 <li>
@@ -135,20 +148,22 @@ export default function Header() {
             )}
           </ul>
         </nav>
-
-        {/* Ícones à direita */}
-        <div className="flex items-center gap-6">
-          {/* Carrinho */}
+        {/* Ícone do carrinho (não aparece na tela /cart) */}
+        {location.pathname !== "/cart" && (
           <div className="relative group">
-            <Link
-              to={isAuthenticated ? "/cart" : "/login"}
+            <button
               aria-label="Abrir carrinho"
               onClick={() => {
-                if (!isAuthenticated) {
-                  toast.warn("Faça login para acessar o carrinho.", {
-                    position: "bottom-right",
-                    autoClose: 2000,
-                  });
+                if (isAuthenticated) {
+                  navigate("/cart");
+                } else {
+                  toast.warn(
+                    "Você precisa estar logado para acessar o carrinho.",
+                    {
+                      position: "bottom-right",
+                      autoClose: 2000,
+                    }
+                  );
                 }
               }}
             >
@@ -157,128 +172,120 @@ export default function Header() {
                 alt="Carrinho"
                 className="h-8 w-8 hover:scale-105 transition-transform duration-300"
               />
-            </Link>
-          </div>
-
-          {/* Usuário */}
-          <div className="relative group flex items-center gap-2">
-            {isAuthenticated && (
-              <span className="text-sm text-brand-text">
-                Olá, {user?.name?.split(" ")[0]}
-              </span>
-            )}
-            <button
-              ref={triggerRef}
-              type="button"
-              className="bg-transparent rounded-full hover:scale-105 transition-transform duration-300"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowUserBox((prev) => !prev);
-              }}
-            >
-              <img
-                src={
-                  isAuthenticated
-                    ? user?.picture || defaultUserIcon
-                    : defaultUserIcon
-                }
-                alt="Usuário"
-                className="h-8 w-8 rounded-full"
-              />
             </button>
-
-            {/* Ícone login aparece quando não autenticado */}
-            {!isAuthenticated && (
-              <Link to="/login" aria-label="Login">
-                <img
-                  src={loginIcon}
-                  alt="Login"
-                  className="h-8 w-8 hover:scale-105 transition-transform duration-300"
-                />
-              </Link>
-            )}
-
-            {/* Caixa flutuante */}
-            {showUserBox && (
-              <div
-                ref={userBoxRef}
-                className="absolute right-0 top-12 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border z-50"
-              >
-                {isAuthenticated ? (
-                  <>
-                    <h3 className="text-lg font-semibold mb-2">
-                      Informações do Usuário
-                    </h3>
-                    <p className="text-sm">Nome: {user?.name}</p>
-                    <p className="text-sm">Email: {user?.email}</p>
-                    <p className="text-sm text-orange-400 font-semibold mt-1">
-                      Usuário:{" "}
-                      {isAdmin
-                        ? "Admin"
-                        : isAdminSecondary
-                        ? "Admin secundário"
-                        : isClient
-                        ? "Cliente"
-                        : "Usuário"}
-                    </p>
-
-                    <div className="flex flex-col gap-2 mt-4">
-                      <button
-                        className="btn-accent w-full text-center"
-                        onClick={() => navigate("/profile")}
-                      >
-                        Endereço
-                      </button>
-                      <Link
-                        to="/wallet"
-                        className="btn-accent w-full text-center"
-                      >
-                        Vale Desconto
-                      </Link>
-                      <Link
-                        to="/my-orders"
-                        className="btn-accent w-full text-center"
-                      >
-                        Meus Pedidos
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="btn-secondary w-full flex items-center justify-center gap-2"
-                      >
-                        <img
-                          src={logoutIcon}
-                          alt="Logout"
-                          className="w-5 h-5"
-                        />
-                        Logout
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-lg font-semibold mb-2">Bem-vindo!</h3>
-                    <p className="text-sm mb-4">
-                      Faça login ou cadastre-se para continuar.
-                    </p>
-                    <div className="flex flex-col gap-2">
-                      <Link
-                        to="/login"
-                        className="btn-accent w-full text-center"
-                      >
-                        Entrar
-                      </Link>
-                      <Link
-                        to="/register"
-                        className="btn-secondary w-full text-center"
-                      >
-                        Registrar
-                      </Link>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
           </div>
+        )}
+
+        {/* Usuário */}
+        <div className="relative group flex items-center gap-2">
+          {isAuthenticated && (
+            <span className="text-sm text-brand-text">
+              Olá, {user?.name?.split(" ")[0]}
+            </span>
+          )}
+          <button
+            ref={triggerRef}
+            type="button"
+            className="bg-transparent rounded-full hover:scale-105 transition-transform duration-300"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowUserBox((prev) => !prev);
+            }}
+          >
+            <img
+              src={
+                isAuthenticated
+                  ? user?.picture || defaultUserIcon
+                  : defaultUserIcon
+              }
+              alt="Usuário"
+              className="h-8 w-8 rounded-full"
+            />
+          </button>
+
+          {!isAuthenticated && (
+            <Link to="/login" aria-label="Login">
+              <img
+                src={loginIcon}
+                alt="Login"
+                className="h-8 w-8 hover:scale-105 transition-transform duration-300"
+              />
+            </Link>
+          )}
+
+          {/* Caixa flutuante */}
+          {showUserBox && (
+            <div
+              ref={userBoxRef}
+              className="absolute right-0 top-12 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border z-50"
+            >
+              {isAuthenticated ? (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Informações do Usuário
+                  </h3>
+                  <p className="text-sm">Nome: {user?.name}</p>
+                  <p className="text-sm">Email: {user?.email}</p>
+                  <p className="text-sm text-orange-400 font-semibold mt-1">
+                    Usuário:{" "}
+                    {isAdmin
+                      ? "Admin"
+                      : isAdminSecondary
+                      ? "Admin secundário"
+                      : isClient
+                      ? "Cliente"
+                      : "Usuário"}
+                  </p>
+
+                  <div className="flex flex-col gap-2 mt-4">
+                    <button
+                      className="btn-accent w-full text-center"
+                      onClick={() => navigate("/profile")}
+                    >
+                      Endereço
+                    </button>
+                    <Link
+                      to="/wallet"
+                      className="btn-accent w-full text-center"
+                    >
+                      Vale Desconto
+                    </Link>
+                    <Link
+                      to="/my-orders"
+                      className="btn-accent w-full text-center"
+                    >
+                      Meus Pedidos
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="btn-secondary w-full flex items-center justify-center gap-2"
+                    >
+                      <img src={logoutIcon} alt="Logout" className="w-5 h-5" />
+                      Logout
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-semibold mb-2">Bem-vindo!</h3>
+                  <p className="text-sm mb-4">
+                    Faça login ou cadastre-se para continuar.
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <Link to="/login" className="btn-accent w-full text-center">
+                      Entrar
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="btn-secondary w-full text-center"
+                    >
+                      Registrar
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
@@ -296,22 +303,28 @@ export default function Header() {
                 Produtos
               </Link>
             </li>
-            <li>
-              <Link
-                to={isAuthenticated ? "/cart" : "/login"}
-                className="btn-accent w-full text-center"
-                onClick={() => {
-                  if (!isAuthenticated) {
-                    toast.warn("Faça login para acessar o carrinho.", {
-                      position: "bottom-right",
-                      autoClose: 2000,
-                    });
-                  }
-                }}
-              >
-                Carrinho
-              </Link>
-            </li>
+            {location.pathname !== "/cart" && (
+              <li>
+                <button
+                  className="btn-accent w-full text-center"
+                  onClick={() => {
+                    if (isAuthenticated) {
+                      navigate("/cart");
+                    } else {
+                      toast.warn(
+                        "Você precisa estar logado para acessar o carrinho.",
+                        {
+                          position: "bottom-right",
+                          autoClose: 2000,
+                        }
+                      );
+                    }
+                  }}
+                >
+                  Carrinho
+                </button>
+              </li>
+            )}
             <li>
               <button
                 className="btn-accent w-full text-center"
@@ -333,6 +346,17 @@ export default function Header() {
                 Perfil
               </button>
             </li>
+
+            {location.pathname === "/cart" && (
+              <li>
+                <button
+                  className="btn-accent w-full text-center"
+                  onClick={() => setShowSaveLater(true)} // ✅ abre aside também no mobile
+                >
+                  Itens Salvos
+                </button>
+              </li>
+            )}
 
             {isAuthenticated && (
               <li className="text-sm text-orange-400 font-semibold">
