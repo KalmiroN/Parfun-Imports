@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 export default function Footer() {
@@ -26,9 +26,10 @@ export default function Footer() {
         {/* Links úteis */}
         <div className="flex flex-col gap-2 text-brand-text animate-fadeInUp text-center md:text-left">
           <h3 className="font-semibold mb-2">Links úteis</h3>
-          <a href="/products" className="hover:text-brand-accent transition">
+          {/* ✅ corrigido: agora aponta para /catalogo */}
+          <Link to="/catalogo" className="hover:text-brand-accent transition">
             Produtos
-          </a>
+          </Link>
           <button
             className="hover:text-brand-accent transition text-left"
             onClick={() => {
@@ -41,12 +42,12 @@ export default function Footer() {
           >
             Perfil
           </button>
-          <a href="/cart" className="hover:text-brand-accent transition">
+          <Link to="/cart" className="hover:text-brand-accent transition">
             Carrinho
-          </a>
-          <a href="/contact" className="hover:text-brand-accent transition">
+          </Link>
+          <Link to="/contact" className="hover:text-brand-accent transition">
             Contato
-          </a>
+          </Link>
         </div>
 
         {/* Redes sociais */}

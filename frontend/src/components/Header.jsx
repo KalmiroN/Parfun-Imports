@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useRoles } from "../hooks/useRoles";
 import { useAuth } from "../context/authProvider";
-import { useCart } from "../context/cartProvider"; // ✅ agora usamos direto o contexto
+import { useCart } from "../context/cartProvider";
 
 export default function Header() {
   const { theme, cycleTheme } = useTheme();
@@ -15,9 +15,28 @@ export default function Header() {
   const triggerRef = useRef(null);
   const userBoxRef = useRef(null);
 
+  // Tooltips com delay de 1.5s
+  const [tooltip, setTooltip] = useState({
+    cart: false,
+    user: false,
+    login: false,
+  });
+  const tooltipTimers = useRef({ cart: null, user: null, login: null });
+
+  const startTooltip = (key) => {
+    clearTimeout(tooltipTimers.current[key]);
+    tooltipTimers.current[key] = setTimeout(() => {
+      setTooltip((t) => ({ ...t, [key]: true }));
+    }, 1500);
+  };
+  const stopTooltip = (key) => {
+    clearTimeout(tooltipTimers.current[key]);
+    setTooltip((t) => ({ ...t, [key]: false }));
+  };
+
   const { user, isAuthenticated, logout } = useAuth();
   const { isAdmin, isAdminSecondary, isClient } = useRoles();
-  const { setShowSaveLater } = useCart(); // ✅ pega direto do contexto
+  const { setShowSaveLater } = useCart();
 
   const cartIcon =
     theme === "dark"
@@ -94,8 +113,9 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link to="/products" className="btn-accent">
-                Produtos
+              {/* ✅ corrigido: agora chama Catálogo e aponta para /catalogo */}
+              <Link to="/catalogo" className="btn-accent">
+                Catálogo
               </Link>
             </li>
             <li>
@@ -125,7 +145,7 @@ export default function Header() {
               <li>
                 <button
                   className="btn-accent"
-                  onClick={() => setShowSaveLater(true)} // ✅ abre aside
+                  onClick={() => setShowSaveLater(true)}
                 >
                   Itens Salvos
                 </button>
@@ -148,145 +168,179 @@ export default function Header() {
             )}
           </ul>
         </nav>
-        {/* Ícone do carrinho (não aparece na tela /cart) */}
-        {location.pathname !== "/cart" && (
-          <div className="relative group">
+
+        {/* Ícones à direita: Carrinho, Usuário, Login */}
+        <div className="flex items-center gap-4">
+          {/* Ícone do carrinho (não aparece na tela /cart) */}
+          {location.pathname !== "/cart" && (
+            <div
+              className="relative group"
+              onMouseEnter={() => startTooltip("cart")}
+              onMouseLeave={() => stopTooltip("cart")}
+            >
+              <button
+                aria-label="Abrir carrinho"
+                onClick={() => {
+                  if (isAuthenticated) {
+                    navigate("/cart");
+                  } else {
+                    toast.warn(
+                      "Você precisa estar logado para acessar o carrinho.",
+                      {
+                        position: "bottom-right",
+                        autoClose: 2000,
+                      }
+                    );
+                  }
+                }}
+              >
+                <img
+                  src={cartIcon}
+                  alt="Carrinho"
+                  className="h-8 w-8 hover:scale-105 transition-transform duration-300"
+                />
+              </button>
+              {tooltip.cart && (
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs rounded bg-black/80 text-white shadow-soft">
+                  Carrinho
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Usuário */}
+          <div
+            className="relative group flex items-center gap-2"
+            onMouseEnter={() => startTooltip("user")}
+            onMouseLeave={() => stopTooltip("user")}
+          >
+            {isAuthenticated && (
+              <span className="text-sm text-brand-text">
+                Olá, {user?.name?.split(" ")[0]}
+              </span>
+            )}
             <button
-              aria-label="Abrir carrinho"
-              onClick={() => {
-                if (isAuthenticated) {
-                  navigate("/cart");
-                } else {
-                  toast.warn(
-                    "Você precisa estar logado para acessar o carrinho.",
-                    {
-                      position: "bottom-right",
-                      autoClose: 2000,
-                    }
-                  );
-                }
+              ref={triggerRef}
+              type="button"
+              className="bg-transparent rounded-full hover:scale-105 transition-transform duration-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowUserBox((prev) => !prev);
               }}
             >
               <img
-                src={cartIcon}
-                alt="Carrinho"
-                className="h-8 w-8 hover:scale-105 transition-transform duration-300"
+                src={
+                  isAuthenticated
+                    ? user?.picture || defaultUserIcon
+                    : defaultUserIcon
+                }
+                alt="Usuário"
+                className="h-8 w-8 rounded-full"
               />
             </button>
+            {tooltip.user && (
+              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs rounded bg-black/80 text-white shadow-soft">
+                Usuário
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Usuário */}
-        <div className="relative group flex items-center gap-2">
-          {isAuthenticated && (
-            <span className="text-sm text-brand-text">
-              Olá, {user?.name?.split(" ")[0]}
-            </span>
-          )}
-          <button
-            ref={triggerRef}
-            type="button"
-            className="bg-transparent rounded-full hover:scale-105 transition-transform duration-300"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowUserBox((prev) => !prev);
-            }}
-          >
-            <img
-              src={
-                isAuthenticated
-                  ? user?.picture || defaultUserIcon
-                  : defaultUserIcon
-              }
-              alt="Usuário"
-              className="h-8 w-8 rounded-full"
-            />
-          </button>
-
+          {/* Login (apenas quando não autenticado) */}
           {!isAuthenticated && (
-            <Link to="/login" aria-label="Login">
-              <img
-                src={loginIcon}
-                alt="Login"
-                className="h-8 w-8 hover:scale-105 transition-transform duration-300"
-              />
-            </Link>
-          )}
-
-          {/* Caixa flutuante */}
-          {showUserBox && (
             <div
-              ref={userBoxRef}
-              className="absolute right-0 top-12 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border z-50"
+              className="relative group"
+              onMouseEnter={() => startTooltip("login")}
+              onMouseLeave={() => stopTooltip("login")}
             >
-              {isAuthenticated ? (
-                <>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Informações do Usuário
-                  </h3>
-                  <p className="text-sm">Nome: {user?.name}</p>
-                  <p className="text-sm">Email: {user?.email}</p>
-                  <p className="text-sm text-orange-400 font-semibold mt-1">
-                    Usuário:{" "}
-                    {isAdmin
-                      ? "Admin"
-                      : isAdminSecondary
-                      ? "Admin secundário"
-                      : isClient
-                      ? "Cliente"
-                      : "Usuário"}
-                  </p>
-
-                  <div className="flex flex-col gap-2 mt-4">
-                    <button
-                      className="btn-accent w-full text-center"
-                      onClick={() => navigate("/profile")}
-                    >
-                      Endereço
-                    </button>
-                    <Link
-                      to="/wallet"
-                      className="btn-accent w-full text-center"
-                    >
-                      Vale Desconto
-                    </Link>
-                    <Link
-                      to="/my-orders"
-                      className="btn-accent w-full text-center"
-                    >
-                      Meus Pedidos
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="btn-secondary w-full flex items-center justify-center gap-2"
-                    >
-                      <img src={logoutIcon} alt="Logout" className="w-5 h-5" />
-                      Logout
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-lg font-semibold mb-2">Bem-vindo!</h3>
-                  <p className="text-sm mb-4">
-                    Faça login ou cadastre-se para continuar.
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    <Link to="/login" className="btn-accent w-full text-center">
-                      Entrar
-                    </Link>
-                    <Link
-                      to="/register"
-                      className="btn-secondary w-full text-center"
-                    >
-                      Registrar
-                    </Link>
-                  </div>
-                </>
+              <button
+                aria-label="Ir para login"
+                onClick={() => navigate("/login")}
+                className="bg-transparent"
+              >
+                <img
+                  src={loginIcon}
+                  alt="Login"
+                  className="h-8 w-8 hover:scale-105 transition-transform duration-300"
+                />
+              </button>
+              {tooltip.login && (
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs rounded bg-black/80 text-white shadow-soft">
+                  Login
+                </div>
               )}
             </div>
           )}
         </div>
+        {/* Caixa flutuante */}
+        {showUserBox && (
+          <div
+            ref={userBoxRef}
+            className="absolute right-0 top-12 w-64 bg-brand-surface shadow-strong rounded-xl p-4 border border-brand-border z-50"
+          >
+            {isAuthenticated ? (
+              <>
+                <h3 className="text-lg font-semibold mb-2">
+                  Informações do Usuário
+                </h3>
+                <p className="text-sm">Nome: {user?.name}</p>
+                <p className="text-sm">Email: {user?.email}</p>
+                <p className="text-sm text-orange-400 font-semibold mt-1">
+                  Usuário:{" "}
+                  {isAdmin
+                    ? "Admin"
+                    : isAdminSecondary
+                    ? "Admin secundário"
+                    : isClient
+                    ? "Cliente"
+                    : "Usuário"}
+                </p>
+
+                <div className="flex flex-col gap-2 mt-4">
+                  <button
+                    className="btn-accent w-full text-center"
+                    onClick={() => navigate("/profile")}
+                  >
+                    Endereço
+                  </button>
+                  <Link to="/wallet" className="btn-accent w-full text-center">
+                    Vale Desconto
+                  </Link>
+                  <Link
+                    to="/my-orders"
+                    className="btn-accent w-full text-center"
+                  >
+                    Meus Pedidos
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="btn-secondary w-full flex items-center justify-center gap-2"
+                  >
+                    <img src={logoutIcon} alt="Logout" className="w-5 h-5" />
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold mb-2">Bem-vindo!</h3>
+                <p className="text-sm mb-4">
+                  Faça login ou cadastre-se para continuar.
+                </p>
+                <div className="flex flex-col gap-2">
+                  <Link to="/login" className="btn-accent w-full text-center">
+                    Entrar
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="btn-secondary w-full text-center"
+                  >
+                    Registrar
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Menu mobile */}
@@ -299,8 +353,8 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link to="/products" className="btn-accent w-full text-center">
-                Produtos
+              <Link to="/catalogo" className="btn-accent w-full text-center">
+                Catálogo
               </Link>
             </li>
             {location.pathname !== "/cart" && (
@@ -347,11 +401,30 @@ export default function Header() {
               </button>
             </li>
 
+            {/* ✅ Ícone de Login reinserido no menu mobile */}
+            {!isAuthenticated && (
+              <li>
+                <button
+                  className="btn-accent w-full flex items-center justify-center gap-2"
+                  onClick={() => navigate("/login")}
+                  onMouseEnter={() => startTooltip("login")}
+                  onMouseLeave={() => stopTooltip("login")}
+                >
+                  <img src={loginIcon} alt="Login" className="h-6 w-6" />
+                  {tooltip.login && (
+                    <span className="text-xs bg-black/80 text-white px-2 py-1 rounded">
+                      Login
+                    </span>
+                  )}
+                </button>
+              </li>
+            )}
+
             {location.pathname === "/cart" && (
               <li>
                 <button
                   className="btn-accent w-full text-center"
-                  onClick={() => setShowSaveLater(true)} // ✅ abre aside também no mobile
+                  onClick={() => setShowSaveLater(true)}
                 >
                   Itens Salvos
                 </button>

@@ -1,7 +1,7 @@
 package com.parfunimports.backend.controller;
 
 import com.parfunimports.backend.model.Order;
-import com.parfunimports.backend.repository.OrderRepository;
+import com.parfunimports.backend.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,29 +11,62 @@ import java.util.List;
 @RequestMapping("/api/orders")
 public class OrderController {
 
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
-    public OrderController(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
     }
 
-    // Listar todos os pedidos
+    // 📌 Listar todos os pedidos
     @GetMapping
-    public List<Order> getAll() {
-        return orderRepository.findAll();
+    public ResponseEntity<List<Order>> getAll() {
+        return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    // Buscar pedido por ID
+    // 📌 Buscar pedido por ID
     @GetMapping("/{id}")
     public ResponseEntity<Order> getById(@PathVariable Long id) {
-        return orderRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Order order = orderService.getOrderById(id);
+        if (order != null) {
+            return ResponseEntity.ok(order);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // Criar novo pedido
+    // 📌 Criar novo pedido
     @PostMapping
-    public Order create(@RequestBody Order order) {
-        return orderRepository.save(order);
+    public ResponseEntity<Order> create(@RequestBody Order order) {
+        Order savedOrder = orderService.saveOrder(order);
+        return ResponseEntity.ok(savedOrder);
+    }
+
+    // 📥 Criar vários pedidos de uma vez
+    @PostMapping("/batch")
+    public ResponseEntity<List<Order>> createOrders(@RequestBody List<Order> orders) {
+        List<Order> saved = orderService.saveAllOrders(orders);
+        return ResponseEntity.ok(saved);
+    }
+
+    // 📌 Atualizar pedido existente
+    @PutMapping("/{id}")
+    public ResponseEntity<Order> update(@PathVariable Long id, @RequestBody Order updatedOrder) {
+        Order order = orderService.updateOrder(id, updatedOrder);
+        if (order != null) {
+            return ResponseEntity.ok(order);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // 📌 Deletar pedido
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        boolean deleted = orderService.deleteOrder(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

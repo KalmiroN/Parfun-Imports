@@ -2,15 +2,15 @@ import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./context/themeProvider";
 import { CartProvider } from "./context/cartProvider";
 import { AuthProvider } from "./context/authProvider";
-import { WishlistProvider } from "./context/wishlistProvider";
+import { WishlistProvider } from "./context/WishlistProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Layout from "./layouts/Layout";
+import Layout from "./layouts/layout";
 
 // Páginas principais
 import Home from "./pages/home";
-import Products from "./pages/products";
+import Products from "./pages/products"; // usado como "Catálogo"
 import ProductDetail from "./pages/productDetail";
 import Cart from "./pages/cart";
 import Checkout from "./pages/checkout";
@@ -24,15 +24,16 @@ import ForgotPassword from "./pages/forgotPassword";
 import Profile from "./pages/profile";
 import Wishlist from "./pages/wishlist";
 import Search from "./pages/search";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard";
 
 // Páginas administrativas
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminOrders from "./pages/admin/AdminOrders";
+import AdminProducts from "./pages/admin/adminProducts";
+import AdminOrders from "./pages/admin/adminOrders";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageRoles from "./pages/admin/ManageRoles";
 
 // Página de fallback e acesso negado
-import NotFound from "./pages/NotFound";
+import NotFound from "./pages/notFound";
 import Unauthorized from "./pages/Unauthorized";
 import AccessDenied from "./pages/AccessDenied";
 
@@ -117,17 +118,20 @@ export default function App() {
               {/* Rotas principais com Layout */}
               <Route element={<Layout />}>
                 <Route path="/" element={<Home />} />
-                <Route path="/products" element={<Products />} />
+
+                {/* Catálogo semântico */}
+                <Route path="/catalogo" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
+
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/search" element={<Search />} />
 
-                {/* ✅ Corrigido: Carrinho dentro do Layout */}
+                {/* Carrinho dentro do Layout */}
                 <Route path="/cart" element={<Cart />} />
 
-                {/* Rotas administrativas */}
+                {/* Rotas administrativas (apenas admin e admin_secondary) */}
                 <Route
                   path="/admin/products"
                   element={
@@ -144,6 +148,15 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <ProtectedRoute allowedRoles={["admin", "admin_secondary"]}>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+
                 <Route
                   path="/admin/manage-roles"
                   element={

@@ -33,7 +33,7 @@ export default function NotFound() {
             Voltar à página inicial
           </Link>
           <Link
-            to="/products"
+            to="/catalogo"
             className="flex-1 px-6 py-3 rounded-full border border-brand-border text-brand-text bg-transparent shadow-strong hover:bg-brand-accent hover:text-black transition-colors duration-300 text-center select-none"
           >
             Ir para catálogo

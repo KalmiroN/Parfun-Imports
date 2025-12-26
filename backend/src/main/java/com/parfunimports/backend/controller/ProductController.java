@@ -26,26 +26,56 @@ public class ProductController {
     // 🔎 Buscar produto por ID
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.getProductById(id));
+        Product product = productService.getProductById(id);
+        if (product != null) {
+            return ResponseEntity.ok(product);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // ➕ Criar novo produto
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        return ResponseEntity.ok(productService.saveProduct(product));
+        Product saved = productService.saveProduct(product);
+        return ResponseEntity.ok(saved);
+    }
+
+    // 📥 Criar vários produtos de uma vez
+    @PostMapping("/batch")
+    public ResponseEntity<List<Product>> createProducts(@RequestBody List<Product> products) {
+        List<Product> saved = productService.saveAllProducts(products);
+        return ResponseEntity.ok(saved);
+    }
+
+    // ✏️ Atualizar produto
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product updatedProduct) {
+        Product product = productService.updateProduct(id, updatedProduct);
+        if (product != null) {
+            return ResponseEntity.ok(product);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // ❌ Deletar produto
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
+        boolean deleted = productService.deleteProduct(id);
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // ⭐ Novo endpoint: listar apenas produtos em destaque
+    // ⭐ Listar apenas produtos em destaque
     @GetMapping("/highlights")
     public ResponseEntity<List<Product>> getHighlightProducts() {
         return ResponseEntity.ok(productService.getHighlightProducts());
     }
 }
+
+
 

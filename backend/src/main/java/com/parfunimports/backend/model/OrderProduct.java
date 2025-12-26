@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "order_products") // 👈 tabela de ligação
+@Table(name = "order_products")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,13 +14,18 @@ public class OrderProduct {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer quantity;
-
-    @ManyToOne
-    @JoinColumn(name = "order_id")
+    // 📌 relacionamento com Order
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
+    // 📌 relacionamento com Product
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @Column(nullable = false)
+    private Integer quantity;
 }
+
+

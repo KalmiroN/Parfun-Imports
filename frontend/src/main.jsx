@@ -8,7 +8,7 @@ import { BrowserRouter } from "react-router-dom"; // ✅ Router único
 import { ThemeProvider } from "./context/themeProvider";
 import { AuthProvider } from "./context/authProvider";
 import { CartProvider } from "./context/cartProvider";
-import { WishlistProvider } from "./context/wishlistProvider";
+import { WishlistProvider } from "./context/WishlistProvider";
 import ErrorBoundary from "./components/ErrorBoundary"; // ✅ captura erros
 
 ReactDOM.createRoot(document.getElementById("root")).render(

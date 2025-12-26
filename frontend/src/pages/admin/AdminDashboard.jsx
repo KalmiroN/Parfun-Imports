@@ -1,139 +1,160 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { authFetch } from "../../utils/authFetch";
 import { toast } from "react-toastify";
+import AdminLayout from "../../components/AdminLayout";
+
+// Importando Chart.js
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line, Bar } from "react-chartjs-2";
+
+// Registrar componentes do Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function AdminDashboard() {
-  const [companyConfig, setCompanyConfig] = useState({
-    cnpj: "",
-    invoicePrefix: "",
+  const [salesData, setSalesData] = useState({
+    weekly: [],
+    fortnightly: [],
+    currentMonth: [],
+    monthly: [],
+    annual: [],
+    topProducts: [],
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchConfig = async () => {
+    const fetchSales = async () => {
       try {
         const res = await authFetch(
-          `${import.meta.env.VITE_API_URL}/company/config`
+          `${import.meta.env.VITE_API_URL}/dashboard/sales`
         );
-        setCompanyConfig({
-          cnpj: res.data?.cnpj || "",
-          invoicePrefix: res.data?.invoicePrefix || "",
-        });
+        setSalesData(res.data || {});
       } catch (err) {
-        toast.error(err.message || "Erro ao carregar configurações");
+        toast.error(err.message || "Erro ao carregar dados de vendas");
       } finally {
         setLoading(false);
       }
     };
-    fetchConfig();
+    fetchSales();
   }, []);
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    try {
-      await authFetch(`${import.meta.env.VITE_API_URL}/company/config`, {
-        method: "PUT",
-        body: JSON.stringify(companyConfig),
-      });
-      toast.success("Configurações da empresa atualizadas!");
-    } catch (err) {
-      toast.error(err.message || "Erro ao salvar configurações");
-    }
-  };
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <p className="text-brand-text">Carregando painel...</p>
-      </main>
+      <AdminLayout>
+        <p className="text-brand-text">Carregando dados do Dashboard...</p>
+      </AdminLayout>
     );
   }
 
+  // Configuração dos gráficos
+  const lineChartData = {
+    labels: salesData.currentMonth.map((d) => d.day),
+    datasets: [
+      {
+        label: "Vendas do Mês Vigente",
+        data: salesData.currentMonth.map((d) => d.total),
+        borderColor: "#4F46E5",
+        backgroundColor: "#6366F1",
+      },
+    ],
+  };
+
+  const barChartData = {
+    labels: salesData.annual.map((d) => d.month),
+    datasets: [
+      {
+        label: "Vendas Anuais",
+        data: salesData.annual.map((d) => d.total),
+        backgroundColor: "#10B981",
+      },
+    ],
+  };
+
   return (
-    <main className="min-h-screen bg-brand-bg transition-colors duration-500">
+    <AdminLayout>
       <div className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="font-display text-3xl text-brand-text mb-8">
-          Painel Administrativo
+          Dashboard de Vendas
         </h2>
 
-        {/* Atalhos principais */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Link
-            to="/admin/products"
-            className="p-6 rounded-xl bg-brand-surface shadow-soft text-center hover:opacity-90 transition"
-          >
-            <h3 className="text-xl font-display text-brand-text mb-2">
-              Produtos
-            </h3>
-            <p className="text-brand-textMuted">
-              Gerencie o catálogo e estoque.
-            </p>
-          </Link>
-
-          <Link
-            to="/admin/orders"
-            className="p-6 rounded-xl bg-brand-surface shadow-soft text-center hover:opacity-90 transition"
-          >
-            <h3 className="text-xl font-display text-brand-text mb-2">
-              Pedidos
-            </h3>
-            <p className="text-brand-textMuted">
-              Acompanhe e atualize os pedidos.
-            </p>
-          </Link>
-
+        {/* Indicadores principais */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           <div className="p-6 rounded-xl bg-brand-surface shadow-soft text-center">
-            <h3 className="text-xl font-display text-brand-text mb-2">
-              Configurações
+            <h3 className="text-xl font-display text-brand-text">Pedidos</h3>
+            <p className="text-2xl font-bold">{salesData.totalOrders}</p>
+          </div>
+          <div className="p-6 rounded-xl bg-brand-surface shadow-soft text-center">
+            <h3 className="text-xl font-display text-brand-text">Vendas</h3>
+            <p className="text-2xl font-bold">R$ {salesData.totalSales}</p>
+          </div>
+          <div className="p-6 rounded-xl bg-brand-surface shadow-soft text-center">
+            <h3 className="text-xl font-display text-brand-text">
+              Ticket Médio
             </h3>
-            <p className="text-brand-textMuted">
-              Defina CNPJ e prefixo de Nota Fiscal.
-            </p>
+            <p className="text-2xl font-bold">R$ {salesData.avgTicket}</p>
+          </div>
+          <div className="p-6 rounded-xl bg-brand-surface shadow-soft text-center">
+            <h3 className="text-xl font-display text-brand-text">
+              Produtos Vendidos
+            </h3>
+            <p className="text-2xl font-bold">{salesData.totalProducts}</p>
           </div>
         </div>
 
-        {/* Configurações da empresa */}
+        {/* Gráfico de linhas - mês vigente */}
+        <div className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-6 mb-12">
+          <h3 className="text-2xl font-display text-brand-text mb-4">
+            Evolução das Vendas (Mês Vigente)
+          </h3>
+          <Line data={lineChartData} />
+        </div>
+
+        {/* Gráfico de barras - anual */}
+        <div className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-6 mb-12">
+          <h3 className="text-2xl font-display text-brand-text mb-4">
+            Vendas Anuais
+          </h3>
+          <Bar data={barChartData} />
+        </div>
+
+        {/* Ranking de produtos */}
         <div className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-6">
           <h3 className="text-2xl font-display text-brand-text mb-4">
-            Configurações da Empresa
+            Top 5 Produtos Mais Vendidos
           </h3>
-          <form onSubmit={handleSave} className="space-y-4">
-            <div>
-              <label className="block text-brand-text mb-2">CNPJ</label>
-              <input
-                type="text"
-                value={companyConfig.cnpj}
-                onChange={(e) =>
-                  setCompanyConfig({ ...companyConfig, cnpj: e.target.value })
-                }
-                placeholder="00.000.000/0000-00"
-                className="input-field"
-              />
-            </div>
-            <div>
-              <label className="block text-brand-text mb-2">
-                Prefixo da Nota Fiscal
-              </label>
-              <input
-                type="text"
-                value={companyConfig.invoicePrefix}
-                onChange={(e) =>
-                  setCompanyConfig({
-                    ...companyConfig,
-                    invoicePrefix: e.target.value,
-                  })
-                }
-                placeholder="Ex: NF-2025"
-                className="input-field"
-              />
-            </div>
-            <button type="submit" className="btn-accent w-full">
-              Salvar Configurações
-            </button>
-          </form>
+          <ul className="space-y-2">
+            {salesData.topProducts?.map((prod, idx) => (
+              <li
+                key={prod.id ?? `${prod.name}-${idx}`}
+                className="flex justify-between"
+              >
+                <span>
+                  {idx + 1}. {prod.name}
+                </span>
+                <span>{prod.quantity} unid.</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-    </main>
+    </AdminLayout>
   );
 }

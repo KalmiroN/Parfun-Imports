@@ -10,42 +10,74 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;   // PK auto-increment
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String name;
 
+    @Column(length = 255)
     private String description;
 
     @Column(nullable = false)
     private Double price;
 
+    @Column
     private Integer stock;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    // ✅ novo campo para marcar produtos em destaque
+    // ✅ campo para marcar produtos em destaque
     @Column(nullable = false)
     private boolean highlight = false;
 
     // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() { 
+        return id; 
+    }
+    public void setId(Long id) { 
+        this.id = id; 
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getName() { 
+        return name; 
+    }
+    public void setName(String name) { 
+        this.name = name; 
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getDescription() { 
+        return description; 
+    }
+    public void setDescription(String description) { 
+        this.description = description; 
+    }
 
-    public Double getPrice() { return price; }
-    public void setPrice(Double price) { this.price = price; }
+    public Double getPrice() { 
+        return price; 
+    }
+    public void setPrice(Double price) { 
+        this.price = price; 
+    }
 
-    public Integer getStock() { return stock; }
-    public void setStock(Integer stock) { this.stock = stock; }
+    public Integer getStock() { 
+        return stock; 
+    }
+    public void setStock(Integer stock) { 
+        this.stock = stock; 
+    }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getImageUrl() { 
+        return imageUrl; 
+    }
+    public void setImageUrl(String imageUrl) { 
+        this.imageUrl = imageUrl; 
+    }
 
-    public boolean isHighlight() { return highlight; }
-    public void setHighlight(boolean highlight) { this.highlight = highlight; }
+    public boolean isHighlight() { 
+        return highlight; 
+    }
+    public void setHighlight(boolean highlight) { 
+        this.highlight = highlight; 
+    }
 }
+
+

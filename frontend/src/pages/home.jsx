@@ -1,6 +1,7 @@
 import ProductCard from "../components/ProductCard";
 import { useTheme } from "../context/themeProvider";
 import Highlights from "../components/Highlights";
+import { Link } from "react-router-dom"; // ✅ importado
 
 // ✅ Array local de produtos, igual ao Products.jsx
 const produtos = [
@@ -56,30 +57,27 @@ export default function Home() {
           <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         )}
         <div className="relative z-10 px-4">
-          {/* Título principal */}
           <h1 className="love-light-regular text-[5rem] mb-6 text-white select-none">
             Parfun Imports
           </h1>
-
-          {/* Subtítulo */}
           <p className="text-3xl mb-6 text-white select-none">
             Fragrâncias exclusivas que elevam sua presença.
           </p>
 
           {/* Botões principais */}
           <div className="flex gap-6 justify-center">
-            <a
-              href="/products"
+            <Link
+              to="/catalogo"
               className="px-8 py-4 rounded-full bg-brand-accent text-black font-bold text-lg hover:opacity-90 transition select-none"
             >
               Ver Catálogo
-            </a>
-            <a
-              href="/cart"
+            </Link>
+            <Link
+              to="/cart"
               className="px-8 py-4 rounded-full border border-brand-border text-brand-text font-bold text-lg hover:bg-brand-accent hover:text-black transition-colors duration-500 select-none"
             >
               Carrinho
-            </a>
+            </Link>
           </div>
         </div>
       </section>

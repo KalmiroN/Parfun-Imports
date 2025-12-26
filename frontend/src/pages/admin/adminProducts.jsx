@@ -1,18 +1,29 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { authFetch } from "../../utils/authFetch";
 import { toast } from "react-toastify";
 import EditProductModal from "./components/EditProductModal";
+import AdminLayout from "../../components/AdminLayout";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    description: "",
+    price: "",
+    stock: "",
+    category: "",
+    imageUrl: "",
+  });
 
+  // Carregar produtos
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await authFetch(`${import.meta.env.VITE_API_URL}/products`);
+        const res = await authFetch(
+          `${import.meta.env.VITE_API_URL}/api/products`
+        );
         setProducts(res.data || []);
       } catch (err) {
         toast.error(err.message || "Erro ao carregar produtos");
@@ -23,9 +34,10 @@ export default function AdminProducts() {
     fetchProducts();
   }, []);
 
+  // Remover produto
   const handleRemove = async (id) => {
     try {
-      await authFetch(`${import.meta.env.VITE_API_URL}/products/${id}`, {
+      await authFetch(`${import.meta.env.VITE_API_URL}/api/products/${id}`, {
         method: "DELETE",
       });
       toast.success("Produto removido!");
@@ -35,15 +47,122 @@ export default function AdminProducts() {
     }
   };
 
-  if (loading) return <p>Carregando produtos...</p>;
+  // Adicionar produto
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    try {
+      // ✅ Converter price e stock para número
+      const payload = {
+        ...newProduct,
+        price: parseFloat(newProduct.price) || 0,
+        stock: parseInt(newProduct.stock, 10) || 0,
+      };
+
+      const res = await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/products`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      toast.success("Produto adicionado!");
+      setProducts((prev) => [...prev, res.data]);
+      setNewProduct({
+        name: "",
+        description: "",
+        price: "",
+        stock: "",
+        category: "",
+        imageUrl: "",
+      });
+    } catch (err) {
+      toast.error(err.message || "Erro ao adicionar produto");
+    }
+  };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <p className="text-brand-textMuted">Carregando produtos...</p>
+      </AdminLayout>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-brand-bg transition-colors duration-500">
+    <AdminLayout>
       <div className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="font-display text-3xl text-brand-text mb-6">
           Administração de Produtos
         </h2>
 
+        {/* Formulário de cadastro */}
+        <form
+          onSubmit={handleAddProduct}
+          className="bg-brand-surface/80 rounded-xl shadow-soft p-6 mb-8 space-y-4"
+        >
+          <input
+            type="text"
+            placeholder="Nome"
+            value={newProduct.name}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, name: e.target.value })
+            }
+            className="input-field"
+            required
+          />
+          <textarea
+            placeholder="Descrição"
+            value={newProduct.description}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, description: e.target.value })
+            }
+            className="input-field"
+          />
+          <input
+            type="number"
+            placeholder="Preço"
+            value={newProduct.price}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, price: e.target.value })
+            }
+            className="input-field"
+            required
+          />
+          <input
+            type="number"
+            placeholder="Estoque"
+            value={newProduct.stock}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, stock: e.target.value })
+            }
+            className="input-field"
+          />
+          <input
+            type="text"
+            placeholder="Categoria"
+            value={newProduct.category}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, category: e.target.value })
+            }
+            className="input-field"
+          />
+          <input
+            type="text"
+            placeholder="URL da Imagem"
+            value={newProduct.imageUrl}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, imageUrl: e.target.value })
+            }
+            className="input-field"
+          />
+          <button type="submit" className="btn-accent w-full mt-4">
+            Salvar Produto
+          </button>
+        </form>
+
+        {/* Lista de produtos */}
         {products.length === 0 ? (
           <p className="text-brand-textMuted">Nenhum produto cadastrado.</p>
         ) : (
@@ -51,7 +170,7 @@ export default function AdminProducts() {
             {products.map((p) => (
               <div
                 key={p.id}
-                className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-4 transition-colors duration-500 flex justify-between items-center"
+                className="bg-brand-surface/80 rounded-xl shadow-soft p-4 flex justify-between items-center"
               >
                 <div>
                   <h3 className="text-lg font-display text-brand-text">
@@ -65,13 +184,13 @@ export default function AdminProducts() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setSelectedProduct(p)}
-                    className="px-4 py-2 rounded-full bg-brand-accent text-black hover:opacity-90 transition-colors duration-500"
+                    className="px-4 py-2 rounded-full bg-brand-accent text-black"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => handleRemove(p.id)}
-                    className="px-4 py-2 rounded-full bg-red-500 text-white hover:opacity-90 transition-colors duration-500"
+                    className="px-4 py-2 rounded-full bg-red-500 text-white"
                   >
                     Remover
                   </button>
@@ -80,35 +199,27 @@ export default function AdminProducts() {
             ))}
           </div>
         )}
-
-        {/* Botões de ação */}
-        <div className="flex flex-col md:flex-row gap-4 mt-8">
-          <Link
-            to="/admin/products/new"
-            className="flex-1 px-6 py-3 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500 text-center"
-          >
-            Adicionar novo produto
-          </Link>
-          <Link
-            to="/products"
-            className="flex-1 px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
-          >
-            Voltar ao catálogo
-          </Link>
-        </div>
       </div>
 
+      {/* Modal de edição */}
       {selectedProduct && (
         <EditProductModal
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
           onSave={async (updated) => {
             try {
+              const payload = {
+                ...updated,
+                price: parseFloat(updated.price) || 0,
+                stock: parseInt(updated.stock, 10) || 0,
+              };
+
               await authFetch(
-                `${import.meta.env.VITE_API_URL}/products/${updated.id}`,
+                `${import.meta.env.VITE_API_URL}/api/products/${updated.id}`,
                 {
                   method: "PUT",
-                  body: JSON.stringify(updated),
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
                 }
               );
               toast.success("Produto atualizado!");
@@ -122,6 +233,6 @@ export default function AdminProducts() {
           }}
         />
       )}
-    </main>
+    </AdminLayout>
   );
 }
