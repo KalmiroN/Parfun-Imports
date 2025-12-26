@@ -263,7 +263,7 @@ export default function Cart() {
                 Finalizar compra
               </button>
               <button
-                onClick={() => navigate("/products")}
+                onClick={() => navigate("/catalogo")}
                 className="btn-secondary text-lg"
               >
                 Voltar a comprar

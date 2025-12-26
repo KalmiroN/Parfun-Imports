@@ -106,6 +106,21 @@ export default function Login() {
               placeholder="Digite sua senha"
             />
 
+            {/* ✅ Novo bloco: Lembrar-me + Esqueceu a senha */}
+            <div className="flex items-center justify-between mt-4">
+              <label className="flex items-center gap-2 text-sm text-brand-text">
+                <input type="checkbox" className="toggle-checkbox" />
+                Lembrar-me
+              </label>
+              <button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+                className="text-sm text-brand-accent hover:underline"
+              >
+                Esqueceu a senha?
+              </button>
+            </div>
+
             <button type="submit" className="w-full btn-accent mt-4">
               Entrar
             </button>
