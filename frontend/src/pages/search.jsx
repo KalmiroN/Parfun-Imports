@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { authFetch } from "../utils/authFetch"; // ✅ corrigido
 import { toast } from "react-toastify";
-import { useCart } from "../context/cartProvider"; // ✅ corrigido
+import { useCart } from "../context/CartProvider"; // ✅ corrigido
 
 export default function Search() {
   const [query, setQuery] = useState("");

@@ -1,23 +1,21 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/authProvider";
+import { useAuth } from "../context/AuthProvider";
 
 /**
- * ProtectedRoute (PrivateRoute)
+ * ProtectedRoute
  * - Garante que apenas usuários autenticados acessem a rota.
  * - Se `allowedRoles` for passado, também valida se o usuário tem a role necessária.
  *
  * Props:
  * - children: componente/rota protegida
- * - redirectTo: rota para redirecionar se não estiver autenticado (default: /login)
- * - allowedRoles: lista de roles permitidas (ex.: ["admin", "client"])
+ * - allowedRoles: lista de roles permitidas (ex.: ["ADMIN", "CLIENTE"])
  */
-export default function ProtectedRoute({
-  children,
-  redirectTo = "/login",
-  allowedRoles,
-}) {
+export default function ProtectedRoute({ children, allowedRoles }) {
   const { user, isAuthenticated, loadingAuth } = useAuth();
+
+  // 👉 Log para debug
+  console.log("ProtectedRoute - user:", user);
 
   // Enquanto o estado de autenticação está carregando
   if (loadingAuth) {
@@ -28,22 +26,22 @@ export default function ProtectedRoute({
     );
   }
 
-  // Se não estiver autenticado, redireciona para login
+  // Se não estiver autenticado → redireciona para login
   if (!isAuthenticated) {
-    return <Navigate to={redirectTo} replace />;
+    return <Navigate to="/login" replace />;
   }
 
-  // Normaliza roles do usuário para lowercase
-  const userRoles = (user?.roles || []).map((r) => r.toLowerCase());
+  // Agora basta usar diretamente user.role
+  const userRole = user?.role?.toUpperCase();
 
   // Se a rota exigir roles específicas
   if (allowedRoles && allowedRoles.length > 0) {
-    const hasRole = allowedRoles.some((role) =>
-      userRoles.includes(role.toLowerCase())
+    const hasRole = allowedRoles.some(
+      (role) => role.toUpperCase() === userRole
     );
     if (!hasRole) {
-      // Se não tiver a role necessária, redireciona para página de acesso negado
-      return <Navigate to="/unauthorized" replace />;
+      // 🚨 Se não tiver permissão → redireciona para Home
+      return <Navigate to="/" replace />;
     }
   }
 

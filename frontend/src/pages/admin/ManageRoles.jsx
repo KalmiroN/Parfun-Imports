@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useAuth } from "../../context/authProvider"; // 👈 pega token do contexto
+import { useAuth } from "../../context/AuthProvider"; // 👈 pega token do contexto
 import { authFetch } from "../../utils/authFetch"; // ✅ corrigido
 
 export default function ManageRoles() {

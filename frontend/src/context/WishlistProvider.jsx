@@ -1,6 +1,15 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-const WishlistContext = createContext();
+// ✅ Cria o contexto com valor inicial seguro
+const WishlistContext = createContext({
+  wishlistItems: [],
+  setWishlistItems: () => {},
+  addToWishlist: () => {},
+  removeFromWishlist: () => {},
+  removeById: () => {},
+  removeByName: () => {},
+  clearWishlist: () => {},
+});
 
 export function WishlistProvider({ children }) {
   const [wishlistItems, setWishlistItems] = useState(() => {
@@ -12,10 +21,12 @@ export function WishlistProvider({ children }) {
     }
   });
 
+  // 📌 Persistência local
   useEffect(() => {
     localStorage.setItem("wishlist", JSON.stringify(wishlistItems));
   }, [wishlistItems]);
 
+  // 📌 Normalização de preço
   const parsePrice = (price) => {
     if (typeof price === "number") return price;
     if (typeof price !== "string") return 0;
@@ -28,6 +39,7 @@ export function WishlistProvider({ children }) {
     return Number.isNaN(val) ? 0 : val;
   };
 
+  // 📌 Adicionar item à wishlist
   const addToWishlist = (product) => {
     if (!product || (!product.id && !product.name)) return;
 
@@ -57,18 +69,22 @@ export function WishlistProvider({ children }) {
     });
   };
 
+  // 📌 Remover item com matcher customizado
   const removeFromWishlist = (matcher) => {
     setWishlistItems((prev) => prev.filter((p, idx) => !matcher(p, idx)));
   };
 
+  // 📌 Remover por ID
   const removeById = (id) => {
     setWishlistItems((prev) => prev.filter((p) => p.id !== id));
   };
 
+  // 📌 Remover por nome
   const removeByName = (name) => {
     setWishlistItems((prev) => prev.filter((p) => p.name !== name));
   };
 
+  // 📌 Limpar wishlist
   const clearWishlist = () => setWishlistItems([]);
 
   const value = useMemo(
@@ -91,4 +107,5 @@ export function WishlistProvider({ children }) {
   );
 }
 
+// ✅ Hook para consumir o contexto
 export const useWishlist = () => useContext(WishlistContext);

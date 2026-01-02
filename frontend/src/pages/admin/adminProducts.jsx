@@ -17,12 +17,12 @@ export default function AdminProducts() {
     imageUrl: "",
   });
 
-  // Carregar produtos
+  // Carregar produtos (rota admin)
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await authFetch(
-          `${import.meta.env.VITE_API_URL}/api/products`
+          `${import.meta.env.VITE_API_URL}/api/admin/products`
         );
         setProducts(res.data || []);
       } catch (err) {
@@ -34,12 +34,15 @@ export default function AdminProducts() {
     fetchProducts();
   }, []);
 
-  // Remover produto
+  // Remover produto (rota admin)
   const handleRemove = async (id) => {
     try {
-      await authFetch(`${import.meta.env.VITE_API_URL}/api/products/${id}`, {
-        method: "DELETE",
-      });
+      await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/admin/products/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       toast.success("Produto removido!");
       setProducts((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
@@ -47,11 +50,10 @@ export default function AdminProducts() {
     }
   };
 
-  // Adicionar produto
+  // Adicionar produto (rota admin)
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      // ✅ Converter price e stock para número
       const payload = {
         ...newProduct,
         price: parseFloat(newProduct.price) || 0,
@@ -59,7 +61,7 @@ export default function AdminProducts() {
       };
 
       const res = await authFetch(
-        `${import.meta.env.VITE_API_URL}/api/products`,
+        `${import.meta.env.VITE_API_URL}/api/admin/products`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -215,7 +217,9 @@ export default function AdminProducts() {
               };
 
               await authFetch(
-                `${import.meta.env.VITE_API_URL}/api/products/${updated.id}`,
+                `${import.meta.env.VITE_API_URL}/api/admin/products/${
+                  updated.id
+                }`,
                 {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },

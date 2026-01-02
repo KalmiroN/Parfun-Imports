@@ -1,4 +1,4 @@
-package com.parfunimports;
+package com.parfunimports.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

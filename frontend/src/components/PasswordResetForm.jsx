@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import usePasswordValidation from "../hooks/usePasswordValidation";
-import { useTheme } from "../context/themeProvider";
-import { useAuth } from "../context/authProvider"; // 👈 agora usamos nosso AuthProvider
+import { useTheme } from "../context/ThemeProvider";
+import { useAuth } from "../context/AuthProvider"; // 👈 agora usamos nosso AuthProvider
 import { authFetch } from "../utils/authFetch"; // 👈 utilitário atualizado
 
 /* ===========================

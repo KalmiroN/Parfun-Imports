@@ -1,15 +1,16 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(), // adiciona o plugin do Tailwind
-  ],
+  plugins: [react()],
   server: {
-    port: 5173,
-    open: true,
+    open: true, // ✅ abre o navegador automaticamente
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080", // backend
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 });

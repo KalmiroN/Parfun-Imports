@@ -1,18 +1,25 @@
 /**
- * Faz requisições autenticadas ao backend usando o Access Token do AuthProvider.
+ * Faz requisições autenticadas ao backend usando o Access Token salvo pelo AuthProvider.
  *
  * @param {string} url - URL da requisição
  * @param {object} options - opções do fetch (headers, body, etc.)
- * @param {string} token - access_token obtido do AuthProvider
  */
-export async function authFetch(url, options = {}, token) {
+export async function authFetch(url, options = {}) {
   try {
+    // 🔧 recupera token automaticamente do localStorage
+    const token = localStorage.getItem("accessToken"); // ⚠️ use o mesmo nome salvo no login
+
     const headers = {
       ...(options.headers || {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
-    if (!headers["Content-Type"]) {
+    // só adiciona Content-Type se não for GET
+    if (
+      !headers["Content-Type"] &&
+      options.method &&
+      options.method.toUpperCase() !== "GET"
+    ) {
       headers["Content-Type"] = "application/json";
     }
 
@@ -36,6 +43,8 @@ export async function authFetch(url, options = {}, token) {
 
     if (!response.ok) {
       if (response.status === 401) {
+        // 🚨 token inválido ou expirado
+        localStorage.removeItem("accessToken"); // limpa token
         throw new Error("Sessão expirada. Faça login novamente.");
       }
       const message = data?.message || `Erro ${response.status}`;

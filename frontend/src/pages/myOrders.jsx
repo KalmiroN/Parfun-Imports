@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { authFetch } from "../utils/authFetch";
-import { useAuth } from "../context/authProvider";
+import { useAuth } from "../context/AuthProvider";
 
 export default function MyOrders() {
   const { token } = useAuth();
@@ -19,8 +19,8 @@ export default function MyOrders() {
     const fetchOrders = async () => {
       try {
         const response = await authFetch(
-          `${import.meta.env.VITE_API_URL}/orders/my`,
-          {},
+          `${import.meta.env.VITE_API_URL}/api/orders/my`, // ✅ rota correta
+          { method: "GET" },
           token
         );
 
@@ -28,8 +28,7 @@ export default function MyOrders() {
           throw new Error("Erro ao buscar pedidos");
         }
 
-        const data = await response.json();
-        setOrders(data);
+        setOrders(response.data || []);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -39,6 +38,50 @@ export default function MyOrders() {
 
     fetchOrders();
   }, [token]);
+
+  // Função para download automático
+  const downloadPDF = async (url, filename, token) => {
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Erro ao baixar PDF");
+
+      const blob = await response.blob();
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    } catch (err) {
+      console.error(err);
+      alert("Falha ao baixar PDF");
+    }
+  };
+
+  // Função para preview em nova aba
+  const previewPDF = async (url, token) => {
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Erro ao abrir PDF");
+
+      const blob = await response.blob();
+      const fileURL = window.URL.createObjectURL(blob);
+      window.open(fileURL, "_blank");
+    } catch (err) {
+      console.error(err);
+      alert("Falha ao abrir PDF");
+    }
+  };
 
   if (loading) {
     return (
@@ -58,7 +101,10 @@ export default function MyOrders() {
         {error && <p className="text-red-500">{error}</p>}
 
         {orders.length === 0 ? (
-          <p className="text-brand-textMuted">Você ainda não possui pedidos.</p>
+          <p className="text-brand-textMuted">
+            Você ainda não possui pedidos. Assim que fizer uma compra, ela
+            aparecerá aqui.
+          </p>
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
@@ -70,28 +116,85 @@ export default function MyOrders() {
                   Pedido #{order.id}
                 </h3>
                 <p className="text-brand-textMuted">
-                  Data: {new Date(order.date).toLocaleDateString("pt-BR")} |
-                  Total:{" "}
+                  Data: {new Date(order.createdAt).toLocaleDateString("pt-BR")}{" "}
+                  | Total:{" "}
                   {Intl.NumberFormat("pt-BR", {
                     style: "currency",
                     currency: "BRL",
-                  }).format(order.total)}
+                  }).format(order.totalAmount)}
                 </p>
                 <p className="text-brand-textMuted">Status: {order.status}</p>
 
                 <div className="flex flex-col md:flex-row gap-4 mt-4">
+                  {/* Detalhes do pedido */}
                   <Link
                     to={`/order/${order.id}`}
                     className="flex-1 px-4 py-2 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500 text-center"
                   >
                     Ver detalhes do pedido
                   </Link>
-                  <Link
-                    to="/products"
-                    className="flex-1 px-4 py-2 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
-                  >
-                    Voltar ao catálogo
-                  </Link>
+
+                  {/* Grupo Nota Fiscal */}
+                  <div className="flex flex-1 gap-2">
+                    <button
+                      onClick={() =>
+                        downloadPDF(
+                          `${import.meta.env.VITE_API_URL}/api/orders/${
+                            order.id
+                          }/nota-fiscal`,
+                          `nota-fiscal-${order.id}.pdf`,
+                          token
+                        )
+                      }
+                      className="flex-1 px-4 py-2 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+                    >
+                      Baixar NF
+                    </button>
+                    <button
+                      onClick={() =>
+                        previewPDF(
+                          `${import.meta.env.VITE_API_URL}/api/orders/${
+                            order.id
+                          }/nota-fiscal`,
+                          token
+                        )
+                      }
+                      className="flex-1 px-4 py-2 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+                    >
+                      Visualizar NF
+                    </button>
+                  </div>
+
+                  {/* Grupo Nota Fiscal Paulista */}
+                  <div className="flex flex-1 gap-2">
+                    <button
+                      onClick={() =>
+                        downloadPDF(
+                          `${import.meta.env.VITE_API_URL}/api/orders/${
+                            order.id
+                          }/nota-fiscal-paulista`,
+                          `nota-fiscal-paulista-${order.id}.pdf`,
+                          token
+                        )
+                      }
+                      className="flex-1 px-4 py-2 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+                    >
+                      Baixar NF Paulista
+                    </button>
+                    <button
+                      onClick={() =>
+                        previewPDF(
+                          `${import.meta.env.VITE_API_URL}/api/orders/${
+                            order.id
+                          }/nota-fiscal-paulista`,
+                          token
+                        )
+                      }
+                      className="flex-1 px-4 py-2 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+                    >
+                      Visualizar NF Paulista
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

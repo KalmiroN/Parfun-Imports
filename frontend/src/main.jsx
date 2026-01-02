@@ -5,9 +5,9 @@ import "./index.css";
 import "./styles/theme.css";
 
 import { BrowserRouter } from "react-router-dom"; // ✅ Router único
-import { ThemeProvider } from "./context/themeProvider";
-import { AuthProvider } from "./context/authProvider";
-import { CartProvider } from "./context/cartProvider";
+import { ThemeProvider } from "./context/ThemeProvider";
+import { AuthProvider } from "./context/AuthProvider";
+import { CartProvider } from "./context/CartProvider";
 import { WishlistProvider } from "./context/WishlistProvider";
 import ErrorBoundary from "./components/ErrorBoundary"; // ✅ captura erros
 

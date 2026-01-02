@@ -4,11 +4,13 @@ import com.parfunimports.backend.dto.DashboardResponse;
 import com.parfunimports.backend.dto.DashboardResponse.DailySales;
 import com.parfunimports.backend.dto.DashboardResponse.MonthlySales;
 import com.parfunimports.backend.dto.DashboardResponse.TopProduct;
+import com.parfunimports.backend.dto.OrderStatusResponse;
 import com.parfunimports.backend.model.Product;
 import com.parfunimports.backend.repository.OrderRepository;
 import com.parfunimports.backend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.List;
@@ -34,13 +36,17 @@ public class DashboardService {
         long totalOrders = orderRepository.count();
         response.setTotalOrders((int) totalOrders);
 
-        Double totalSales = orderRepository.sumTotalSalesBetween(
+        BigDecimal totalSalesBD = orderRepository.sumTotalSalesBetween(
                 LocalDate.now().withDayOfYear(1).atStartOfDay(),
                 LocalDate.now().plusDays(1).atStartOfDay()
         );
-        response.setTotalSales(totalSales != null ? totalSales : 0.0);
 
-        double avgTicket = totalOrders == 0 ? 0 : response.getTotalSales() / totalOrders;
+        BigDecimal totalSales = (totalSalesBD != null) ? totalSalesBD : BigDecimal.ZERO;
+        response.setTotalSales(totalSales);
+
+        BigDecimal avgTicket = (totalOrders == 0)
+                ? BigDecimal.ZERO
+                : totalSales.divide(BigDecimal.valueOf(totalOrders), 2, BigDecimal.ROUND_HALF_UP);
         response.setAvgTicket(avgTicket);
 
         Integer totalProducts = productRepository.sumTotalStock();
@@ -60,7 +66,10 @@ public class DashboardService {
         int year = LocalDate.now().getYear();
         List<DailySales> currentMonthSales = orderRepository.sumSalesByDay(month, year)
                 .stream()
-                .map(obj -> createDaily(String.valueOf(obj[0]), ((Number) obj[1]).doubleValue()))
+                .map(obj -> {
+                    BigDecimal total = obj[1] != null ? (BigDecimal) obj[1] : BigDecimal.ZERO;
+                    return createDaily(String.valueOf(obj[0]), total);
+                })
                 .collect(Collectors.toList());
         response.setCurrentMonth(currentMonthSales);
 
@@ -72,7 +81,8 @@ public class DashboardService {
                     String monthName = LocalDate.of(year, monthNumber, 1)
                             .getMonth()
                             .getDisplayName(TextStyle.FULL, new Locale("pt", "BR"));
-                    return createMonthly(monthName, ((Number) obj[1]).doubleValue());
+                    BigDecimal total = obj[1] != null ? (BigDecimal) obj[1] : BigDecimal.ZERO;
+                    return createMonthly(monthName, total);
                 })
                 .collect(Collectors.toList());
         response.setAnnual(annualSales);
@@ -92,14 +102,23 @@ public class DashboardService {
         return response;
     }
 
-    private DailySales createDaily(String day, double total) {
+    // 📌 Novo método para retornar apenas os status dos pedidos
+    public OrderStatusResponse getOrderStatus() {
+        int pendingOrders = orderRepository.findByStatus("PENDING").size();
+        int paidOrders = orderRepository.findByStatus("PAID").size();
+        int cancelledOrders = orderRepository.findByStatus("CANCELLED").size();
+
+        return new OrderStatusResponse(pendingOrders, paidOrders, cancelledOrders);
+    }
+
+    private DailySales createDaily(String day, BigDecimal total) {
         DailySales d = new DailySales();
         d.setDay(day);
         d.setTotal(total);
         return d;
     }
 
-    private MonthlySales createMonthly(String month, double total) {
+    private MonthlySales createMonthly(String month, BigDecimal total) {
         MonthlySales m = new MonthlySales();
         m.setMonth(month);
         m.setTotal(total);
@@ -113,4 +132,3 @@ public class DashboardService {
         return t;
     }
 }
-

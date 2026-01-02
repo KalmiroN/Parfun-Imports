@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useAuth } from "../context/authProvider";
-import { useRoles } from "../hooks/useRoles";
+import { useAuth } from "../context/AuthProvider";
 import PasswordResetForm from "../components/PasswordResetForm";
 import { authFetch } from "../utils/authFetch";
 
 export default function Profile() {
-  const { user, token, updateUser } = useAuth(); // 👈 agora usamos updateUser
-  const { roles, isAdmin, isAdminSecondary, isClient } = useRoles();
+  const { user, token, updateUser } = useAuth();
 
   const [name, setName] = useState(user?.name || "");
   const [phone, setPhone] = useState(user?.phone || "");
   const [email, setEmail] = useState(user?.email || "");
   const [address, setAddress] = useState(user?.address || "");
-  const [password, setPassword] = useState(""); // 👈 novo estado para senha
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   // ✅ Atualiza os estados quando o user mudar
@@ -31,7 +29,6 @@ export default function Profile() {
     setError("");
 
     try {
-      // Monta payload dinamicamente
       const payload = { name, phone, email, address };
       if (password && password.trim() !== "") {
         payload.password = password;
@@ -46,13 +43,12 @@ export default function Profile() {
         token
       );
 
-      // ✅ Atualiza contexto com dados retornados pelo backend
       if (response.ok && response.data) {
         updateUser(response.data);
       }
 
       toast.success("Perfil atualizado com sucesso!");
-      setPassword(""); // limpa campo de senha após salvar
+      setPassword("");
       setError("");
     } catch (err) {
       setError(err.message);
@@ -104,22 +100,16 @@ export default function Profile() {
             <p className="text-brand-textMuted">{address || "Não informado"}</p>
           </div>
           <div className="p-4 border border-brand-border rounded-lg bg-white/40">
-            <h3 className="text-lg font-semibold text-brand-text">Roles</h3>
-            {roles.length > 0 ? (
-              <ul className="list-disc list-inside text-brand-textMuted">
-                {roles.map((role, idx) => (
-                  <li key={idx}>{role}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-brand-textMuted">Nenhuma role atribuída</p>
-            )}
+            <h3 className="text-lg font-semibold text-brand-text">Usuário</h3>
+            <p className="text-brand-textMuted">
+              {user?.role === "ADMIN" ? "admin" : "cliente"}
+            </p>
           </div>
         </div>
 
         {/* Botões por role */}
         <div className="mb-8">
-          {isClient && (
+          {user?.role === "CLIENTE" && (
             <div className="flex flex-col gap-4">
               <a href="/my-orders" className="btn-accent w-full">
                 Meus Pedidos
@@ -129,7 +119,7 @@ export default function Profile() {
               </a>
             </div>
           )}
-          {isAdminSecondary && (
+          {user?.role === "ADMIN" && (
             <div className="flex flex-col gap-4">
               <a href="/admin/products" className="btn-accent w-full">
                 Gerenciar Produtos
@@ -137,10 +127,6 @@ export default function Profile() {
               <a href="/admin/orders" className="btn-accent w-full">
                 Gerenciar Pedidos
               </a>
-            </div>
-          )}
-          {isAdmin && (
-            <div className="flex flex-col gap-4">
               <a href="/admin/manage-roles" className="btn-secondary w-full">
                 Gerenciar Usuários / Roles
               </a>

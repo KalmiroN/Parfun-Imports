@@ -1,11 +1,13 @@
-import { useCart } from "../context/cartProvider.jsx";
+// Cart.jsx — Parte 1/2
+import { useCart } from "../context/CartProvider.jsx";
 import { toast } from "react-toastify";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CheckoutCard from "../components/CheckoutCard";
 import AsideContainer from "../components/AsideContainer";
 import { authFetch } from "../utils/authFetch";
-import { useAuth } from "../context/authProvider";
+import { useAuth } from "../context/AuthProvider.jsx";
+import { resolveImageUrl } from "../utils/resolveImageUrl"; // ✅ normaliza URLs de imagens
 
 export default function Cart() {
   const {
@@ -15,7 +17,7 @@ export default function Cart() {
     checkout,
     showSaveLater,
     setShowSaveLater,
-  } = useCart(); // ✅ agora usamos showSaveLater do contexto
+  } = useCart();
   const { user, token, loadingAuth, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -30,12 +32,12 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Buscar carrinho do backend
+  // 📌 Buscar carrinho do backend
   useEffect(() => {
     const fetchCart = async () => {
       try {
         const response = await authFetch(
-          `${import.meta.env.VITE_API_URL}/api/cart/${user.email}`,
+          `${import.meta.env.VITE_API_URL}/api/cart/my`,
           { method: "GET" },
           token
         );
@@ -55,14 +57,14 @@ export default function Cart() {
     };
 
     if (loadingAuth) return;
-    if (user?.email) {
+    if (isAuthenticated) {
       fetchCart();
     } else {
       setLoading(false);
     }
-  }, [setCartItems, user, token, loadingAuth]);
+  }, [setCartItems, token, loadingAuth, isAuthenticated]);
 
-  // Atualizar métricas para posicionar aside
+  // 📌 Atualizar métricas para posicionar aside
   useEffect(() => {
     const update = () => {
       const top = mainRef.current?.offsetTop || 0;
@@ -83,7 +85,7 @@ export default function Cart() {
     };
   }, [cartItems]);
 
-  // Esconder mensagens de erro após 25s
+  // 📌 Esconder mensagens de erro após 25s
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => setError(""), 25000);
@@ -136,18 +138,17 @@ export default function Cart() {
     }
   };
 
-  // Salvar item específico para depois (usando rawItem)
   const handleSaveLater = (rawItem) => {
     try {
       saveForLater(rawItem);
       toast.success(`${rawItem?.name || "Item"} salvo para depois!`);
-      setShowSaveLater(true); // ✅ abre aside ao salvar
+      setShowSaveLater(true);
     } catch (err) {
       console.error("Erro ao salvar item:", err);
       toast.error("Erro ao salvar item para depois.");
     }
   };
-  // Checkout com Pix/Cartão
+
   const handleCheckout = async (method) => {
     if (!isAuthenticated) {
       toast.error("Você precisa estar logado para finalizar a compra.");
@@ -181,6 +182,7 @@ export default function Cart() {
     return acc + priceValue * qty;
   }, 0);
 
+  // Continuação no arquivo Parte 2/2
   if (loading) {
     return (
       <main className="bg-brand-bg text-brand-text min-h-screen flex items-center justify-center">
@@ -191,7 +193,6 @@ export default function Cart() {
 
   return (
     <>
-      {/* Conteúdo principal */}
       <main
         ref={mainRef}
         className="bg-brand-bg text-brand-text min-h-screen px-4 py-12 pt-24 overflow-x-auto"
@@ -213,7 +214,6 @@ export default function Cart() {
           </div>
         ) : (
           <>
-            {/* Cards */}
             <div
               ref={cardsRef}
               className="space-y-4 mx-auto"
@@ -228,7 +228,7 @@ export default function Cart() {
                     typeof rawItem?.price === "number"
                       ? `R$ ${rawItem.price.toFixed(2).replace(".", ",")}`
                       : rawItem?.price || "R$ 0,00",
-                  imageUrl: rawItem?.imageUrl || "/images/default.jpg",
+                  imageUrl: resolveImageUrl(rawItem?.imageUrl), // ✅ normaliza aqui
                   quantity: rawItem?.quantity || 1,
                 };
 
@@ -272,7 +272,6 @@ export default function Cart() {
           </>
         )}
 
-        {/* ✅ AsideContainer SEMPRE renderizado */}
         <AsideContainer
           showCheckout={showCheckout}
           showSaveLater={showSaveLater}

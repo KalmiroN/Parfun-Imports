@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useCart } from "../context/cartProvider"; // carrinho
+import { useCart } from "../context/CartProvider"; // carrinho
 import { useWishlist } from "../context/WishlistProvider"; // favoritos
 import { toast } from "react-toastify";
 

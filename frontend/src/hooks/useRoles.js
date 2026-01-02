@@ -1,4 +1,4 @@
-import { useAuth } from "../context/authProvider";
+import { useAuth } from "../context/AuthProvider";
 
 export function useRoles() {
   const { user } = useAuth();

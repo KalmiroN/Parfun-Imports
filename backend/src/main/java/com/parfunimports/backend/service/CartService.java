@@ -34,13 +34,15 @@ public class CartService {
         return cartRepository.findByUserEmail(userEmail);
     }
 
-    // ❌ Remover item do carrinho
-    public void removeItem(Long id) {
-        if (cartRepository.existsById(id)) {
-            cartRepository.deleteById(id);
-        } else {
-            throw new IllegalArgumentException("Item não encontrado para remoção: " + id);
-        }
+    // ❌ Remover item do carrinho (valida dono)
+    public boolean removeItem(Long id, String userEmail) {
+        return cartRepository.findById(id)
+                .filter(item -> item.getUserEmail().equals(userEmail)) // ✅ só remove se pertence ao usuário logado
+                .map(item -> {
+                    cartRepository.delete(item);
+                    return true;
+                })
+                .orElse(false);
     }
 
     // 🗑️ Limpar carrinho de um usuário
@@ -52,10 +54,11 @@ public class CartService {
         cartRepository.deleteByUserEmail(userEmail);
     }
 
-    // 🔄 Atualizar quantidade de um item no carrinho
-    public CartItem updateQuantity(Long id, int newQuantity) {
+    // 🔄 Atualizar quantidade de um item no carrinho (valida dono)
+    public CartItem updateQuantity(Long id, int newQuantity, String userEmail) {
         CartItem existing = cartRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Item não encontrado para atualização: " + id));
+                .filter(item -> item.getUserEmail().equals(userEmail)) // ✅ só atualiza se pertence ao usuário logado
+                .orElseThrow(() -> new IllegalArgumentException("Item não encontrado ou não pertence ao usuário: " + id));
 
         if (newQuantity <= 0) {
             throw new IllegalArgumentException("Quantidade deve ser maior que zero");

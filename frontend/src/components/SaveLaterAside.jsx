@@ -1,10 +1,16 @@
 import { createPortal } from "react-dom";
-import { useCart } from "../context/cartProvider";
+import { useCart } from "../context/CartProvider";
 
 export function SaveLaterAside({ show, top, height, offset = 400, onClose }) {
   const { saveLaterItems, moveBackToCart } = useCart();
 
   if (!show) return null;
+
+  // ✅ Função para resolver a URL da imagem com fallback
+  const resolveSrc = (url) => {
+    if (!url) return "/images/default.jpg";
+    return url;
+  };
 
   return createPortal(
     <aside
@@ -32,8 +38,11 @@ export function SaveLaterAside({ show, top, height, offset = 400, onClose }) {
             >
               <div className="flex items-center gap-2">
                 <img
-                  src={item.imageUrl || "/images/default.jpg"}
-                  alt={item.name}
+                  src={resolveSrc(item?.imageUrl)}
+                  alt={item?.name || "Produto"}
+                  onError={(e) => {
+                    e.currentTarget.src = "/images/default.jpg"; // ✅ fallback se a imagem não carregar
+                  }}
                   className="w-12 h-12 rounded-md object-cover"
                 />
                 <div>

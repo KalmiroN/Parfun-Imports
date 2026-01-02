@@ -1,10 +1,9 @@
-import { useTheme } from "../context/themeProvider";
+import { useTheme } from "../context/ThemeProvider";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useRoles } from "../hooks/useRoles";
-import { useAuth } from "../context/authProvider";
-import { useCart } from "../context/cartProvider";
+import { useAuth } from "../context/AuthProvider";
+import { useCart } from "../context/CartProvider";
 
 export default function Header() {
   const { theme, cycleTheme } = useTheme();
@@ -15,7 +14,10 @@ export default function Header() {
   const triggerRef = useRef(null);
   const userBoxRef = useRef(null);
 
-  // Tooltips com delay de 1.5s
+  const { user, isAuthenticated, logout } = useAuth();
+  const { setShowSaveLater } = useCart();
+
+  // Tooltips com delay
   const [tooltip, setTooltip] = useState({
     cart: false,
     user: false,
@@ -34,9 +36,11 @@ export default function Header() {
     setTooltip((t) => ({ ...t, [key]: false }));
   };
 
-  const { user, isAuthenticated, logout } = useAuth();
-  const { isAdmin, isAdminSecondary, isClient } = useRoles();
-  const { setShowSaveLater } = useCart();
+  // Exibição do papel
+  const formatRole = (role) => {
+    if (!role) return "cliente";
+    return role.toUpperCase() === "ADMIN" ? "Admin" : "cliente";
+  };
 
   const cartIcon =
     theme === "dark"
@@ -113,7 +117,6 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              {/* ✅ corrigido: agora chama Catálogo e aponta para /catalogo */}
               <Link to="/catalogo" className="btn-accent">
                 Catálogo
               </Link>
@@ -140,7 +143,6 @@ export default function Header() {
               </button>
             </li>
 
-            {/* Novo botão Itens Salvos (apenas na tela do carrinho) */}
             {location.pathname === "/cart" && (
               <li>
                 <button
@@ -152,7 +154,7 @@ export default function Header() {
               </li>
             )}
 
-            {isAdmin && (
+            {user?.role?.toUpperCase() === "ADMIN" && (
               <>
                 <li>
                   <Link to="/admin/products" className="btn-accent">
@@ -169,9 +171,9 @@ export default function Header() {
           </ul>
         </nav>
 
-        {/* Ícones à direita: Carrinho, Usuário, Login */}
+        {/* Ícones à direita */}
         <div className="flex items-center gap-4">
-          {/* Ícone do carrinho (não aparece na tela /cart) */}
+          {/* Carrinho (não aparece na tela /cart) */}
           {location.pathname !== "/cart" && (
             <div
               className="relative group"
@@ -219,6 +221,7 @@ export default function Header() {
                 Olá, {user?.name?.split(" ")[0]}
               </span>
             )}
+
             <button
               ref={triggerRef}
               type="button"
@@ -238,6 +241,7 @@ export default function Header() {
                 className="h-8 w-8 rounded-full"
               />
             </button>
+
             {tooltip.user && (
               <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs rounded bg-black/80 text-white shadow-soft">
                 Usuário
@@ -271,6 +275,7 @@ export default function Header() {
             </div>
           )}
         </div>
+
         {/* Caixa flutuante */}
         {showUserBox && (
           <div
@@ -285,14 +290,7 @@ export default function Header() {
                 <p className="text-sm">Nome: {user?.name}</p>
                 <p className="text-sm">Email: {user?.email}</p>
                 <p className="text-sm text-orange-400 font-semibold mt-1">
-                  Usuário:{" "}
-                  {isAdmin
-                    ? "Admin"
-                    : isAdminSecondary
-                    ? "Admin secundário"
-                    : isClient
-                    ? "Cliente"
-                    : "Usuário"}
+                  Usuário: {formatRole(user?.role)}
                 </p>
 
                 <div className="flex flex-col gap-2 mt-4">
@@ -357,6 +355,7 @@ export default function Header() {
                 Catálogo
               </Link>
             </li>
+
             {location.pathname !== "/cart" && (
               <li>
                 <button
@@ -379,6 +378,7 @@ export default function Header() {
                 </button>
               </li>
             )}
+
             <li>
               <button
                 className="btn-accent w-full text-center"
@@ -401,7 +401,6 @@ export default function Header() {
               </button>
             </li>
 
-            {/* ✅ Ícone de Login reinserido no menu mobile */}
             {!isAuthenticated && (
               <li>
                 <button
@@ -433,18 +432,11 @@ export default function Header() {
 
             {isAuthenticated && (
               <li className="text-sm text-orange-400 font-semibold">
-                Usuário:{" "}
-                {isAdmin
-                  ? "Admin"
-                  : isAdminSecondary
-                  ? "Admin secundário"
-                  : isClient
-                  ? "Cliente"
-                  : "Usuário"}
+                Usuário: {formatRole(user?.role)}
               </li>
             )}
 
-            {isAdmin && (
+            {user?.role?.toUpperCase() === "ADMIN" && (
               <>
                 <li>
                   <Link

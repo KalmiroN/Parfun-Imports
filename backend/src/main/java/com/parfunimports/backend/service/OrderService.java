@@ -2,9 +2,12 @@ package com.parfunimports.backend.service;
 
 import com.parfunimports.backend.model.Order;
 import com.parfunimports.backend.model.OrderProduct;
+import com.parfunimports.backend.model.Product;
 import com.parfunimports.backend.repository.OrderRepository;
+import com.parfunimports.backend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,9 +15,11 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
     }
 
     // 📌 Listar todos os pedidos
@@ -29,25 +34,13 @@ public class OrderService {
 
     // 📥 Criar vários pedidos de uma vez
     public List<Order> saveAllOrders(List<Order> orders) {
-        orders.forEach(order -> {
-            if (order.getCreatedAt() == null) {
-                order.setCreatedAt(LocalDateTime.now());
-            }
-            if (order.getItems() != null) {
-                order.getItems().forEach(item -> item.setOrder(order));
-            }
-        });
+        orders.forEach(this::prepareOrderBeforeSave);
         return orderRepository.saveAll(orders);
     }
 
     // ➕ Criar novo pedido
     public Order saveOrder(Order order) {
-        if (order.getCreatedAt() == null) {
-            order.setCreatedAt(LocalDateTime.now());
-        }
-        if (order.getItems() != null) {
-            order.getItems().forEach(item -> item.setOrder(order));
-        }
+        prepareOrderBeforeSave(order);
         return orderRepository.save(order);
     }
 
@@ -58,16 +51,22 @@ public class OrderService {
                     order.setCustomerName(updatedOrder.getCustomerName());
                     order.setCustomerEmail(updatedOrder.getCustomerEmail());
                     order.setStatus(updatedOrder.getStatus());
-                    order.setTotal(updatedOrder.getTotal());
-                    order.setTotalAmount(updatedOrder.getTotalAmount());
                     order.setUserId(updatedOrder.getUserId());
                     order.setCreatedAt(updatedOrder.getCreatedAt() != null ? updatedOrder.getCreatedAt() : order.getCreatedAt());
 
-                    // ✅ garantir vínculo dos itens
                     if (updatedOrder.getItems() != null) {
-                        updatedOrder.getItems().forEach(item -> item.setOrder(order));
+                        updatedOrder.getItems().forEach(item -> {
+                            Product product = productRepository.findById(item.getProduct().getId())
+                                    .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + item.getProduct().getId()));
+                            item.setProduct(product);
+                            item.setPrice(product.getPrice()); // ✅ BigDecimal
+                            item.setOrder(order);
+                        });
                         order.setItems(updatedOrder.getItems());
                     }
+
+                    // ✅ recalcular total
+                    recalculateOrderTotal(order);
 
                     return orderRepository.save(order);
                 })
@@ -85,8 +84,8 @@ public class OrderService {
     }
 
     // 📊 Relatórios
-    public Double sumTotalSalesBetween(LocalDateTime start, LocalDateTime end) {
-        return orderRepository.sumTotalSalesBetween(start, end);
+    public BigDecimal sumTotalSalesBetween(LocalDateTime start, LocalDateTime end) {
+        return orderRepository.sumTotalSalesBetween(start, end); // ✅ BigDecimal
     }
 
     public Long countOrdersBetween(LocalDateTime start, LocalDateTime end) {
@@ -100,4 +99,44 @@ public class OrderService {
     public List<Object[]> sumSalesByMonth(int year) {
         return orderRepository.sumSalesByMonth(year);
     }
+
+    // 👤 Buscar pedidos pelo e-mail do cliente (para /api/orders/my)
+    public List<Order> getOrdersByEmail(String email) {
+        return orderRepository.findByCustomerEmail(email);
+    }
+
+    // 🔧 Método auxiliar para preparar pedido antes de salvar
+    private void prepareOrderBeforeSave(Order order) {
+        if (order.getCreatedAt() == null) {
+            order.setCreatedAt(LocalDateTime.now());
+        }
+
+        if (order.getItems() != null) {
+            order.getItems().forEach(item -> {
+                Product product = productRepository.findById(item.getProduct().getId())
+                        .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + item.getProduct().getId()));
+                item.setProduct(product);
+                item.setPrice(product.getPrice()); // ✅ BigDecimal
+                item.setOrder(order);
+            });
+        }
+
+        // ✅ calcular total
+        recalculateOrderTotal(order);
+    }
+
+    // 🔧 Método auxiliar para recalcular total do pedido
+    private void recalculateOrderTotal(Order order) {
+        BigDecimal total = BigDecimal.ZERO;
+
+        if (order.getItems() != null) {
+            for (OrderProduct item : order.getItems()) {
+                BigDecimal subtotal = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+                total = total.add(subtotal);
+            }
+        }
+
+        order.setTotal(total); // ✅ apenas este campo
+    }
 }
+

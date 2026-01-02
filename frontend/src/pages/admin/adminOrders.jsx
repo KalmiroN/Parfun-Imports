@@ -16,7 +16,7 @@ export default function AdminOrders() {
     endDate: "",
   });
 
-  // Carregar pedidos
+  // Carregar pedidos (rota admin)
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -26,7 +26,7 @@ export default function AdminOrders() {
         if (filters.startDate) params.append("startDate", filters.startDate);
         if (filters.endDate) params.append("endDate", filters.endDate);
 
-        const url = `${import.meta.env.VITE_API_URL}/api/orders${
+        const url = `${import.meta.env.VITE_API_URL}/api/admin/orders${
           params.toString() ? `?${params.toString()}` : ""
         }`;
 
@@ -150,7 +150,9 @@ export default function AdminOrders() {
           onSave={async (updated) => {
             try {
               await authFetch(
-                `${import.meta.env.VITE_API_URL}/api/orders/${updated.id}`,
+                `${import.meta.env.VITE_API_URL}/api/admin/orders/${
+                  updated.id
+                }`,
                 {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },

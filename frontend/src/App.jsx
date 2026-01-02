@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "./context/themeProvider";
-import { CartProvider } from "./context/cartProvider";
-import { AuthProvider } from "./context/authProvider";
+import { ThemeProvider } from "./context/ThemeProvider";
+import { AuthProvider } from "./context/AuthProvider";
+import { CartProvider } from "./context/CartProvider";
 import { WishlistProvider } from "./context/WishlistProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -44,9 +44,10 @@ import PublicRoute from "./components/PublicRoute";
 export default function App() {
   return (
     <ThemeProvider>
-      <CartProvider>
-        <WishlistProvider>
-          <AuthProvider>
+      {/* ✅ Corrigido: AuthProvider vem antes do CartProvider */}
+      <AuthProvider>
+        <CartProvider>
+          <WishlistProvider>
             <Routes>
               {/* Rotas públicas restritas (apenas para não autenticados) */}
               <Route
@@ -76,9 +77,7 @@ export default function App() {
               <Route
                 path="/dashboard"
                 element={
-                  <ProtectedRoute
-                    allowedRoles={["client", "admin", "admin_secondary"]}
-                  >
+                  <ProtectedRoute allowedRoles={["CLIENTE", "ADMIN"]}>
                     <Dashboard />
                   </ProtectedRoute>
                 }
@@ -86,10 +85,7 @@ export default function App() {
               <Route
                 path="/checkout"
                 element={
-                  <ProtectedRoute
-                    allowedRoles={["client", "admin", "admin_secondary"]}
-                    redirectTo="/login"
-                  >
+                  <ProtectedRoute allowedRoles={["CLIENTE", "ADMIN"]}>
                     <Checkout />
                   </ProtectedRoute>
                 }
@@ -97,9 +93,7 @@ export default function App() {
               <Route
                 path="/order-confirmation"
                 element={
-                  <ProtectedRoute
-                    allowedRoles={["client", "admin", "admin_secondary"]}
-                  >
+                  <ProtectedRoute allowedRoles={["CLIENTE", "ADMIN"]}>
                     <OrderConfirmation />
                   </ProtectedRoute>
                 }
@@ -107,9 +101,7 @@ export default function App() {
               <Route
                 path="/my-orders"
                 element={
-                  <ProtectedRoute
-                    allowedRoles={["client", "admin", "admin_secondary"]}
-                  >
+                  <ProtectedRoute allowedRoles={["CLIENTE", "ADMIN"]}>
                     <MyOrders />
                   </ProtectedRoute>
                 }
@@ -131,11 +123,11 @@ export default function App() {
                 {/* Carrinho dentro do Layout */}
                 <Route path="/cart" element={<Cart />} />
 
-                {/* Rotas administrativas (apenas admin e admin_secondary) */}
+                {/* Rotas administrativas (apenas ADMIN) */}
                 <Route
                   path="/admin/products"
                   element={
-                    <ProtectedRoute allowedRoles={["admin", "admin_secondary"]}>
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
                       <AdminProducts />
                     </ProtectedRoute>
                   }
@@ -143,7 +135,7 @@ export default function App() {
                 <Route
                   path="/admin/orders"
                   element={
-                    <ProtectedRoute allowedRoles={["admin", "admin_secondary"]}>
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
                       <AdminOrders />
                     </ProtectedRoute>
                   }
@@ -151,16 +143,15 @@ export default function App() {
                 <Route
                   path="/admin/dashboard"
                   element={
-                    <ProtectedRoute allowedRoles={["admin", "admin_secondary"]}>
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
                       <AdminDashboard />
                     </ProtectedRoute>
                   }
                 />
-
                 <Route
                   path="/admin/manage-roles"
                   element={
-                    <ProtectedRoute allowedRoles={["admin"]}>
+                    <ProtectedRoute allowedRoles={["ADMIN"]}>
                       <ManageRoles />
                     </ProtectedRoute>
                   }
@@ -173,9 +164,9 @@ export default function App() {
 
             {/* Toast global */}
             <ToastContainer position="bottom-right" autoClose={3000} />
-          </AuthProvider>
-        </WishlistProvider>
-      </CartProvider>
+          </WishlistProvider>
+        </CartProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useCart } from "../context/cartProvider";
+import { useCart } from "../context/CartProvider";
 
 export default function CartIcon() {
   const { getCartCount, getCartTotal } = useCart();

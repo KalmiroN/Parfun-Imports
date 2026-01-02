@@ -1,5 +1,5 @@
 import { createPortal } from "react-dom";
-import { useCart } from "../context/cartProvider";
+import { useCart } from "../context/CartProvider";
 import { useState } from "react";
 import { toast } from "react-toastify";
 

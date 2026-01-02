@@ -1,9 +1,14 @@
 package com.parfunimports.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -11,6 +16,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Order {
 
     @Id
@@ -28,24 +34,32 @@ public class Order {
     @Column(nullable = false, length = 255)
     private String status;
 
-    // 📌 valor total do pedido (decimal(38,2))
-    @Column(name = "total")
-    private Double total;
+    // 📌 valor total do pedido (decimal(10,2))
+    @Column(name = "total", precision = 10, scale = 2, nullable = false)
+    private BigDecimal total;
 
-    // 📌 valor total do pedido (double)
-    @Column(name = "total_amount", nullable = false)
-    private Double totalAmount;
+    // 📌 usuário associado ao pedido (relação ManyToOne)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JsonBackReference   // ✅ evita recursão infinita (lado inverso)
+    private User user;
 
-    // 📌 usuário associado ao pedido
-    @Column(name = "user_id")
+    // 📌 também mantém o userId simples (compatibilidade)
+    @Column(name = "user_id", insertable = false, updatable = false)
     private Long userId;
 
     // 📌 data de criação do pedido
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    // 📌 campo extra para compatibilidade com frontend
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date date;
+
     // 📌 relação com os itens do pedido
+    @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference   // ✅ evita recursão infinita
     private List<OrderProduct> items = new ArrayList<>();
 
     // ✅ helper method para manter consistência
@@ -61,5 +75,3 @@ public class Order {
         }
     }
 }
-
-

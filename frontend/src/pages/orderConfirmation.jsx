@@ -2,7 +2,7 @@ import Hero from "../components/Hero";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { authFetch } from "../utils/authFetch";
-import { useAuth } from "../context/authProvider";
+import { useAuth } from "../context/AuthProvider";
 
 export default function OrderConfirmation() {
   const { token } = useAuth();

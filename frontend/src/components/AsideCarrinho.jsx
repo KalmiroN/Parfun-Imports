@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { useCart } from "../context/cartProvider";
+import { useCart } from "../context/CartProvider";
 
 /**
  * AsideCarrinho.jsx
@@ -15,6 +15,12 @@ export default function AsideCarrinho({
 }) {
   const { cartItems, saveLaterItems, saveForLater, moveBackToCart } = useCart();
   const [payment, setPayment] = useState(null); // "pix" ou "card"
+
+  // ✅ Função para resolver a URL da imagem com fallback
+  const resolveSrc = (url) => {
+    if (!url) return "/images/default.jpg";
+    return url;
+  };
 
   // Salvar item para depois (usa contexto)
   const handleSaveForLater = (item) => {
@@ -33,19 +39,17 @@ export default function AsideCarrinho({
       toast.success(
         "Pagamento via Pix iniciado. Escaneie o QR Code ou copie a chave Pix."
       );
-      // Aqui você integraria com backend para gerar QR Code/chave Pix
     } else if (payment === "card") {
       toast.success(
         "Pagamento via Cartão iniciado. Preencha os dados do cartão."
       );
-      // Aqui você integraria com gateway de pagamento
     } else {
       toast.warn("Escolha uma forma de pagamento.");
     }
   };
 
   return (
-    <aside className="flex flex-col h-full bg-white shadow-strong">
+    <aside className="flex flex-col h-full bg-white shadow-strong transition-transform duration-300">
       {/* Header */}
       <header className="flex justify-between items-center p-4 border-b">
         <h2 className="text-lg font-semibold">Finalizar compra</h2>
@@ -64,9 +68,21 @@ export default function AsideCarrinho({
               key={item.id || item.productId}
               className="flex justify-between items-center border p-2 rounded"
             >
-              <div>
-                <p className="font-medium">{item.name}</p>
-                <p className="text-sm text-gray-600">R$ {item.price}</p>
+              <div className="flex items-center gap-3">
+                <img
+                  src={resolveSrc(item?.imageUrl)}
+                  alt={item?.name || "Produto"}
+                  onError={(e) => {
+                    if (!e.currentTarget.src.includes("default.jpg")) {
+                      e.currentTarget.src = "/images/default.jpg"; // ✅ evita loop/piscar
+                    }
+                  }}
+                  className="w-12 h-12 rounded-md object-cover border border-brand-border"
+                />
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-sm text-gray-600">R$ {item.price}</p>
+                </div>
               </div>
               <button
                 onClick={() => handleSaveForLater(item)}
@@ -77,7 +93,6 @@ export default function AsideCarrinho({
             </div>
           ))
         )}
-
         {/* Aside: Salvos para depois */}
         {saveLaterItems.length > 0 && (
           <div className="mt-6 border-t pt-4">
@@ -87,9 +102,21 @@ export default function AsideCarrinho({
                 key={item.id || item.productId}
                 className="flex justify-between items-center border p-2 rounded bg-gray-50"
               >
-                <div>
-                  <p className="text-sm">{item.name}</p>
-                  <p className="text-sm text-gray-600">R$ {item.price}</p>
+                <div className="flex items-center gap-3">
+                  <img
+                    src={resolveSrc(item?.imageUrl)}
+                    alt={item?.name || "Produto"}
+                    onError={(e) => {
+                      if (!e.currentTarget.src.includes("default.jpg")) {
+                        e.currentTarget.src = "/images/default.jpg"; // ✅ evita loop/piscar
+                      }
+                    }}
+                    className="w-12 h-12 rounded-md object-cover border border-brand-border"
+                  />
+                  <div>
+                    <p className="text-sm">{item.name}</p>
+                    <p className="text-sm text-gray-600">R$ {item.price}</p>
+                  </div>
                 </div>
                 <button
                   onClick={() => moveBackToCart(item)}

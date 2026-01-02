@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useTheme } from "../context/themeProvider";
-import { useAuth } from "../context/authProvider";
+import { useTheme } from "../context/ThemeProvider";
+import { useAuth } from "../context/AuthProvider";
 import { authFetch } from "../utils/authFetch"; // ✅ agora usamos authFetch
 
 /* ===========================

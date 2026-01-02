@@ -1,43 +1,29 @@
+import { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard";
-import { useTheme } from "../context/themeProvider";
-
-// ✅ Cada produto tem um id numérico e o preço é número
-const produtos = [
-  {
-    id: 1,
-    name: "Ameeri",
-    price: 499.0,
-    imageUrl: "/images/Ameeri-Al-Wataniah-00.jpg",
-  },
-  {
-    id: 2,
-    name: "Noora",
-    price: 429.0,
-    imageUrl: "/images/Angel-Isabelle-La-Belle-00.jpg",
-  },
-  {
-    id: 3,
-    name: "Ameer Al Oud",
-    price: 539.0,
-    imageUrl: "/images/Asad-Lattafa-00.jpg",
-  },
-  {
-    id: 4,
-    name: "Ameer Al Oud",
-    price: 539.0,
-    imageUrl: "/images/Club-De-Nuit-Intense-Man-00.jpg",
-  },
-  {
-    id: 5,
-    name: "Ameer Al Oud",
-    price: 539.0,
-    imageUrl: "/images/Club-De-Nuit-Woman-00.jpg",
-  },
-];
+import { useTheme } from "../context/ThemeProvider";
+import axios from "axios";
 
 export default function Products() {
   const { theme } = useTheme();
   const hasDarkOverlay = theme === "dark";
+
+  const [produtos, setProdutos] = useState([]);
+
+  // ✅ Carregar produtos do backend (rota pública)
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/products`
+        );
+        console.log("Produtos recebidos:", res.data); // 👀 log para verificar formato
+        setProdutos(res.data || []);
+      } catch (err) {
+        console.error("Erro ao carregar produtos", err);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   return (
     <main className="bg-brand-bg text-brand-text transition-colors duration-500">
@@ -70,9 +56,11 @@ export default function Products() {
           <ProductCard
             key={p.id}
             id={p.id}
-            name={p.name}
-            price={p.price} // ✅ número enviado ao backend
-            imageUrl={p.imageUrl}
+            name={p.name || p.nome || "Produto sem nome"} // ✅ fallback
+            price={p.price || p.valor || 0} // ✅ fallback
+            imageUrl={p.imageUrl || p.imagem || "/images/default-product.png"} // ✅ fallback
+            description={p.description || "Sem descrição"} // ✅ fallback
+            stock={p.stock ?? 0} // ✅ fallback
           />
         ))}
       </div>

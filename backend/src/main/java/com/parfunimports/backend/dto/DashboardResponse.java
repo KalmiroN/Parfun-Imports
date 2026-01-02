@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -11,8 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 public class DashboardResponse {
     private int totalOrders;
-    private double totalSales;
-    private double avgTicket;
+    private BigDecimal totalSales;   // ✅ agora BigDecimal
+    private BigDecimal avgTicket;    // ✅ agora BigDecimal
     private int totalProducts;
 
     // 📌 novos campos para status dos pedidos
@@ -20,6 +21,7 @@ public class DashboardResponse {
     private int paidOrders;
     private int cancelledOrders;
 
+    // 📌 coleções para gráficos e relatórios
     private List<DailySales> weekly;
     private List<DailySales> fortnightly;
     private List<DailySales> currentMonth;
@@ -33,7 +35,7 @@ public class DashboardResponse {
     @AllArgsConstructor
     public static class DailySales {
         private String day;
-        private double total;
+        private BigDecimal total;   // ✅ BigDecimal
     }
 
     @Data
@@ -41,7 +43,7 @@ public class DashboardResponse {
     @AllArgsConstructor
     public static class MonthlySales {
         private String month;
-        private double total;
+        private BigDecimal total;   // ✅ BigDecimal
     }
 
     @Data
@@ -52,6 +54,3 @@ public class DashboardResponse {
         private int quantity;
     }
 }
-
-
-

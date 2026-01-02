@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-import { useAuth } from "../context/authProvider";
+import { useAuth } from "../context/AuthProvider";
 
 export default function Logout() {
   const { logout } = useAuth();

@@ -1,11 +1,19 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
-const ThemeContext = createContext();
+// ✅ Cria o contexto de tema com valor inicial seguro
+const ThemeContext = createContext({
+  theme: "gold",
+  setTheme: () => {},
+  cycleTheme: () => {},
+  enabledThemes: ["gold", "dark"],
+  toggleThemeAvailability: () => {},
+});
 
+// 🎨 Lista de todos os temas disponíveis
 const allThemes = ["gold", "dark", "orange", "imperial"];
 
 export function ThemeProvider({ children }) {
-  // ✅ Carrega temas habilitados do localStorage, filtrando apenas válidos
+  // 📌 Carrega temas habilitados do localStorage, filtrando apenas válidos
   const [enabledThemes, setEnabledThemes] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("enabledThemes"));
@@ -13,17 +21,18 @@ export function ThemeProvider({ children }) {
         return saved.filter((t) => allThemes.includes(t));
       }
     } catch {
-      // ignore parse errors
+      // ignora erros de parse
     }
-    return ["gold", "dark"];
+    return ["gold", "dark"]; // padrão inicial
   });
 
-  // ✅ Carrega tema atual do localStorage, validando se é válido
+  // 📌 Carrega tema atual do localStorage, validando se é válido
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem("theme");
     return allThemes.includes(saved) ? saved : "gold";
   });
 
+  // 📌 Aplica tema no <html> e persiste no localStorage
   useEffect(() => {
     const html = document.documentElement;
     html.classList.remove(...allThemes.map((t) => `theme-${t}`));
@@ -33,14 +42,14 @@ export function ThemeProvider({ children }) {
     localStorage.setItem("enabledThemes", JSON.stringify(enabledThemes));
   }, [theme, enabledThemes]);
 
-  // ✅ Alterna apenas entre os temas habilitados
+  // 🔄 Alterna apenas entre os temas habilitados
   const cycleTheme = () => {
     const currentIndex = enabledThemes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % enabledThemes.length;
     setTheme(enabledThemes[nextIndex]);
   };
 
-  // ✅ Admin pode habilitar/desabilitar temas
+  // ⚙️ Admin pode habilitar/desabilitar temas
   const toggleThemeAvailability = (t) => {
     if (!allThemes.includes(t)) return; // ignora temas inválidos
     setEnabledThemes((prev) =>
@@ -63,6 +72,7 @@ export function ThemeProvider({ children }) {
   );
 }
 
+// ✅ Hook para consumir o contexto
 export function useTheme() {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error("useTheme must be used within ThemeProvider");

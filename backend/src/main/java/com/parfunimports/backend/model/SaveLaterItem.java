@@ -3,6 +3,8 @@ package com.parfunimports.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "save_later_items")
 @Data
@@ -31,8 +33,9 @@ public class SaveLaterItem {
     @Column(nullable = false, length = 255)
     private String name;
 
-    @Column(nullable = false)
-    private Double price;
+    // ✅ preço agora como BigDecimal para alinhar com DECIMAL(10,2) no banco
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
 
     @Column(name = "user_email", nullable = false, length = 255)
     private String userEmail;

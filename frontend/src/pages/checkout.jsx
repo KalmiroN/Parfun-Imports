@@ -1,10 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { authFetch } from "../utils/authFetch"; // ✅ importa utilitário
+import { authFetch } from "../utils/authFetch";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthProvider.jsx";
 
 export default function Checkout() {
   const navigate = useNavigate();
+  const { token, isAuthenticated } = useAuth();
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -15,30 +17,44 @@ export default function Checkout() {
   const handleConfirm = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!isAuthenticated) {
+      toast.error("Você precisa estar logado para finalizar a compra.");
+      return;
+    }
+
+    if (!name.trim() || !address.trim() || !paymentMethod.trim()) {
+      setError("Preencha todos os campos.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await authFetch(
-        `${import.meta.env.VITE_API_URL}/orders/create`,
+        `${import.meta.env.VITE_API_URL}/api/orders/create`, // ✅ padroniza /api
         {
           method: "POST",
           body: JSON.stringify({
-            name,
-            address,
+            name: name.trim(),
+            address: address.trim(),
             paymentMethod,
           }),
-        }
+        },
+        token // ✅ garante envio do token
       );
 
       if (!response.ok) {
-        throw new Error("Erro ao criar pedido. Tente novamente.");
+        const apiError =
+          response.data?.error || "Erro ao criar pedido. Tente novamente.";
+        throw new Error(apiError);
       }
 
-      const data = await response.json();
+      const data = response.data || response; // authFetch já costuma retornar parseado
       console.log("Pedido criado:", data);
 
       toast.success("Pedido confirmado com sucesso!");
-      navigate("/order-confirmation"); // ✅ redireciona para página de confirmação
+      navigate("/order-confirmation");
     } catch (err) {
       setError(err.message);
       toast.error(err.message);
@@ -54,7 +70,6 @@ export default function Checkout() {
           Finalizar Compra
         </h2>
 
-        {/* Formulário de checkout */}
         <form onSubmit={handleConfirm} className="space-y-6">
           <div>
             <label className="block text-sm text-brand-textMuted mb-1">
@@ -68,6 +83,7 @@ export default function Checkout() {
               required
             />
           </div>
+
           <div>
             <label className="block text-sm text-brand-textMuted mb-1">
               Endereço de entrega
@@ -80,6 +96,7 @@ export default function Checkout() {
               required
             />
           </div>
+
           <div>
             <label className="block text-sm text-brand-textMuted mb-1">
               Forma de pagamento
@@ -87,7 +104,7 @@ export default function Checkout() {
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-brand-border bg-brand-surface text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duration-500"
+              className="w-full px-4 py-2 rounded-lg border border-brand-border bg-brand-surface text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-accent transition-colors duração-500"
               required
             >
               <option>Cartão de crédito</option>
@@ -98,12 +115,11 @@ export default function Checkout() {
 
           {error && <p className="text-red-500 text-center">{error}</p>}
 
-          {/* Botões de ação */}
           <div className="flex flex-col md:flex-row gap-4 mt-8">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-6 py-3 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500"
+              className="flex-1 px-6 py-3 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500 disabled:opacity-60"
             >
               {loading ? "Confirmando..." : "Confirmar pedido"}
             </button>

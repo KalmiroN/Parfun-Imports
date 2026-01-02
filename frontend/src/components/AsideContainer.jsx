@@ -1,14 +1,24 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { useCart } from "../context/cartProvider";
+import { useCart } from "../context/CartProvider";
 
-// MiniCard para itens salvos
+// ✅ MiniCard para itens salvos com fallback de imagem
 function MiniCard({ item, onAddToCart, onDelete }) {
+  const resolveSrc = (url) => {
+    if (!url) return "/images/default.jpg";
+    return url;
+  };
+
   return (
     <div className="flex items-center gap-3 border-b border-brand-border py-2">
       <img
-        src={item.imageUrl}
-        alt={item.name}
+        src={resolveSrc(item?.imageUrl)}
+        alt={item?.name || "Produto"}
+        onError={(e) => {
+          if (!e.currentTarget.src.includes("default.jpg")) {
+            e.currentTarget.src = "/images/default.jpg"; // ✅ evita loop/piscar
+          }
+        }}
         className="w-12 h-12 rounded object-cover"
       />
       <div className="flex-1">
@@ -40,7 +50,6 @@ export default function AsideContainer({
   onCloseSaveLater,
   onCheckout,
   cardsTopAbs,
-  mainHeight,
 }) {
   const { saveLaterItems, moveBackToCart, setSaveLaterItems, getCartTotal } =
     useCart();
@@ -52,7 +61,6 @@ export default function AsideContainer({
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(null);
 
-  // Configurações de desconto (mock — substituir por valores vindos do backend/admin)
   const pixDiscountActive = true;
   const pixDiscountValue = 50;
   const discountCodes = {
@@ -69,6 +77,8 @@ export default function AsideContainer({
   const topOffset = Math.max(0, cardsTopAbs - scrollY);
 
   if (!showCheckout && !showSaveLater) return null;
+
+  const hoverEnabled = showCheckout && showSaveLater;
 
   const handleApplyCode = () => {
     const code = discountCodes[discountCode?.trim()];
@@ -93,34 +103,31 @@ export default function AsideContainer({
     return total < 0 ? 0 : total;
   };
 
-  const baseHeight = Math.round(mainHeight * 0.76);
-  const halfHeight = Math.floor(baseHeight / 2);
-
   const aside = (
     <div
-      className="fixed z-[1000] overflow-x-auto"
+      className="fixed z-[1000] flex flex-col overflow-hidden transition-all duration-300"
       style={{
         right: 0,
         top: topOffset,
-        width: "clamp(20rem, 30vw, 30rem)", // responsivo
+        width: "clamp(20rem, 30vw, 30rem)",
+        height: showCheckout || showSaveLater ? "80vh" : "auto", // ✅ ocupa 80% da viewport
       }}
     >
       {/* Aside: Finalizar compra */}
       {showCheckout && (
         <div
-          onMouseEnter={() => setHovered("checkout")}
-          onMouseLeave={() => setHovered(null)}
-          className="bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-4 transition-transform duration-300 flex flex-col"
+          onMouseEnter={() => hoverEnabled && setHovered("checkout")}
+          onMouseLeave={() => hoverEnabled && setHovered(null)}
+          className="bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-4 flex flex-col transition-all duration-300"
           style={{
-            height:
-              showCheckout && showSaveLater
-                ? hovered === "checkout"
-                  ? Math.floor(halfHeight * 1.25)
-                  : hovered === "save"
-                  ? Math.floor(halfHeight * 0.75)
-                  : halfHeight
-                : baseHeight,
-            maxHeight: Math.round(mainHeight * 0.9),
+            height: hoverEnabled
+              ? hovered === "checkout"
+                ? "50vh" // ✅ aumenta 25%
+                : hovered === "save"
+                ? "30vh" // ✅ diminui 25%
+                : "39vh" // ✅ estado normal
+              : "80vh", // ✅ apenas um aside ativo
+            minHeight: 0,
           }}
         >
           <h2 className="text-xl font-display mb-3">Finalizar compra</h2>
@@ -128,7 +135,6 @@ export default function AsideContainer({
           <p className="text-lg font-semibold mb-3">
             Total: R$ {calcTotal().toFixed(2).replace(".", ",")}
           </p>
-
           {paymentMode === null && (
             <div className="flex flex-col gap-2 mb-4">
               <button
@@ -177,7 +183,7 @@ export default function AsideContainer({
               </button>
             </div>
           )}
-          {/* Modo Cartão */}
+
           {paymentMode === "CARD" && (
             <div className="flex-1 min-h-0 overflow-y-auto mb-4">
               <form className="flex flex-col gap-2 mb-3">
@@ -209,7 +215,6 @@ export default function AsideContainer({
                   <option>Amex</option>
                 </select>
               </form>
-
               <button
                 onClick={() => setPaymentMode(null)}
                 className="btn-secondary w-full"
@@ -254,20 +259,19 @@ export default function AsideContainer({
       {/* Aside: Salvar para depois */}
       {showSaveLater && (
         <div
-          onMouseEnter={() => setHovered("save")}
-          onMouseLeave={() => setHovered(null)}
-          className="bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-4 transition-transform duration-300 flex flex-col"
+          onMouseEnter={() => hoverEnabled && setHovered("save")}
+          onMouseLeave={() => hoverEnabled && setHovered(null)}
+          className="bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-4 flex flex-col transition-all duration-300"
           style={{
-            height:
-              showCheckout && showSaveLater
-                ? hovered === "save"
-                  ? Math.floor(halfHeight * 1.25)
-                  : hovered === "checkout"
-                  ? Math.floor(halfHeight * 0.75)
-                  : halfHeight
-                : baseHeight,
-            maxHeight: Math.round(mainHeight * 0.9),
-            width: "clamp(20rem, 30vw, 30rem)", // responsivo
+            height: hoverEnabled
+              ? hovered === "save"
+                ? "50vh" // ✅ aumenta 25%
+                : hovered === "checkout"
+                ? "30vh" // ✅ diminui 25%
+                : "39vh" // ✅ estado normal
+              : "80vh", // ✅ apenas um aside ativo
+            minHeight: 0,
+            width: "clamp(20rem, 30vw, 30rem)",
           }}
         >
           <h2 className="text-xl font-display mb-3">Salvar para depois</h2>
@@ -298,7 +302,6 @@ export default function AsideContainer({
             )}
           </div>
 
-          {/* Rodapé fixado embaixo */}
           <div className="mt-auto flex flex-col gap-2">
             <button onClick={onCloseSaveLater} className="btn-secondary w-full">
               ✕ Fechar

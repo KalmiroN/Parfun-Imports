@@ -38,10 +38,10 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- Driver do MySQL -->
+        <!-- Driver do MySQL (corrigido para versão estável) -->
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
             <scope>runtime</scope>
         </dependency>
@@ -58,6 +58,12 @@
             <artifactId>lombok</artifactId>
             <version>1.18.30</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- Spring Security completo -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <!-- Spring Security Crypto (para usar BCryptPasswordEncoder) -->
@@ -85,6 +91,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Apache PDFBox (manipulação de PDFs) -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.29</version>
+        </dependency>
+
         <!-- Starter para testes -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -104,3 +117,4 @@
     </build>
 
 </project>
+

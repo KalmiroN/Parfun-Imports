@@ -1,10 +1,18 @@
-import { useCart } from "../context/cartProvider";
+import { useCart } from "../context/CartProvider";
 import { toast } from "react-toastify";
-import { useAuth } from "../context/authProvider";
+import { useAuth } from "../context/AuthProvider";
 import { authFetch } from "../utils/authFetch";
-import { useTheme } from "../context/themeProvider";
+import { useTheme } from "../context/ThemeProvider";
+import { resolveImageUrl } from "../utils/resolveImageUrl"; // ✅ utilitário atualizado
 
-export default function ProductCard({ id, name, price, imageUrl }) {
+export default function ProductCard({
+  id,
+  name,
+  price,
+  imageUrl,
+  description,
+  stock,
+}) {
   const { addToCart } = useCart();
   const { isAuthenticated, user, token } = useAuth();
   const { theme } = useTheme();
@@ -15,7 +23,6 @@ export default function ProductCard({ id, name, price, imageUrl }) {
       return;
     }
 
-    // 🚨 valida ID e preço antes de enviar
     const productId = Number(id);
     const productPrice = Number(price);
 
@@ -35,7 +42,7 @@ export default function ProductCard({ id, name, price, imageUrl }) {
         quantity: 1,
         name: String(name).trim(),
         price: productPrice,
-        imageUrl,
+        imageUrl: imageUrl || "/images/default-product.png", // ✅ fallback no payload
         userEmail: user?.email,
       };
 
@@ -66,8 +73,12 @@ export default function ProductCard({ id, name, price, imageUrl }) {
     <article className="rounded-xl border border-brand-border bg-brand-surface shadow-2xl overflow-hidden transition duration-500 transform hover:scale-105 hover:shadow-2xl select-none">
       <div className="aspect-[3/4] bg-brand-surface overflow-hidden">
         <img
-          src={imageUrl}
+          src={resolveImageUrl(imageUrl)} // ✅ normaliza URL para public/images
           alt={name}
+          onError={(e) => {
+            e.currentTarget.onerror = null; // ✅ evita loop
+            e.currentTarget.src = "/images/default-product.png"; // ✅ fallback estável
+          }}
           className="h-full w-full object-cover transition duration-500 hover:brightness-110 hover:contrast-105"
           loading="lazy"
         />
@@ -75,14 +86,17 @@ export default function ProductCard({ id, name, price, imageUrl }) {
 
       <div className="p-6 transition-colors duration-500">
         <h3 className="font-sans text-brand-text text-lg select-none">
-          {name}
+          {name || "Produto sem nome"}
         </h3>
         <p className="mt-1 text-sm text-brand-muted select-none">
-          Eau de parfum
+          {description || "Sem descrição disponível"}
+        </p>
+        <p className="mt-1 text-sm text-brand-muted select-none">
+          Estoque: {stock ?? 0}
         </p>
         <div className="mt-4 flex items-center justify-between">
           <span className="font-medium text-brand-text select-none">
-            {Number(price).toLocaleString("pt-BR", {
+            {Number(price || 0).toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
             })}

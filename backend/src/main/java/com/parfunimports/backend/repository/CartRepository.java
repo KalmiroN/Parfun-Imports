@@ -6,12 +6,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface CartRepository extends JpaRepository<CartItem, Long> {
-    // Buscar todos os itens do carrinho de um usuário
+
+    // 📦 Buscar todos os itens do carrinho de um usuário
     List<CartItem> findByUserEmail(String userEmail);
 
-    // Deletar todos os itens do carrinho de um usuário
+    // ❌ Deletar todos os itens do carrinho de um usuário
     void deleteByUserEmail(String userEmail);
 
-    // Buscar item específico no carrinho (evita duplicar produtos)
+    // 🔎 Buscar item específico no carrinho (evita duplicar produtos)
     CartItem findByUserEmailAndProductId(String userEmail, Long productId);
+
+    // 🔎 Verificar se existe item no carrinho de um usuário
+    boolean existsByIdAndUserEmail(Long id, String userEmail);
 }

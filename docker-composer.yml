@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    container_name: parfun_backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # 🔑 Configurações JWT
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: 86400000
+
+      # 🌐 Configuração CORS (produção)
+      CORS_ALLOWED_ORIGINS: https://www.seufrontend.com
+
+      # 🗄️ Configuração do banco
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/parfun_imports?useSSL=true&requireSSL=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: parfun_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+
+      # ⚙️ Profile ativo
+      SPRING_PROFILES_ACTIVE: prod
+
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: parfun_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: parfun_imports
+      MYSQL_USER: parfun_user
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+volumes:
+  db_data:

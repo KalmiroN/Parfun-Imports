@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { authFetch } from "../../utils/authFetch";
-import { useAuth } from "../../context/authProvider";
+import { useAuth } from "../../context/AuthProvider";
 
 export default function AdminSettings() {
   const { token } = useAuth();

@@ -1,57 +1,62 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { authFetch } from "../utils/authFetch";
-import { useAuth } from "./authProvider";
+import { useAuth } from "./AuthProvider";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  const { user, token, isAuthenticated } = useAuth();
+  const auth = useAuth() || {};
+  const { isAuthenticated } = auth;
+
   const [cartItems, setCartItems] = useState([]);
   const [saveLaterItems, setSaveLaterItems] = useState([]);
-  // ✅ estado global para controlar o aside "Itens Salvos"
   const [showSaveLater, setShowSaveLater] = useState(false);
 
-  // Buscar carrinho do backend ao carregar
+  // 📌 Buscar carrinho do backend ao carregar
   useEffect(() => {
     const fetchCart = async () => {
-      if (!isAuthenticated || !user?.email) {
+      if (!isAuthenticated) {
         setCartItems([]);
         return;
       }
       try {
         const res = await authFetch(
-          `${import.meta.env.VITE_API_URL}/api/cart/${user.email}`,
-          { method: "GET" },
-          token
+          `${import.meta.env.VITE_API_URL}/api/cart/my`,
+          { method: "GET" }
         );
         if (res.ok) {
           setCartItems(res.data || []);
         }
       } catch (err) {
         console.error("Erro ao carregar carrinho:", err);
+        if (err.message.includes("Sessão expirada")) {
+          // 🚨 força logout se token inválido
+          localStorage.removeItem("accessToken");
+          window.location.href = "/login";
+        }
       }
     };
     fetchCart();
-  }, [isAuthenticated, user, token]);
+  }, [isAuthenticated]);
 
-  // Persistência local
+  // 📌 Persistência local
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Reset ao perder autenticação
+  // 📌 Reset ao perder autenticação
   useEffect(() => {
     if (!isAuthenticated) {
       setCartItems([]);
       setSaveLaterItems([]);
-      setShowSaveLater(false); // ✅ fecha aside ao deslogar
+      setShowSaveLater(false);
       localStorage.removeItem("cart");
     }
   }, [isAuthenticated]);
 
-  // Adicionar item ao carrinho
+  // 📌 Adicionar item ao carrinho
   const addToCart = async (product) => {
-    if (!isAuthenticated || !user?.email) return;
+    if (!isAuthenticated) return;
 
     const normalizedItem = {
       productId: parseInt(product.productId || product.id, 10),
@@ -65,18 +70,13 @@ export function CartProvider({ children }) {
       ),
       imageUrl: product.imageUrl,
       quantity: Number(product.quantity) || 1,
-      userEmail: user.email,
     };
 
     try {
-      const res = await authFetch(
-        `${import.meta.env.VITE_API_URL}/api/cart`,
-        {
-          method: "POST",
-          body: JSON.stringify(normalizedItem),
-        },
-        token
-      );
+      const res = await authFetch(`${import.meta.env.VITE_API_URL}/api/cart`, {
+        method: "POST",
+        body: JSON.stringify(normalizedItem),
+      });
 
       if (res.ok) {
         setCartItems((prev) => {
@@ -101,14 +101,12 @@ export function CartProvider({ children }) {
     }
   };
 
-  // Remover item
+  // 📌 Remover item
   const removeById = async (id) => {
     try {
-      await authFetch(
-        `${import.meta.env.VITE_API_URL}/api/cart/${id}`,
-        { method: "DELETE" },
-        token
-      );
+      await authFetch(`${import.meta.env.VITE_API_URL}/api/cart/${id}`, {
+        method: "DELETE",
+      });
       setCartItems((prev) =>
         prev.filter((p) => p.id !== id && p.productId !== id)
       );
@@ -117,7 +115,7 @@ export function CartProvider({ children }) {
     }
   };
 
-  // Atualizar quantidade
+  // 📌 Atualizar quantidade
   const updateQuantity = async (id, newQuantity) => {
     try {
       const res = await authFetch(
@@ -125,8 +123,7 @@ export function CartProvider({ children }) {
         {
           method: "PUT",
           body: JSON.stringify({ quantity: newQuantity }),
-        },
-        token
+        }
       );
       if (res.ok) {
         setCartItems((prev) =>
@@ -142,19 +139,17 @@ export function CartProvider({ children }) {
     }
   };
 
-  // Limpar carrinho
+  // 📌 Limpar carrinho
   const clearCart = async () => {
-    if (!isAuthenticated || !user?.email) {
+    if (!isAuthenticated) {
       setCartItems([]);
       localStorage.removeItem("cart");
       return;
     }
     try {
-      await authFetch(
-        `${import.meta.env.VITE_API_URL}/api/cart/user/${user.email}`,
-        { method: "DELETE" },
-        token
-      );
+      await authFetch(`${import.meta.env.VITE_API_URL}/api/cart/clear`, {
+        method: "DELETE",
+      });
       setCartItems([]);
       localStorage.removeItem("cart");
     } catch (err) {
@@ -162,16 +157,16 @@ export function CartProvider({ children }) {
     }
   };
 
-  // Salvar para depois
+  // 📌 Salvar para depois
   const saveForLater = (item) => {
     setCartItems((prev) =>
       prev.filter((p) => (p.id || p.productId) !== (item.id || item.productId))
     );
     setSaveLaterItems((prev) => [...prev, item]);
-    setShowSaveLater(true); // ✅ abre aside ao salvar
+    setShowSaveLater(true);
   };
 
-  // Mover de volta do 'salvos' para carrinho
+  // 📌 Mover de volta do 'salvos' para carrinho
   const moveBackToCart = (item) => {
     setSaveLaterItems((prev) =>
       prev.filter((p) => (p.id || p.productId) !== (item.id || item.productId))
@@ -179,22 +174,19 @@ export function CartProvider({ children }) {
     setCartItems((prev) => [...prev, item]);
   };
 
-  // Checkout (Pix/Cartão)
+  // 📌 Checkout (Pix/Cartão)
   const checkout = async (method, payload = {}) => {
-    if (!isAuthenticated || !user?.email)
-      return { ok: false, error: "not_auth" };
+    if (!isAuthenticated) return { ok: false, error: "not_auth" };
     try {
       const res = await authFetch(
         `${import.meta.env.VITE_API_URL}/api/payment/${method}`,
         {
           method: "POST",
           body: JSON.stringify({
-            userEmail: user.email,
             items: cartItems,
             ...payload,
           }),
-        },
-        token
+        }
       );
       return res;
     } catch (err) {
@@ -203,7 +195,7 @@ export function CartProvider({ children }) {
     }
   };
 
-  // Helpers
+  // 📌 Helpers
   const getCartCount = () =>
     cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
 
@@ -218,7 +210,7 @@ export function CartProvider({ children }) {
       cartItems,
       saveLaterItems,
       showSaveLater,
-      setShowSaveLater, // ✅ exposto no contexto
+      setShowSaveLater,
       addToCart,
       removeById,
       updateQuantity,

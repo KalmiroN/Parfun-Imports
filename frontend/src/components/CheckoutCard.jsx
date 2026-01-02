@@ -9,6 +9,12 @@ export default function CheckoutCard({
 }) {
   const { name, price, imageUrl, quantity } = item;
 
+  // ✅ Função para resolver a URL da imagem com fallback
+  const resolveSrc = (url) => {
+    if (!url) return "/images/default.jpg"; // fallback se não houver imagem
+    return url;
+  };
+
   const priceNumber = (() => {
     if (typeof price === "string") {
       return parseFloat(
@@ -26,8 +32,11 @@ export default function CheckoutCard({
       {/* Esquerda: imagem + info básica */}
       <div className="flex-1 flex gap-4">
         <img
-          src={imageUrl}
+          src={resolveSrc(imageUrl)}
           alt={name}
+          onError={(e) => {
+            e.currentTarget.src = "/images/default.jpg"; // ✅ fallback se a imagem não carregar
+          }}
           className="w-24 h-24 rounded-lg object-cover border border-brand-border"
         />
         <div className="flex flex-col">

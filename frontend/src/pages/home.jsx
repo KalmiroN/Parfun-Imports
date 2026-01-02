@@ -1,5 +1,5 @@
 import ProductCard from "../components/ProductCard";
-import { useTheme } from "../context/themeProvider";
+import { useTheme } from "../context/ThemeProvider";
 import Highlights from "../components/Highlights";
 import { Link } from "react-router-dom"; // ✅ importado
 
@@ -48,7 +48,7 @@ export default function Home() {
         className="relative min-h-[70vh] flex flex-col items-center justify-center text-center"
         style={{
           backgroundImage:
-            "url('/images/background_files/perfumes-arabes-1.webp')",
+            "url('/images/background_files/perfumes-arabes-2.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
