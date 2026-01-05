@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider"; // ✅ mantém AuthProvider com maiúscula
 
 export default function Login() {
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, isAuthenticated, user, rememberMe, setRememberMe } = useAuth(); // ✅ inclui rememberMe
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -14,10 +14,10 @@ export default function Login() {
     e.preventDefault();
     setMessage("");
     try {
-      const success = await login(email, password);
+      // ✅ passa rememberMe para o AuthProvider
+      const success = await login(email, password, rememberMe);
       if (success) {
-        // ✅ login bem-sucedido → redireciona para Home
-        navigate("/");
+        navigate("/"); // login bem-sucedido → redireciona para Home
       } else {
         setMessage("❌ Email ou senha incorretos.");
       }
@@ -85,9 +85,15 @@ export default function Login() {
               </button>
             </div>
 
+            {/* Checkbox lembrar-me */}
             <div className="flex items-center justify-between mt-4">
               <label className="flex items-center gap-2 text-sm text-brand-text">
-                <input type="checkbox" className="toggle-checkbox" />
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="toggle-checkbox"
+                />
                 Lembrar-me
               </label>
               <button

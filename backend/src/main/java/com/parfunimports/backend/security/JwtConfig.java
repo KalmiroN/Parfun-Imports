@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Configuração central para expor JwtUtil como bean.
- * Injeta secret e tempo de expiração definidos no application.properties.
+ * Injeta secret e tempos de expiração definidos no application.properties.
  */
 @Configuration
 public class JwtConfig {
@@ -15,13 +15,17 @@ public class JwtConfig {
     @Value("${jwt.secret}")
     private String secret;
 
-    // ⏱ injeta tempo de expiração do token (em ms)
-    @Value("${jwt.expiration}")
-    private long expirationMs;
+    // ⏱ injeta tempo de expiração do Access Token (em ms)
+    @Value("${jwt.access.expiration}")
+    private long accessExpirationMs;
+
+    // ⏱ injeta tempo de expiração do Refresh Token (em ms)
+    @Value("${jwt.refresh.expiration}")
+    private long refreshExpirationMs;
 
     // ✅ expõe JwtUtil como bean único e centralizado
     @Bean
     public JwtUtil jwtUtil() {
-        return new JwtUtil(secret, expirationMs);
+        return new JwtUtil(secret, accessExpirationMs, refreshExpirationMs);
     }
 }

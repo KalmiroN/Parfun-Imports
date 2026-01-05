@@ -36,6 +36,7 @@ body {
     @apply px-6 py-3 rounded-full font-bold transition;
     background-color: var(--color-accent);
     color: #000;
+    border: 2px solid var(--color-border); /* ✅ borda dourada */
   }
   .btn-accent:hover {
     @apply opacity-90;
@@ -45,9 +46,10 @@ body {
   }
 
   .btn-secondary {
-    @apply px-6 py-3 rounded-full border font-medium transition;
-    border-color: var(--color-border);
+    @apply px-6 py-3 rounded-full font-medium transition;
+    background-color: transparent;
     color: var(--color-text);
+    border: 2px solid var(--color-border); /* ✅ borda dourada */
   }
   .btn-secondary:hover {
     background-color: var(--color-accent);
@@ -59,17 +61,379 @@ body {
 
   .input-field {
     @apply w-full px-3 py-2 rounded-lg;
-    border: 1px solid var(--color-border);
+    border: 2px solid var(--color-border); /* ✅ borda dourada */
     background-color: var(--color-surface);
     color: var(--color-text);
   }
   .input-field:focus {
-    /* no v4, use valor arbitrário para ring */
     @apply outline-none ring-2 ring-[var(--color-accent)];
   }
   .input-field::placeholder {
     color: var(--color-muted);
   }
+}
+
+/* ===========================================================
+   Campos de entrada de valores (inputs, selects, textareas)
+   =========================================================== */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+  border: 2px solid var(--color-border); /* ✅ borda dourada */
+  border-radius: 0.5rem;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  padding: 0.5rem 0.75rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+/* ===========================================================
+   Containers e Cards com borda dourada
+   =========================================================== */
+.card,
+.container-box,
+.checkout-card,
+.wishlist-card,
+.cart-card,
+.rounded-xl,
+.border-brand-border {
+  border: 2px solid var(--color-border) !important; /* ✅ borda dourada */
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
+}
+
+/* Botões dentro dos cards → estilo secondary */
+.card button,
+.checkout-card button,
+.wishlist-card button,
+.cart-card button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+.card button:hover,
+.checkout-card button:hover,
+.wishlist-card button:hover,
+.cart-card button:hover {
+  background-color: var(--color-accent);
+  color: #000;
+}
+.card button:active,
+.checkout-card button:active,
+.wishlist-card button:active,
+.cart-card button:active {
+  filter: brightness(0.9);
+}
+
+/* ===========================================================
+   AsideContainer visual refinado
+   =========================================================== */
+
+/* Container principal do aside */
+.aside-container {
+  border-left: 2px solid var(--color-border); /* ✅ borda dourada */
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25); /* sombra dourada suave */
+  border-radius: 0.75rem 0 0 0.75rem;
+}
+
+/* MiniCard dentro do aside */
+.aside-container .flex.items-center {
+  border-bottom: 1px solid var(--color-border); /* ✅ borda dourada */
+}
+
+/* Botões dentro do aside */
+.aside-container button {
+  font-size: 0.875rem; /* text-sm */
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Botão accent → preenchido */
+.aside-container .btn-accent {
+  background-color: var(--color-accent);
+  color: #000;
+  border: 2px solid var(--color-border);
+}
+.aside-container .btn-accent:hover {
+  opacity: 0.9;
+}
+
+/* Botão secondary → vazado com hover dourado */
+.aside-container .btn-secondary {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+.aside-container .btn-secondary:hover {
+  background-color: var(--color-accent);
+  color: #000;
+}
+
+/* ===========================================================
+   Admin Dashboard - estilo dourado padronizado
+   =========================================================== */
+
+/* Cards e indicadores principais */
+.admin-card,
+.admin-indicator,
+.admin-status,
+.admin-chart {
+  border: 2px solid var(--color-border); /* ✅ borda dourada */
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25); /* sombra dourada suave */
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-card:hover,
+.admin-indicator:hover,
+.admin-status:hover,
+.admin-chart:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.35);
+}
+
+/* Títulos dentro dos cards */
+.admin-card h3,
+.admin-indicator h3,
+.admin-status h3,
+.admin-chart h3 {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Valores numéricos */
+.admin-card p,
+.admin-indicator p,
+.admin-status p,
+.admin-chart p {
+  color: var(--color-text);
+  font-weight: bold;
+}
+
+/* Botões dentro das telas admin */
+.admin-dashboard button {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+/* Accent → preenchido */
+.admin-dashboard .btn-accent {
+  background-color: var(--color-accent);
+  color: #000;
+  border: 2px solid var(--color-border);
+}
+.admin-dashboard .btn-accent:hover {
+  opacity: 0.9;
+}
+
+/* Secondary → vazado com hover dourado */
+.admin-dashboard .btn-secondary {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+.admin-dashboard .btn-secondary:hover {
+  background-color: var(--color-accent);
+  color: #000;
+}
+
+/* ===========================================================
+   Admin Products - estilo dourado padronizado
+   =========================================================== */
+
+/* Formulário de cadastro */
+.admin-products-form {
+  border: 2px solid var(--color-border); /* ✅ borda dourada */
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  padding: 1.5rem;
+}
+
+/* Inputs já usam .input-field → borda dourada */
+.admin-products-form input,
+.admin-products-form textarea {
+  border: 2px solid var(--color-border);
+}
+
+/* Botão salvar produto */
+.admin-products-form .btn-accent {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Lista de produtos */
+.admin-product-card {
+  border: 2px solid var(--color-border); /* ✅ borda dourada */
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  padding: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-product-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.35);
+}
+
+/* Botões dentro da lista */
+.admin-product-card button {
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+/* Editar → secondary dourado */
+.admin-product-card button.edit-btn {
+  /* ⚠️ Removido @apply para evitar erro */
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+.admin-product-card button.edit-btn:hover {
+  background-color: var(--color-accent);
+  color: #000;
+}
+
+/* Remover → vermelho com borda dourada */
+.admin-product-card button.remove-btn {
+  background-color: #dc2626; /* vermelho */
+  color: #fff;
+  border: 2px solid var(--color-border);
+}
+.admin-product-card button.remove-btn:hover {
+  background-color: #b91c1c;
+}
+/* ===========================================================
+   Admin Orders - estilo dourado padronizado
+   =========================================================== */
+
+/* Container de filtros */
+.admin-orders-filters {
+  border: 2px solid var(--color-border); /* ✅ borda dourada */
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  padding: 1.5rem;
+}
+
+/* Cards de pedidos */
+.admin-order-card {
+  border: 2px solid var(--color-border); /* ✅ borda dourada */
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  padding: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-order-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.35);
+}
+
+/* Botões dentro dos cards */
+.admin-order-card button,
+.admin-order-card a {
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+/* Botão Detalhes / Atualizar → accent */
+.admin-order-card button {
+  /* ⚠️ Removido @apply para evitar erro */
+  background-color: var(--color-accent);
+  color: #000;
+  border: 2px solid var(--color-border);
+  font-weight: 600;
+}
+.admin-order-card button:hover {
+  opacity: 0.9;
+}
+
+/* Botão Voltar ao painel → secondary */
+.admin-order-card a {
+  /* ⚠️ Removido @apply para evitar erro */
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+.admin-order-card a:hover {
+  background-color: var(--color-accent);
+  color: #000;
+}
+
+/* ===========================================================
+   Modais de Admin - estilo dourado padronizado
+   =========================================================== */
+
+/* Container do modal */
+.admin-modal {
+  border: 2px solid var(--color-border); /* ✅ borda dourada */
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.35); /* sombra dourada */
+  padding: 1.5rem;
+}
+
+/* Títulos */
+.admin-modal h3 {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Botões dentro dos modais */
+.admin-modal button {
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+/* Accent → preenchido dourado */
+.admin-modal .btn-accent {
+  background-color: var(--color-accent);
+  color: #000;
+  border: 2px solid var(--color-border);
+}
+.admin-modal .btn-accent:hover {
+  opacity: 0.9;
+}
+
+/* Secondary → vazado com hover dourado */
+.admin-modal .btn-secondary {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+.admin-modal .btn-secondary:hover {
+  background-color: var(--color-accent);
+  color: #000;
 }
 
 /* ===========================================================

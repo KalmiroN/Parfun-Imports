@@ -72,7 +72,7 @@ export default function CheckoutCard({
             </button>
             <button
               onClick={() => onSaveLater()}
-              className="btn-accent text-sm"
+              className="btn-secondary text-sm"
             >
               Salvar para depois
             </button>

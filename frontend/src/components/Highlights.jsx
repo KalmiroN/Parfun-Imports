@@ -60,6 +60,7 @@ export default function Highlights() {
             name={p.name}
             price={p.price}
             imageUrl={p.imageUrl}
+            buttonClass="btn-secondary" // ✅ padronizado para secondary
           />
         ))}
       </div>

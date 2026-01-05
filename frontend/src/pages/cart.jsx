@@ -1,4 +1,3 @@
-// Cart.jsx — Parte 1/2
 import { useCart } from "../context/CartProvider.jsx";
 import { toast } from "react-toastify";
 import { useState, useRef, useEffect } from "react";
@@ -181,8 +180,6 @@ export default function Cart() {
     }
     return acc + priceValue * qty;
   }, 0);
-
-  // Continuação no arquivo Parte 2/2
   if (loading) {
     return (
       <main className="bg-brand-bg text-brand-text min-h-screen flex items-center justify-center">
@@ -200,14 +197,14 @@ export default function Cart() {
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
 
         {!user ? (
-          <div className="rounded-xl border border-brand-border bg-brand-surface shadow-strong p-8 text-center">
+          <div className="card p-8 text-center">
             <p className="text-lg text-brand-text">
               Você ainda não está logado. <br />
               Faça login para visualizar os itens do seu carrinho.
             </p>
           </div>
         ) : cartItems.length === 0 ? (
-          <div className="rounded-xl border border-brand-border bg-brand-surface shadow-strong p-8 text-center">
+          <div className="card p-8 text-center">
             <p className="text-lg text-brand-text">
               Você ainda não adicionou nada ao Carrinho.
             </p>

@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom";
 import { useCart } from "../context/CartProvider"; // carrinho
 import { useWishlist } from "../context/WishlistProvider"; // favoritos
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function Wishlist() {
   const { wishlistItems, removeById } = useWishlist();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   const moveToCart = (item) => {
     addToCart(item);
@@ -66,12 +67,12 @@ export default function Wishlist() {
 
         {/* Botão para voltar */}
         <div className="mt-8 text-center">
-          <Link
-            to="/products"
+          <button
+            onClick={() => navigate("/catalogo")}
             className="px-6 py-3 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500"
           >
             Voltar ao catálogo
-          </Link>
+          </button>
         </div>
       </div>
     </main>

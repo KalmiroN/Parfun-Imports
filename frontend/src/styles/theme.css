@@ -34,6 +34,13 @@
   animation: logoPulse 2s ease-in-out;
 }
 
+.logo,
+header img[alt="Parfun Imports"] {
+  border: 4px solid var(--color-border) !important; /* ✅ borda dourada */
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.6); /* leve glow dourado */
+}
+
 .logo:hover {
   transform: scale(1.05);
   transition: transform 0.3s ease;
@@ -78,6 +85,61 @@
 }
 
 /* ===========================================================
+   Botões padronizados com borda dourada
+   =========================================================== */
+.btn-accent {
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  background-color: var(--color-accent);
+  color: #000;
+  border: 2px solid var(--color-border); /* ✅ borda dourada */
+}
+.btn-accent:hover {
+  opacity: 0.9;
+}
+.btn-accent:active {
+  filter: brightness(0.9);
+}
+
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border); /* ✅ borda dourada */
+}
+.btn-secondary:hover {
+  background-color: var(--color-accent);
+  color: #000;
+}
+.btn-secondary:active {
+  filter: brightness(0.9);
+}
+
+/* ===========================================================
+   Inputs com borda dourada
+   =========================================================== */
+.input-field {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 2px solid var(--color-border); /* ✅ borda dourada */
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+.input-field:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+.input-field::placeholder {
+  color: var(--color-muted);
+}
+
+/* ===========================================================
    Temas customizados (sobrescrevem os valores das variáveis)
    =========================================================== */
 
@@ -105,14 +167,31 @@ html.theme-orange {
   --color-overlay: rgba(255, 255, 255, 0.65);
 }
 
-/* Tema Dark */
+/* Tema Dark refinado */
 html.theme-dark {
-  --color-bg: #1a1a1a;
-  --color-text: #f5f5f5;
+  --color-bg: #121212; /* fundo mais escuro */
+  --color-text: #f5f5f5; /* texto claro */
   --color-muted: #bdbdbd;
-  --color-primary: #d4af37;
-  --color-accent: #f59e0b;
-  --color-border: #d4af37;
-  --color-surface: #151517;
+  --color-primary: #d4af37; /* dourado elegante */
+  --color-accent: #f59e0b; /* laranja vivo */
+  --color-border: #d4af37; /* borda dourada */
+  --color-surface: #1e1e1e; /* superfície escura */
   --color-overlay: rgba(0, 0, 0, 0.65);
+}
+
+/* Ajustes específicos para botões no Dark Mode */
+html.theme-dark .btn-secondary {
+  color: #f5f5f5; /* texto claro */
+}
+html.theme-dark .btn-secondary:hover {
+  background-color: var(--color-accent);
+  color: #000; /* contraste forte no hover */
+}
+
+html.theme-dark .input-field {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+}
+html.theme-dark .input-field::placeholder {
+  color: #bdbdbd;
 }

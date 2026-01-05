@@ -103,7 +103,7 @@ export default function ProductCard({
           </span>
           <button
             onClick={handleAdd}
-            className="px-5 py-2 rounded-full border border-brand-border text-brand-text font-bold text-base hover:bg-brand-accent hover:text-black transition-colors duration-500 select-none"
+            className="btn-secondary" // ✅ padronizado
           >
             Adicionar
           </button>

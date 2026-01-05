@@ -27,11 +27,7 @@ export default function Hero({
             <a
               key={idx}
               href={action.href}
-              className={`px-6 py-3 rounded-full font-sans transition-colors duration-500 ${
-                action.primary
-                  ? "bg-brand-accent text-black hover:opacity-90"
-                  : "border border-brand-border text-brand-text hover:bg-brand-accent hover:text-black"
-              }`}
+              className={action.primary ? "btn-accent" : "btn-secondary"}
             >
               {action.label}
             </a>

@@ -1,86 +1,150 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { authFetch } from "../utils/authFetch";
 
-// ✅ Cria o contexto de autenticação com valor inicial seguro
 const AuthContext = createContext({
   user: null,
   token: null,
+  refreshToken: null,
+  rememberMe: true,
   isAuthenticated: false,
   loadingAuth: true,
   login: async () => false,
   logout: () => {},
   updateUser: () => {},
+  hasRole: () => false,
 });
+
+function getTokenExpiry(token) {
+  try {
+    const [, payload] = token.split(".");
+    const json = JSON.parse(atob(payload));
+    return json.exp * 1000; // exp em ms
+  } catch {
+    return 0;
+  }
+}
+
+function isJwtExpired(token) {
+  const expiry = getTokenExpiry(token);
+  return !expiry || Date.now() >= expiry;
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [refreshToken, setRefreshToken] = useState(null);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const navigate = useNavigate();
 
-  // 📌 Carregar dados salvos no localStorage ao iniciar
+  const storage = rememberMe ? localStorage : sessionStorage;
+
+  // 📌 Carregar dados salvos ao iniciar
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("accessToken"); // ✅ nome consistente
+    const storedUser =
+      localStorage.getItem("user") || sessionStorage.getItem("user");
+    const storedToken =
+      localStorage.getItem("accessToken") ||
+      sessionStorage.getItem("accessToken");
+    const storedRefresh =
+      localStorage.getItem("refreshToken") ||
+      sessionStorage.getItem("refreshToken");
+    const storedRemember =
+      localStorage.getItem("rememberMe") ||
+      sessionStorage.getItem("rememberMe");
+
+    if (storedRemember !== null) {
+      setRememberMe(storedRemember === "true");
+    }
 
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        if (parsedUser.role) {
-          parsedUser.role = parsedUser.role.toUpperCase();
-        }
+        if (parsedUser.role) parsedUser.role = parsedUser.role.toUpperCase();
         setUser(parsedUser);
       } catch {
         localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
       }
     }
+
     if (storedToken) {
-      setToken(storedToken);
+      if (isJwtExpired(storedToken)) {
+        if (storedRefresh) {
+          refreshAccessToken(storedRefresh);
+        } else {
+          setUser(null);
+          setToken(null);
+        }
+      } else {
+        setToken(storedToken);
+      }
     }
+
+    if (storedRefresh) {
+      setRefreshToken(storedRefresh);
+    }
+
     setLoadingAuth(false);
   }, []);
 
-  // 📌 Persistir user/token no localStorage sempre que mudarem
+  // 📌 Persistir user/token/refresh no storage correto
   useEffect(() => {
-    if (user) localStorage.setItem("user", JSON.stringify(user));
-    else localStorage.removeItem("user");
+    const s = rememberMe ? localStorage : sessionStorage;
 
-    if (token)
-      localStorage.setItem("accessToken", token); // ✅ nome consistente
-    else localStorage.removeItem("accessToken");
-  }, [user, token]);
+    if (user) s.setItem("user", JSON.stringify(user));
+    else {
+      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
+    }
 
-  // 📌 Revalidar token automaticamente ao iniciar
-  useEffect(() => {
-    const validateToken = async () => {
-      if (token) {
-        try {
-          const res = await authFetch(
-            `${import.meta.env.VITE_API_URL}/api/user/me`,
-            { method: "GET" }
-          );
+    if (token) s.setItem("accessToken", token);
+    else {
+      localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
+    }
 
-          if (res.ok) {
-            const data = res.data;
-            setUser({ ...data, role: data.role?.toUpperCase() });
-          } else {
-            logout();
-          }
-        } catch {
-          logout();
-        } finally {
-          setLoadingAuth(false);
+    if (refreshToken) s.setItem("refreshToken", refreshToken);
+    else {
+      localStorage.removeItem("refreshToken");
+      sessionStorage.removeItem("refreshToken");
+    }
+
+    s.setItem("rememberMe", rememberMe.toString());
+  }, [user, token, refreshToken, rememberMe]);
+
+  // 📌 Função para renovar accessToken usando refreshToken
+  const refreshAccessToken = async (refreshTokenValue) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken: refreshTokenValue }),
         }
-      } else {
-        setLoadingAuth(false);
-      }
-    };
-    validateToken();
-  }, [token]);
+      );
+
+      if (!res.ok) throw new Error("Falha ao renovar token");
+
+      const data = await res.json();
+
+      setToken(data.accessToken);
+      setRefreshToken(data.refreshToken);
+
+      storage.setItem("accessToken", data.accessToken);
+      storage.setItem("refreshToken", data.refreshToken);
+
+      return true;
+    } catch (err) {
+      console.error("Erro ao renovar token:", err);
+      logout(false);
+      return false;
+    }
+  };
 
   // 📌 Login integrado com backend
-  const login = async (email, password) => {
+  const login = async (email, password, remember = true) => {
     try {
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/auth/login`,
@@ -105,11 +169,15 @@ export function AuthProvider({ children }) {
       };
 
       setUser(userData);
-      setToken(data.accessToken); // ✅ backend retorna `accessToken`
+      setToken(data.accessToken);
+      setRefreshToken(data.refreshToken);
+      setRememberMe(remember);
 
-      // sobrescreve direto no localStorage para garantir consistência
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("accessToken", data.accessToken);
+      const s = remember ? localStorage : sessionStorage;
+      s.setItem("user", JSON.stringify(userData));
+      s.setItem("accessToken", data.accessToken);
+      s.setItem("refreshToken", data.refreshToken);
+      s.setItem("rememberMe", remember.toString());
 
       return true;
     } catch (err) {
@@ -118,42 +186,73 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // 📌 Atualizar dados do usuário no contexto
   const updateUser = (updatedData) => {
-    const mergedUser = {
-      ...user,
-      ...updatedData,
-    };
-    if (mergedUser.role) {
-      mergedUser.role = mergedUser.role.toUpperCase();
-    }
+    const mergedUser = { ...user, ...updatedData };
+    if (mergedUser.role) mergedUser.role = mergedUser.role.toUpperCase();
     setUser(mergedUser);
-    localStorage.setItem("user", JSON.stringify(mergedUser));
+    storage.setItem("user", JSON.stringify(mergedUser));
   };
-
-  // 📌 Logout
-  const logout = () => {
+  // 📌 Logout preserva carrinho e wishlist
+  const logout = (redirect = true) => {
     try {
-      localStorage.clear(); // ✅ limpa tudo de uma vez
+      // ❌ não usar clear(), remove apenas dados de autenticação
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("rememberMe");
+
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("refreshToken");
+      sessionStorage.removeItem("rememberMe");
+      // ✅ mantém cart, wishlist, theme etc.
     } finally {
       setUser(null);
       setToken(null);
-      navigate("/login"); // ✅ redireciona para login
+      setRefreshToken(null);
+      if (redirect) navigate("/login");
     }
   };
 
   const isAuthenticated = Boolean(user && token);
+
+  const hasRole = (role) => {
+    if (!user?.role) return false;
+    return user.role.toUpperCase() === role.toUpperCase();
+  };
+
+  // 📌 Auto refresh do token alguns segundos antes de expirar
+  useEffect(() => {
+    if (!token || !refreshToken) return;
+
+    const expiry = getTokenExpiry(token);
+    const now = Date.now();
+    const delay = expiry - now - 5000; // 5s antes de expirar
+
+    if (delay > 0) {
+      const timeout = setTimeout(() => {
+        refreshAccessToken(refreshToken);
+      }, delay);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [token, refreshToken]);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         token,
+        refreshToken,
+        rememberMe,
+        setRememberMe,
         isAuthenticated,
         loadingAuth,
         login,
         logout,
         updateUser,
+        hasRole,
+        refreshAccessToken,
       }}
     >
       {children}
@@ -161,7 +260,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-// ✅ Hook para consumir o contexto
 export function useAuth() {
   return useContext(AuthContext);
 }

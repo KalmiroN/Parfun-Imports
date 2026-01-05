@@ -6,18 +6,21 @@ import { useAuth } from "../context/AuthProvider";
  * ProtectedRoute
  * - Garante que apenas usuários autenticados acessem a rota.
  * - Se `allowedRoles` for passado, também valida se o usuário tem a role necessária.
+ * - Se `redirectOnUnauthenticated` for false, não redireciona; apenas renderiza `children`
+ *   (útil para páginas como Perfil, que mostram mensagem em vez de redirecionar).
  *
  * Props:
  * - children: componente/rota protegida
  * - allowedRoles: lista de roles permitidas (ex.: ["ADMIN", "CLIENTE"])
+ * - redirectOnUnauthenticated: boolean (default: true)
  */
-export default function ProtectedRoute({ children, allowedRoles }) {
+export default function ProtectedRoute({
+  children,
+  allowedRoles,
+  redirectOnUnauthenticated = true,
+}) {
   const { user, isAuthenticated, loadingAuth } = useAuth();
 
-  // 👉 Log para debug
-  console.log("ProtectedRoute - user:", user);
-
-  // Enquanto o estado de autenticação está carregando
   if (loadingAuth) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -26,25 +29,26 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     );
   }
 
-  // Se não estiver autenticado → redireciona para login
+  // Se não estiver autenticado
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // comportamento padrão: redireciona para login
+    if (redirectOnUnauthenticated) {
+      return <Navigate to="/login" replace />;
+    }
+    // caso especial (Perfil): não redireciona, deixa a página mostrar a mensagem
+    return children;
   }
 
-  // Agora basta usar diretamente user.role
   const userRole = user?.role?.toUpperCase();
 
-  // Se a rota exigir roles específicas
   if (allowedRoles && allowedRoles.length > 0) {
     const hasRole = allowedRoles.some(
       (role) => role.toUpperCase() === userRole
     );
     if (!hasRole) {
-      // 🚨 Se não tiver permissão → redireciona para Home
       return <Navigate to="/" replace />;
     }
   }
 
-  // Se passou em todas as verificações, renderiza o conteúdo protegido
   return children;
 }

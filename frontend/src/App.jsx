@@ -44,7 +44,6 @@ import PublicRoute from "./components/PublicRoute";
 export default function App() {
   return (
     <ThemeProvider>
-      {/* ✅ Corrigido: AuthProvider vem antes do CartProvider */}
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
@@ -116,7 +115,17 @@ export default function App() {
                 <Route path="/products/:id" element={<ProductDetail />} />
 
                 <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/profile" element={<Profile />} />
+
+                {/* ✅ Perfil não redireciona para login se não autenticado */}
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute redirectOnUnauthenticated={false}>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/search" element={<Search />} />
 

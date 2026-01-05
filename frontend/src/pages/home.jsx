@@ -66,16 +66,10 @@ export default function Home() {
 
           {/* Botões principais */}
           <div className="flex gap-6 justify-center">
-            <Link
-              to="/catalogo"
-              className="px-8 py-4 rounded-full bg-brand-accent text-black font-bold text-lg hover:opacity-90 transition select-none"
-            >
+            <Link to="/catalogo" className="btn-accent text-lg">
               Ver Catálogo
             </Link>
-            <Link
-              to="/cart"
-              className="px-8 py-4 rounded-full border border-brand-border text-brand-text font-bold text-lg hover:bg-brand-accent hover:text-black transition-colors duration-500 select-none"
-            >
+            <Link to="/cart" className="btn-secondary text-lg">
               Carrinho
             </Link>
           </div>

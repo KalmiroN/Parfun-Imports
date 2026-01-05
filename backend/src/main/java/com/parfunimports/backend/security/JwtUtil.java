@@ -15,16 +15,19 @@ import java.util.Date;
  * - Inclui email (subject) e role como claims.
  * - Usa chave secreta definida no application.properties.
  * - Expiração configurável via application.properties.
+ * - Suporte a AccessToken (curto prazo) e RefreshToken (longo prazo).
  */
 @Component
 public class JwtUtil {
 
     private final Key secretKey;
-    private final long expirationMs;
+    private final long accessTokenExpirationMs;
+    private final long refreshTokenExpirationMs;
 
-    // ✅ Construtor injeta secret e expiração do application.properties
+    // ✅ Construtor injeta secret e tempos de expiração do application.properties
     public JwtUtil(@Value("${jwt.secret}") String secret,
-                   @Value("${jwt.expiration}") long expirationMs) {
+                   @Value("${jwt.access.expiration}") long accessTokenExpirationMs,
+                   @Value("${jwt.refresh.expiration}") long refreshTokenExpirationMs) {
         Key key;
         try {
             byte[] keyBytes = java.util.Base64.getDecoder().decode(secret);
@@ -33,8 +36,9 @@ public class JwtUtil {
             // fallback: secret como texto puro
             key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         }
-        this.secretKey = key;   // ✅ atribuição única ao campo final
-        this.expirationMs = expirationMs;
+        this.secretKey = key;
+        this.accessTokenExpirationMs = accessTokenExpirationMs;
+        this.refreshTokenExpirationMs = refreshTokenExpirationMs;
     }
 
     // 📌 Extrair e-mail (subject) do token
@@ -52,7 +56,7 @@ public class JwtUtil {
     public Role extractRole(String token) {
         try {
             String roleStr = (String) getClaims(token).get("role");
-            return Role.valueOf(roleStr); // converte para Role.ADMIN ou Role.CLIENTE
+            return Role.valueOf(roleStr);
         } catch (ExpiredJwtException e) {
             throw new IllegalArgumentException("Token expirado", e);
         } catch (JwtException | IllegalArgumentException e) {
@@ -60,14 +64,27 @@ public class JwtUtil {
         }
     }
 
-    // 📌 Gerar token com e-mail e role
-    public String generateToken(String email, Role role) {
+    // 📌 Gerar AccessToken com e-mail e role
+    public String generateAccessToken(String email, Role role) {
         Date now = new Date();
-        Date exp = new Date(now.getTime() + expirationMs);
+        Date exp = new Date(now.getTime() + accessTokenExpirationMs);
 
         return Jwts.builder()
-                .setSubject(email) // subject = email
-                .claim("role", role.name()) // inclui papel (ADMIN, CLIENTE)
+                .setSubject(email)
+                .claim("role", role.name())
+                .setIssuedAt(now)
+                .setExpiration(exp)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // 📌 Gerar RefreshToken apenas com e-mail
+    public String generateRefreshToken(String email) {
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + refreshTokenExpirationMs);
+
+        return Jwts.builder()
+                .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(exp)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
