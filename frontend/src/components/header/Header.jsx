@@ -71,7 +71,8 @@ export default function Header() {
 
   return (
     <>
-      <header className="flex items-center justify-between px-6 py-4 bg-brand-surface shadow-soft relative">
+      {/* Header com fundo baseado em var(--color-surface) */}
+      <header className="flex items-center justify-between px-6 py-4 bg-[var(--color-surface)] shadow-soft relative">
         {/* Logo */}
         <div
           className="absolute top-2 left-6 z-50 cursor-pointer group animate-fadeInLeft"
@@ -148,7 +149,7 @@ export default function Header() {
             navigate={navigate}
             handleLogout={handleLogout}
             logoutIcon={logoutIcon}
-            userBoxRef={userMenuRef} // ✅ mantém compatibilidade com prop
+            userBoxRef={userMenuRef}
           />
         )}
       </header>

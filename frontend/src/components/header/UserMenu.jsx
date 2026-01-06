@@ -14,11 +14,10 @@ export default function UserMenu({
   return (
     <div
       ref={userBoxRef}
-      className={`
-        absolute right-0 top-12 w-64 rounded-xl p-4 border border-[var(--color-border)] z-50
-        shadow-strong backdrop-blur-md animate-fadeIn
-        bg-[var(--color-overlay)]
-      `}
+      className="
+        glass-card absolute right-0 top-12 w-64 p-4 z-50
+        shadow-strong animate-fadeIn
+      "
     >
       {isAuthenticated ? (
         <>

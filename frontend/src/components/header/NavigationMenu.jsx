@@ -9,7 +9,7 @@ export default function NavigationMenu({
   toast,
   mobile = false,
 }) {
-  const Wrapper = mobile ? "nav" : "nav";
+  const Wrapper = "nav";
   const listClass = mobile
     ? "flex flex-col gap-4 items-center"
     : "flex gap-4 items-center";
@@ -18,8 +18,8 @@ export default function NavigationMenu({
     <Wrapper
       className={
         mobile
-          ? "absolute top-full left-0 w-full bg-brand-surface shadow-strong p-6 md:hidden z-50"
-          : "hidden md:flex flex-1 justify-center"
+          ? "absolute top-full left-0 w-full bg-[var(--color-surface)] shadow-strong p-6 md:hidden z-50"
+          : "hidden md:flex flex-1 justify-center bg-[var(--color-surface)]"
       }
     >
       <ul className={listClass}>
@@ -33,8 +33,6 @@ export default function NavigationMenu({
             Catálogo
           </Link>
         </li>
-
-        {/* ❌ Botão Carrinho removido */}
 
         <li>
           <button
@@ -64,8 +62,6 @@ export default function NavigationMenu({
             </button>
           </li>
         )}
-
-        {/* ❌ Texto Usuário removido */}
 
         {user?.role?.toUpperCase() === "ADMIN" && (
           <>

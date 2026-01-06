@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthProvider"; // ✅ mantém AuthProvider com maiúscula
+import { useAuth } from "../context/AuthProvider";
 
 export default function Login() {
-  const { login, isAuthenticated, user, rememberMe, setRememberMe } = useAuth(); // ✅ inclui rememberMe
+  const { login, isAuthenticated, user, rememberMe, setRememberMe } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -14,10 +14,9 @@ export default function Login() {
     e.preventDefault();
     setMessage("");
     try {
-      // ✅ passa rememberMe para o AuthProvider
       const success = await login(email, password, rememberMe);
       if (success) {
-        navigate("/"); // login bem-sucedido → redireciona para Home
+        navigate("/");
       } else {
         setMessage("❌ Email ou senha incorretos.");
       }
@@ -34,9 +33,11 @@ export default function Login() {
         backgroundImage: "url('/images/background_files/Orquidea.jpg')",
       }}
     >
-      <div className="absolute inset-0 bg-black/40" />
+      {/* Overlay escuro para contraste */}
+      <div className="absolute inset-0 bg-black/20" />
 
-      <div className="relative w-full max-w-4xl p-20 rounded-2xl bg-white/20 backdrop-blur-md border border-brand-border shadow-strong">
+      {/* Container com efeito vidro fosco */}
+      <div className="glass-card relative w-full max-w-4xl p-20 shadow-strong">
         <h2 className="love-light-regular text-5xl text-brand-text text-center mb-8 select-none">
           Login
         </h2>

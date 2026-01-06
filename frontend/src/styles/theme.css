@@ -140,18 +140,37 @@ header img[alt="Parfun Imports"] {
 }
 
 /* ===========================================================
+   Glass Card (efeito vidro fosco reutilizável)
+   =========================================================== */
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.3); /* fundo semitransparente */
+  backdrop-filter: blur(12px); /* aplica blur */
+  -webkit-backdrop-filter: blur(12px); /* Safari */
+  border: 2px solid var(--color-border); /* borda dourada */
+  border-radius: 0.75rem; /* cantos arredondados */
+  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3); /* sombra dourada leve */
+}
+
+/* Versão para tema escuro */
+html.theme-dark .glass-card {
+  background-color: rgba(0, 0, 0, 0.4); /* fundo escuro semitransparente */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ===========================================================
    Temas customizados (sobrescrevem os valores das variáveis)
    =========================================================== */
 
-/* Tema Gold */
+/* Tema Gold (Claro) */
 html.theme-gold {
-  --color-bg: #fffdf5;
+  --color-bg: #fbf0dd; /* corpo da página */
   --color-text: #1a1a1a;
   --color-muted: #7a7a7a;
   --color-primary: #d4af37;
   --color-accent: #fbbf24;
   --color-border: #d4af37;
-  --color-surface: #ffffff;
+  --color-surface: #ffffff; /* menu de navegação / superfícies */
   --color-overlay: rgba(255, 255, 255, 0.65);
 }
 
@@ -169,13 +188,13 @@ html.theme-orange {
 
 /* Tema Dark refinado */
 html.theme-dark {
-  --color-bg: #121212; /* fundo mais escuro */
+  --color-bg: #212830; /* corpo da página */
   --color-text: #f5f5f5; /* texto claro */
   --color-muted: #bdbdbd;
   --color-primary: #d4af37; /* dourado elegante */
   --color-accent: #f59e0b; /* laranja vivo */
   --color-border: #d4af37; /* borda dourada */
-  --color-surface: #1e1e1e; /* superfície escura */
+  --color-surface: #151b23; /* menu de navegação */
   --color-overlay: rgba(0, 0, 0, 0.65);
 }
 
