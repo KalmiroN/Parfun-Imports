@@ -17,7 +17,6 @@ export default function AdminProducts() {
     imageUrl: "",
   });
 
-  // Carregar produtos (rota admin)
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -34,14 +33,11 @@ export default function AdminProducts() {
     fetchProducts();
   }, []);
 
-  // Remover produto (rota admin)
   const handleRemove = async (id) => {
     try {
       await authFetch(
         `${import.meta.env.VITE_API_URL}/api/admin/products/${id}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
       toast.success("Produto removido!");
       setProducts((prev) => prev.filter((p) => p.id !== id));
@@ -50,7 +46,6 @@ export default function AdminProducts() {
     }
   };
 
-  // Adicionar produto (rota admin)
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
@@ -87,7 +82,9 @@ export default function AdminProducts() {
   if (loading) {
     return (
       <AdminLayout>
-        <p className="text-brand-textMuted">Carregando produtos...</p>
+        <div className="flex items-center justify-center py-12">
+          <p className="text-brand-text text-lg">Carregando produtos...</p>
+        </div>
       </AdminLayout>
     );
   }
@@ -95,14 +92,14 @@ export default function AdminProducts() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-6xl px-4 py-12">
-        <h2 className="font-display text-3xl text-brand-text mb-6">
+        <h2 className="font-display text-3xl text-brand-text mb-8">
           Administração de Produtos
         </h2>
 
         {/* Formulário de cadastro */}
         <form
           onSubmit={handleAddProduct}
-          className="bg-brand-surface/80 rounded-xl shadow-soft p-6 mb-8 space-y-4"
+          className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-6 mb-12 space-y-6"
         >
           <input
             type="text"
@@ -166,16 +163,20 @@ export default function AdminProducts() {
 
         {/* Lista de produtos */}
         {products.length === 0 ? (
-          <p className="text-brand-textMuted">Nenhum produto cadastrado.</p>
+          <div className="text-center py-12">
+            <p className="text-brand-textMuted text-lg">
+              Nenhum produto cadastrado.
+            </p>
+          </div>
         ) : (
           <div className="space-y-6">
             {products.map((p) => (
               <div
                 key={p.id}
-                className="bg-brand-surface/80 rounded-xl shadow-soft p-4 flex justify-between items-center"
+                className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-6 flex justify-between items-center"
               >
                 <div>
-                  <h3 className="text-lg font-display text-brand-text">
+                  <h3 className="text-lg font-display text-brand-text mb-1">
                     {p.name}
                   </h3>
                   <p className="text-brand-textMuted">Preço: R$ {p.price}</p>
@@ -183,16 +184,16 @@ export default function AdminProducts() {
                     Estoque: {p.stock ?? 0}
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button
                     onClick={() => setSelectedProduct(p)}
-                    className="px-4 py-2 rounded-full bg-brand-accent text-black"
+                    className="px-4 py-2 rounded-full btn-accent"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => handleRemove(p.id)}
-                    className="px-4 py-2 rounded-full bg-red-500 text-white"
+                    className="px-4 py-2 rounded-full btn-secondary bg-red-500 text-white hover:bg-red-600 transition-colors"
                   >
                     Remover
                   </button>

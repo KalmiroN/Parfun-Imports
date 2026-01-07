@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { authFetch } from "../../utils/authFetch";
-import { useAuth } from "../../context/AuthProvider";
+import { useAuth } from "../../context/auth/AuthProvider";
+import AdminLayout from "../../components/AdminLayout";
 
 export default function AdminSettings() {
   const { token } = useAuth();
@@ -12,7 +13,6 @@ export default function AdminSettings() {
   });
   const [loading, setLoading] = useState(true);
 
-  // Buscar configurações atuais do backend
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -21,11 +21,8 @@ export default function AdminSettings() {
           {},
           token
         );
-        if (res.ok) {
-          setSettings(res.data);
-        }
+        if (res.ok) setSettings(res.data);
       } catch (err) {
-        console.error("Erro ao carregar configurações:", err);
         toast.error("Erro ao carregar configurações.");
       } finally {
         setLoading(false);
@@ -45,37 +42,31 @@ export default function AdminSettings() {
         },
         token
       );
-      if (res.ok) {
-        toast.success("Configurações de pagamento atualizadas!");
-      } else {
-        toast.error("Erro ao salvar configurações.");
-      }
-    } catch (err) {
-      console.error("Erro ao salvar configurações:", err);
+      if (res.ok) toast.success("Configurações de pagamento atualizadas!");
+      else toast.error("Erro ao salvar configurações.");
+    } catch {
       toast.error("Erro ao salvar configurações.");
     }
   };
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <p>Carregando configurações...</p>
-      </main>
+      <AdminLayout>
+        <p className="text-brand-text">Carregando configurações...</p>
+      </AdminLayout>
     );
   }
 
   return (
-    <main className="min-h-screen bg-brand-bg transition-colors duration-500">
-      <div className="mx-auto max-w-4xl px-4 py-12">
+    <AdminLayout>
+      <div className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="font-display text-3xl text-brand-text mb-8">
           Configurações de Pagamento
         </h2>
-
         <form
           onSubmit={handleSave}
-          className="space-y-6 bg-brand-surface p-6 rounded-xl shadow-soft"
+          className="space-y-6 bg-brand-surface/80 backdrop-blur-md p-6 rounded-xl shadow-soft"
         >
-          {/* Pix */}
           <div>
             <label className="block text-brand-text mb-2">Ativar Pix</label>
             <input
@@ -102,8 +93,6 @@ export default function AdminSettings() {
               className="input-field"
             />
           </div>
-
-          {/* Cartão */}
           <div>
             <label className="block text-brand-text mb-2">
               Ativar Cartão de Crédito
@@ -116,12 +105,11 @@ export default function AdminSettings() {
               }
             />
           </div>
-
           <button type="submit" className="btn-accent w-full">
             Salvar Configurações
           </button>
         </form>
       </div>
-    </main>
+    </AdminLayout>
   );
 }

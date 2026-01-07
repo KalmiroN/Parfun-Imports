@@ -31,29 +31,33 @@ export default function EditProductModal({ product, onClose, onSave }) {
         if (e.target === e.currentTarget) onClose(); // fecha ao clicar fora
       }}
     >
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h3 className="text-xl mb-4">Editar Produto</h3>
+      <div className="bg-brand-surface/90 backdrop-blur-md p-6 rounded-xl shadow-soft w-96">
+        <h3 className="text-xl font-display text-brand-text mb-6">
+          Editar Produto
+        </h3>
+
         <input
-          className="input-field mb-2"
+          className="input-field mb-4"
           value={form.name || ""}
           onChange={(e) => handleChange("name", e.target.value)}
           placeholder="Nome do produto"
         />
         <input
-          className="input-field mb-2"
+          className="input-field mb-4"
           type="number"
           value={form.price ?? ""}
           onChange={(e) => handleChange("price", e.target.value)}
           placeholder="Preço"
         />
         <input
-          className="input-field mb-2"
+          className="input-field mb-6"
           type="number"
           value={form.stock ?? ""}
           onChange={(e) => handleChange("stock", e.target.value)}
           placeholder="Quantidade em estoque"
         />
-        <div className="flex gap-2 mt-4">
+
+        <div className="flex gap-4">
           <button className="btn-accent flex-1" onClick={handleSave}>
             Salvar
           </button>

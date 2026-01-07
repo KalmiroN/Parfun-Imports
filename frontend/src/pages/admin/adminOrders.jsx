@@ -16,7 +16,6 @@ export default function AdminOrders() {
     endDate: "",
   });
 
-  // Carregar pedidos (rota admin)
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -44,7 +43,9 @@ export default function AdminOrders() {
   if (loading) {
     return (
       <AdminLayout>
-        <p className="text-brand-text">Carregando pedidos...</p>
+        <div className="flex items-center justify-center py-12">
+          <p className="text-brand-text text-lg">Carregando pedidos...</p>
+        </div>
       </AdminLayout>
     );
   }
@@ -52,14 +53,14 @@ export default function AdminOrders() {
   return (
     <AdminLayout>
       <div className="mx-auto max-w-6xl px-4 py-12">
-        <h2 className="font-display text-3xl text-brand-text mb-6">
+        <h2 className="font-display text-3xl text-brand-text mb-8">
           Administração de Pedidos
         </h2>
 
         {/* Filtros */}
         <div className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-6 mb-8">
           <h3 className="text-xl font-display text-brand-text mb-4">Filtros</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <select
               value={filters.status}
               onChange={(e) =>
@@ -103,15 +104,19 @@ export default function AdminOrders() {
 
         {/* Lista de pedidos */}
         {orders.length === 0 ? (
-          <p className="text-brand-textMuted">Nenhum pedido encontrado.</p>
+          <div className="text-center py-12">
+            <p className="text-brand-textMuted text-lg">
+              Nenhum pedido encontrado.
+            </p>
+          </div>
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-4"
+                className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-6"
               >
-                <h3 className="text-lg font-display text-brand-text">
+                <h3 className="text-lg font-display text-brand-text mb-2">
                   Pedido #{order.id} - {order.customerName}
                 </h3>
                 <p className="text-brand-textMuted">
@@ -122,16 +127,16 @@ export default function AdminOrders() {
                 </p>
 
                 {/* Botões de ação */}
-                <div className="flex flex-col md:flex-row gap-4 mt-4">
+                <div className="flex flex-col md:flex-row gap-4 mt-6">
                   <button
                     onClick={() => setSelectedOrder(order)}
-                    className="flex-1 px-4 py-2 rounded-full bg-brand-accent text-black font-semibold hover:opacity-90 transition-colors duration-500 text-center"
+                    className="flex-1 px-4 py-2 rounded-full btn-accent text-center"
                   >
                     Detalhes / Atualizar
                   </button>
                   <Link
                     to="/admin/dashboard"
-                    className="flex-1 px-4 py-2 rounded-full bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-surface/60 transition-colors duration-500 text-center"
+                    className="flex-1 px-4 py-2 rounded-full btn-secondary text-center"
                   >
                     Voltar ao painel
                   </Link>

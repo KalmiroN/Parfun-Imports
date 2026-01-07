@@ -17,13 +17,15 @@ export default function EditOrderModal({ order, onClose, onSave }) {
         if (e.target === e.currentTarget) onClose(); // fecha ao clicar fora
       }}
     >
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h3 className="text-xl mb-4">Atualizar Pedido #{order.id}</h3>
+      <div className="bg-brand-surface/90 backdrop-blur-md p-6 rounded-xl shadow-soft w-96">
+        <h3 className="text-xl font-display text-brand-text mb-6">
+          Atualizar Pedido #{order.id}
+        </h3>
 
         {/* Status do pedido */}
         <label className="block text-brand-text mb-2">Status</label>
         <select
-          className="input-field mb-4"
+          className="input-field mb-6"
           value={status}
           onChange={(e) => setStatus(e.target.value)}
         >
@@ -40,13 +42,13 @@ export default function EditOrderModal({ order, onClose, onSave }) {
           </p>
         )}
         {order.companyCnpj && (
-          <p className="text-brand-textMuted mb-4">
+          <p className="text-brand-textMuted mb-6">
             CNPJ da empresa: {order.companyCnpj}
           </p>
         )}
 
         {/* Botões de ação */}
-        <div className="flex gap-2">
+        <div className="flex gap-4">
           <button
             className="btn-accent flex-1"
             onClick={() => onSave({ ...order, status })}
