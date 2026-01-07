@@ -6,7 +6,7 @@ import "./styles/theme.css";
 
 import { BrowserRouter } from "react-router-dom"; // ✅ Router único
 import { ThemeProvider } from "./context/ThemeProvider";
-import { AuthProvider } from "./context/AuthProvider";
+import AuthProvider from "./context/auth/AuthProvider"; // ✅ novo caminho
 import { CartProvider } from "./context/CartProvider";
 import { WishlistProvider } from "./context/WishlistProvider";
 import ErrorBoundary from "./components/ErrorBoundary"; // ✅ captura erros

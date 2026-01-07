@@ -1,7 +1,7 @@
 import { useTheme } from "../../context/ThemeProvider";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthProvider";
+import { useAuth } from "../../context/auth/AuthProvider";
 import { useCart } from "../../context/CartProvider";
 import { toast } from "react-toastify";
 

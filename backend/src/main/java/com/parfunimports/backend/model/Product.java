@@ -46,7 +46,6 @@ public class Product {
     private Integer stock;
 
     // ✅ Nome do arquivo físico da imagem (não aparece para o cliente)
-    // Exemplo: "Lattafa-Asad.png" ou "Como-Moiselle-00.png"
     @Pattern(regexp = ".*\\.png$", message = "Somente arquivos .PNG são permitidos")
     @Column(name = "image_url", length = 255)
     private String imageUrl;
@@ -55,6 +54,11 @@ public class Product {
     @Builder.Default
     @Column(nullable = false)
     private boolean highlight = false;
+
+    // ➕ Novo campo: categoria
+    @Size(max = 100, message = "A categoria não pode ultrapassar 100 caracteres")
+    @Column(length = 100)
+    private String category;
 
     // 📌 relação com OrderProduct (itens de pedidos)
     @Builder.Default

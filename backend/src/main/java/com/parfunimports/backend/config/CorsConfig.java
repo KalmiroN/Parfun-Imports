@@ -30,7 +30,7 @@ public class CorsConfig {
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         // 📦 Headers permitidos
-        cors.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        cors.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
 
         // 🔑 Permitir envio de cookies/credenciais
         cors.setAllowCredentials(true);
@@ -38,6 +38,7 @@ public class CorsConfig {
         // ⏱ Tempo de cache da configuração (em segundos)
         cors.setMaxAge(3600L);
 
+        // ✅ Registra configuração para todas as rotas
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cors);
         return source;

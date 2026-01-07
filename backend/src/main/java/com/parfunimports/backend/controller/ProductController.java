@@ -17,6 +17,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/products")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ProductController {
 
     private final ProductService productService;
@@ -118,5 +119,38 @@ public class ProductController {
                 .map(productMapper::fromEntity)
                 .toList();
         return ResponseEntity.ok(dtos);
+    }
+
+    // 🔎 Buscar produtos por categoria
+    @GetMapping("/category")
+    public ResponseEntity<List<ProductDTO>> searchProductsByCategory(@RequestParam String category) {
+        List<Product> products = productService.searchProductsByCategory(category);
+        List<ProductDTO> dtos = products.stream()
+                .map(productMapper::fromEntity)
+                .toList();
+        return ResponseEntity.ok(dtos);
+    }
+
+    // 🔎 Buscar produtos por faixa de preço
+    @GetMapping("/range")
+    public ResponseEntity<List<ProductDTO>> searchProductsByPriceRange(@RequestParam Double minPrice,
+                                                                       @RequestParam Double maxPrice) {
+        List<Product> products = productService.searchProductsByPriceRange(minPrice, maxPrice);
+        List<ProductDTO> dtos = products.stream()
+                .map(productMapper::fromEntity)
+                .toList();
+        return ResponseEntity.ok(dtos);
+    }
+
+    // 📊 Top produtos mais vendidos
+    @GetMapping("/top-selling")
+    public ResponseEntity<List<Object[]>> getTopSellingProducts() {
+        return ResponseEntity.ok(productService.getTopSellingProductsWithQuantity());
+    }
+
+    // 📊 Estoque total
+    @GetMapping("/stock/total")
+    public ResponseEntity<Integer> getTotalStock() {
+        return ResponseEntity.ok(productService.getTotalStock());
     }
 }

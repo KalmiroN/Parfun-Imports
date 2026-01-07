@@ -3,7 +3,8 @@ package com.parfunimports.backend.controller;
 import com.parfunimports.backend.model.User;
 import com.parfunimports.backend.model.Order;
 import com.parfunimports.backend.model.Role;
-import com.parfunimports.backend.dto.UserResponse;
+import com.parfunimports.backend.dto.UserDTO;
+import com.parfunimports.backend.dto.UserMapper;
 import com.parfunimports.backend.repository.UserRepository;
 import com.parfunimports.backend.repository.OrderRepository;
 import com.parfunimports.backend.security.CustomUserPrincipal;
@@ -24,11 +25,13 @@ public class UserController {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
-    public UserController(UserRepository userRepository, OrderRepository orderRepository) {
+    public UserController(UserRepository userRepository, OrderRepository orderRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        this.userMapper = userMapper;
     }
 
     // 📌 Registrar novo usuário
@@ -44,7 +47,7 @@ public class UserController {
         newUser.setRole(Role.CLIENTE);
         userRepository.save(newUser);
 
-        return ResponseEntity.ok(new UserResponse(newUser));
+        return ResponseEntity.ok(userMapper.fromEntity(newUser));
     }
 
     // 📌 Alterar senha
@@ -89,7 +92,7 @@ public class UserController {
                     .body(Map.of("error", "Usuário não encontrado"));
         }
 
-        return ResponseEntity.ok(new UserResponse(userOpt.get()));
+        return ResponseEntity.ok(userMapper.fromEntity(userOpt.get()));
     }
 
     // 📌 Atualizar dados do usuário autenticado
@@ -128,7 +131,7 @@ public class UserController {
         }
 
         userRepository.save(user);
-        return ResponseEntity.ok(new UserResponse(user));
+        return ResponseEntity.ok(userMapper.fromEntity(user));
     }
 
     // 📌 Listar pedidos do usuário autenticado
@@ -158,16 +161,17 @@ public class UserController {
         user.setRole(Role.ADMIN);
         userRepository.save(user);
 
-        return ResponseEntity.ok(new UserResponse(user));
+        return ResponseEntity.ok(userMapper.fromEntity(user));
     }
 
-    // 📌 Debug
+    // 📌 Debug (apenas para testes)
     @GetMapping("/debug/{email}")
     public ResponseEntity<?> debugUser(@PathVariable String email) {
         Optional<User> userOpt = userRepository.findByEmail(email);
-        return ResponseEntity.ok(userOpt.orElse(null));
+        return ResponseEntity.ok(userOpt.map(userMapper::fromEntity).orElse(null));
     }
 
+    // DTO para atualização de usuário
     public static class UpdateUserRequest {
         private String name;
         private String email;
@@ -195,4 +199,3 @@ public class UserController {
         public void setRole(String role) { this.role = role; }
     }
 }
-

@@ -6,6 +6,7 @@ import com.parfunimports.backend.model.Product;
 import com.parfunimports.backend.repository.OrderRepository;
 import com.parfunimports.backend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,18 +34,21 @@ public class OrderService {
     }
 
     // 📥 Criar vários pedidos de uma vez
+    @Transactional
     public List<Order> saveAllOrders(List<Order> orders) {
         orders.forEach(this::prepareOrderBeforeSave);
         return orderRepository.saveAll(orders);
     }
 
     // ➕ Criar novo pedido
+    @Transactional
     public Order saveOrder(Order order) {
         prepareOrderBeforeSave(order);
         return orderRepository.save(order);
     }
 
     // ✏️ Atualizar pedido
+    @Transactional
     public Order updateOrder(Long id, Order updatedOrder) {
         return orderRepository.findById(id)
                 .map(order -> {
@@ -74,6 +78,7 @@ public class OrderService {
     }
 
     // ❌ Deletar pedido
+    @Transactional
     public boolean deleteOrder(Long id) {
         return orderRepository.findById(id)
                 .map(order -> {
@@ -139,4 +144,3 @@ public class OrderService {
         order.setTotal(total); // ✅ apenas este campo
     }
 }
-

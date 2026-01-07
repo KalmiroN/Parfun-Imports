@@ -5,14 +5,17 @@ import org.springframework.stereotype.Component;
 
 /**
  * Mapper para converter Product -> ProductDTO.
+ * Garante que o backend nunca exponha diretamente a entidade Product.
  */
 @Component
 public class ProductMapper {
 
     public ProductDTO fromEntity(Product product) {
+        if (product == null) return null;
+
         return new ProductDTO(
                 product.getId(),
-                product.getName(),        // ✅ nome comercial bonito
+                product.getName(),        // ✅ nome comercial
                 product.getDescription(),
                 product.getImageUrl(),    // ✅ nome do arquivo físico .png
                 product.getPrice(),

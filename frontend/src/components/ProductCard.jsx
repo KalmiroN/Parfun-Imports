@@ -1,6 +1,6 @@
 import { useCart } from "../context/CartProvider";
 import { toast } from "react-toastify";
-import { useAuth } from "../context/AuthProvider";
+import { useAuth } from "../context/auth/AuthProvider";
 import { authFetch } from "../utils/authFetch";
 import { useTheme } from "../context/ThemeProvider";
 import { resolveImageUrl } from "../utils/resolveImageUrl"; // ✅ utilitário atualizado

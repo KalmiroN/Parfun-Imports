@@ -3,6 +3,7 @@ package com.parfunimports.backend.service;
 import com.parfunimports.backend.model.Product;
 import com.parfunimports.backend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -44,18 +45,21 @@ public class ProductService {
     }
 
     // ➕ Criar novo produto
+    @Transactional
     public Product saveProduct(Product product) {
         product.setImageUrl(normalizeImageUrl(product.getImageUrl())); // ✅ normaliza antes de salvar
         return productRepository.save(product);
     }
 
     // 📥 Criar vários produtos de uma vez
+    @Transactional
     public List<Product> saveAllProducts(List<Product> products) {
         products.forEach(p -> p.setImageUrl(normalizeImageUrl(p.getImageUrl()))); // ✅ normaliza todos
         return productRepository.saveAll(products);
     }
 
     // ✏️ Atualizar produto existente
+    @Transactional
     public Product updateProduct(Long id, Product updatedProduct) {
         updatedProduct.setImageUrl(normalizeImageUrl(updatedProduct.getImageUrl())); // ✅ normaliza antes de atualizar
         return productRepository.findById(id)
@@ -72,6 +76,7 @@ public class ProductService {
     }
 
     // ❌ Deletar produto
+    @Transactional
     public boolean deleteProduct(Long id) {
         return productRepository.findById(id)
                 .map(product -> {
@@ -109,5 +114,15 @@ public class ProductService {
     // 📊 Somar estoque total
     public Integer getTotalStock() {
         return productRepository.sumTotalStock();
+    }
+
+    // 🔎 Buscar produtos por categoria
+    public List<Product> searchProductsByCategory(String category) {
+        return productRepository.findByCategoryIgnoreCase(category);
+    }
+
+    // 🔎 Buscar produtos por faixa de preço
+    public List<Product> searchProductsByPriceRange(Double minPrice, Double maxPrice) {
+        return productRepository.findByPriceBetween(minPrice, maxPrice);
     }
 }

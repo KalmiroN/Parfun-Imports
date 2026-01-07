@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeProvider";
-import { AuthProvider } from "./context/AuthProvider";
+import AuthProvider from "./context/auth/AuthProvider";
 import { CartProvider } from "./context/CartProvider";
 import { WishlistProvider } from "./context/WishlistProvider";
 import { ToastContainer } from "react-toastify";

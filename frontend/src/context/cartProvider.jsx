@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { authFetch } from "../utils/authFetch";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../context/auth/AuthProvider";
 
 const CartContext = createContext();
 

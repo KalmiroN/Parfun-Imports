@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { authFetch } from "../utils/authFetch";
-import { useAuth } from "../context/AuthProvider";
+import { useAuth } from "../context/auth/AuthProvider";
 
 export default function MyOrders() {
   const { token } = useAuth();

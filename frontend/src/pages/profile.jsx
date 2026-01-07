@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { useAuth } from "../context/AuthProvider";
+import { useAuth } from "../context/auth/AuthProvider";
 import PasswordResetForm from "../components/PasswordResetForm";
 import { authFetch } from "../utils/authFetch";
 

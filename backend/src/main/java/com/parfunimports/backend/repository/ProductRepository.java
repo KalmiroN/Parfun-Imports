@@ -31,4 +31,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // ✅ Buscar produtos com estoque maior que zero (disponíveis para venda)
     List<Product> findByStockGreaterThan(Integer stock);
+
+    // 🔎 Buscar produtos por categoria (útil para filtros no frontend)
+    List<Product> findByCategoryIgnoreCase(String category);
+
+    // 🔎 Buscar produtos por faixa de preço
+    List<Product> findByPriceBetween(Double minPrice, Double maxPrice);
 }

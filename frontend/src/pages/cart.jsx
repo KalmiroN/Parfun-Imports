@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import CheckoutCard from "../components/CheckoutCard";
 import AsideContainer from "../components/AsideContainer";
 import { authFetch } from "../utils/authFetch";
-import { useAuth } from "../context/AuthProvider.jsx";
+import { useAuth } from "../context/auth/AuthProvider.jsx";
 import { resolveImageUrl } from "../utils/resolveImageUrl"; // ✅ normaliza URLs de imagens
 
 export default function Cart() {

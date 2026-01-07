@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { authFetch } from "../utils/authFetch";
 import { toast } from "react-toastify";
-import { useAuth } from "../context/AuthProvider.jsx";
+import { useAuth } from "../context/auth/AuthProvider.jsx";
 
 export default function Checkout() {
   const navigate = useNavigate();
