@@ -22,7 +22,7 @@ function MiniCard({ item, onAddToCart, onDelete }) {
         className="w-12 h-12 rounded object-cover"
       />
       <div className="flex-1">
-        <p className="text-sm font-semibold">{item.name}</p>
+        <p className="text-sm font-semibold text-white">{item.name}</p>
         <p className="text-xs text-brand-text">{item.price}</p>
       </div>
       <div className="flex gap-2">
@@ -110,7 +110,7 @@ export default function AsideContainer({
         right: 0,
         top: topOffset,
         width: "clamp(20rem, 30vw, 30rem)",
-        height: showCheckout || showSaveLater ? "80vh" : "auto", // ✅ ocupa 80% da viewport
+        height: showCheckout || showSaveLater ? "80vh" : "auto",
       }}
     >
       {/* Aside: Finalizar compra */}
@@ -118,46 +118,44 @@ export default function AsideContainer({
         <div
           onMouseEnter={() => hoverEnabled && setHovered("checkout")}
           onMouseLeave={() => hoverEnabled && setHovered(null)}
-          className="bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-4 flex flex-col transition-all duration-300"
+          className="bg-[#061624] border-l border-brand-border rounded-l-2xl shadow-soft p-4 flex flex-col transition-all duration-300 overflow-y-auto"
           style={{
             height: hoverEnabled
               ? hovered === "checkout"
-                ? "50vh" // ✅ aumenta 25%
+                ? "50vh"
                 : hovered === "save"
-                ? "30vh" // ✅ diminui 25%
-                : "39vh" // ✅ estado normal
-              : "80vh", // ✅ apenas um aside ativo
+                ? "30vh"
+                : "39vh"
+              : "80vh",
             minHeight: 0,
           }}
         >
-          <h2 className="text-xl font-display mb-3">Finalizar compra</h2>
+          <h2 className="text-xl font-display mb-3 text-white">
+            Finalizar compra
+          </h2>
 
-          <p className="text-lg font-semibold mb-3">
+          <p className="text-lg font-semibold mb-3 text-white">
             Total: R$ {calcTotal().toFixed(2).replace(".", ",")}
           </p>
+
+          {/* Botões de escolha de pagamento */}
           {paymentMode === null && (
             <div className="flex flex-col gap-2 mb-4">
               <button
-                onClick={() => {
-                  setPaymentMode("PIX");
-                  if (showSaveLater) onCloseSaveLater();
-                }}
-                className="btn-accent"
+                onClick={() => setPaymentMode("PIX")}
+                className="btn-accent w-full"
               >
                 Pagar com PIX
               </button>
               <button
-                onClick={() => {
-                  setPaymentMode("CARD");
-                  if (showSaveLater) onCloseSaveLater();
-                }}
-                className="btn-secondary"
+                onClick={() => setPaymentMode("CARD")}
+                className="btn-secondary w-full"
               >
                 Pagar com Cartão
               </button>
             </div>
           )}
-
+          {/* Estado PIX */}
           {paymentMode === "PIX" && (
             <div className="flex-1 min-h-0 overflow-y-auto mb-4">
               {pixDiscountActive && (
@@ -184,6 +182,7 @@ export default function AsideContainer({
             </div>
           )}
 
+          {/* Estado CARTÃO */}
           {paymentMode === "CARD" && (
             <div className="flex-1 min-h-0 overflow-y-auto mb-4">
               <form className="flex flex-col gap-2 mb-3">
@@ -224,28 +223,28 @@ export default function AsideContainer({
             </div>
           )}
 
-          {/* Vale desconto */}
-          <div className="flex-1 min-h-0 overflow-y-auto mt-2">
-            <input
-              type="text"
-              value={discountCode}
-              onChange={(e) => setDiscountCode(e.target.value)}
-              placeholder="Código de desconto"
-              className="input w-full mb-2"
-            />
-            <button onClick={handleApplyCode} className="btn-accent w-full">
-              Aplicar código
-            </button>
-            {appliedDiscount && (
-              <p className="text-xs text-brand-text mt-2">
-                Código aplicado: tipo {appliedDiscount.type} — desconto de R${" "}
-                {appliedDiscount.value}
-              </p>
-            )}
-          </div>
-
           {/* Rodapé fixado embaixo */}
           <div className="mt-auto flex flex-col gap-2">
+            {/* Vale desconto agora no rodapé, acima dos botões */}
+            <div className="mb-3">
+              <input
+                type="text"
+                value={discountCode}
+                onChange={(e) => setDiscountCode(e.target.value)}
+                placeholder="Código de desconto"
+                className="input w-full mb-2"
+              />
+              <button onClick={handleApplyCode} className="btn-accent w-full">
+                Aplicar código
+              </button>
+              {appliedDiscount && (
+                <p className="text-xs text-brand-text mt-2">
+                  Código aplicado: tipo {appliedDiscount.type} — desconto de R${" "}
+                  {appliedDiscount.value}
+                </p>
+              )}
+            </div>
+
             <button onClick={onCheckout} className="btn-accent w-full">
               ✅ Finalizar compra
             </button>
@@ -261,20 +260,22 @@ export default function AsideContainer({
         <div
           onMouseEnter={() => hoverEnabled && setHovered("save")}
           onMouseLeave={() => hoverEnabled && setHovered(null)}
-          className="bg-brand-surface border-l border-brand-border rounded-l-2xl shadow-soft p-4 flex flex-col transition-all duration-300"
+          className="bg-[#061624] border-l border-brand-border rounded-l-2xl shadow-soft p-4 flex flex-col transition-all duration-300 overflow-y-auto"
           style={{
             height: hoverEnabled
               ? hovered === "save"
-                ? "50vh" // ✅ aumenta 25%
+                ? "50vh"
                 : hovered === "checkout"
-                ? "30vh" // ✅ diminui 25%
-                : "39vh" // ✅ estado normal
-              : "80vh", // ✅ apenas um aside ativo
+                ? "30vh"
+                : "39vh"
+              : "80vh",
             minHeight: 0,
             width: "clamp(20rem, 30vw, 30rem)",
           }}
         >
-          <h2 className="text-xl font-display mb-3">Salvar para depois</h2>
+          <h2 className="text-xl font-display mb-3 text-white">
+            Salvar para depois
+          </h2>
           <p className="text-sm text-brand-text mb-3">
             Os itens salvos ficarão disponíveis para você finalizar mais tarde.
           </p>

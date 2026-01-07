@@ -32,11 +32,13 @@ export function CheckoutAside({ show, top, height, onClose, discountPix }) {
   return createPortal(
     <aside
       style={{ top, height }}
-      className="fixed right-0 z-50 w-[24rem] bg-brand-surface shadow-strong p-6 
-        border-l border-t border-b border-yellow-500 rounded-l-2xl animate-slideInSlow flex flex-col justify-between"
+      className="fixed right-0 z-50 w-[24rem] bg-[#061624] shadow-strong p-6 
+        border-l border-t border-b border-yellow-500 rounded-l-2xl animate-slideInSlow flex flex-col justify-between overflow-y-auto"
     >
       <div>
-        <h2 className="text-2xl font-display mb-4">Finalizar compra</h2>
+        <h2 className="text-2xl font-display mb-4 text-white">
+          Finalizar compra
+        </h2>
         <p className="text-brand-text mb-4">
           Total de itens: {itemCount} <br />
           Valor:{" "}

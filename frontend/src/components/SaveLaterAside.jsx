@@ -6,7 +6,6 @@ export function SaveLaterAside({ show, top, height, offset = 400, onClose }) {
 
   if (!show) return null;
 
-  // ✅ Função para resolver a URL da imagem com fallback
   const resolveSrc = (url) => {
     if (!url) return "/images/default.jpg";
     return url;
@@ -15,11 +14,11 @@ export function SaveLaterAside({ show, top, height, offset = 400, onClose }) {
   return createPortal(
     <aside
       style={{ top: top + offset, height }}
-      className="fixed right-0 z-40 w-[20rem] bg-brand-surface shadow-strong p-6 
-        border-l border-t border-b border-yellow-500 rounded-l-2xl animate-slideInSlow flex flex-col"
+      className="fixed right-0 z-40 w-[20rem] bg-[#061624] shadow-strong p-6 
+        border-l border-t border-b border-yellow-500 rounded-l-2xl animate-slideInSlow flex flex-col overflow-y-auto"
     >
       <div className="flex items-start justify-between mb-4">
-        <h2 className="text-xl font-display">Salvos para depois</h2>
+        <h2 className="text-xl font-display text-white">Salvos para depois</h2>
         <button onClick={onClose} className="btn-secondary px-3 py-1 ml-4">
           ✕
         </button>
@@ -30,7 +29,7 @@ export function SaveLaterAside({ show, top, height, offset = 400, onClose }) {
           Nenhum item salvo para comprar mais tarde.
         </p>
       ) : (
-        <div className="space-y-4 overflow-y-auto">
+        <div className="space-y-4">
           {saveLaterItems.map((item, idx) => (
             <div
               key={idx}
@@ -41,12 +40,14 @@ export function SaveLaterAside({ show, top, height, offset = 400, onClose }) {
                   src={resolveSrc(item?.imageUrl)}
                   alt={item?.name || "Produto"}
                   onError={(e) => {
-                    e.currentTarget.src = "/images/default.jpg"; // ✅ fallback se a imagem não carregar
+                    e.currentTarget.src = "/images/default.jpg";
                   }}
                   className="w-12 h-12 rounded-md object-cover"
                 />
                 <div>
-                  <p className="text-sm font-semibold">{item.name}</p>
+                  <p className="text-sm font-semibold text-white">
+                    {item.name}
+                  </p>
                   <p className="text-xs text-brand-textMuted">
                     {item.quantity}x{" "}
                     {Number(item.price).toLocaleString("pt-BR", {

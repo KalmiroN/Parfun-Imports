@@ -180,6 +180,7 @@ export default function Cart() {
     }
     return acc + priceValue * qty;
   }, 0);
+
   if (loading) {
     return (
       <main className="bg-brand-bg text-brand-text min-h-screen flex items-center justify-center">
@@ -195,7 +196,6 @@ export default function Cart() {
         className="bg-brand-bg text-brand-text min-h-screen px-4 py-12 pt-24 overflow-x-auto"
       >
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-
         {!user ? (
           <div className="card p-8 text-center">
             <p className="text-lg text-brand-text">
@@ -244,12 +244,13 @@ export default function Cart() {
                   </div>
                 );
               })}
-            </div>
 
-            <div className="mt-10 text-right">
-              <p className="text-xl font-semibold">
-                Subtotal: R$ {subtotal.toFixed(2).replace(".", ",")}
-              </p>
+              {/* ✅ Subtotal agora dentro do mesmo container dos cards */}
+              <div className="mt-10 flex justify-end">
+                <p className="text-xl font-semibold">
+                  Subtotal: R$ {subtotal.toFixed(2).replace(".", ",")}
+                </p>
+              </div>
             </div>
 
             <div className="flex justify-center gap-4 mt-8">
