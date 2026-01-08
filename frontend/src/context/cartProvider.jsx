@@ -12,34 +12,51 @@ export function CartProvider({ children }) {
   const [saveLaterItems, setSaveLaterItems] = useState([]);
   const [showSaveLater, setShowSaveLater] = useState(false);
 
-  // 📌 Buscar carrinho do backend ao carregar
+  // 📌 Buscar carrinho e salvos para depois ao carregar
   useEffect(() => {
-    const fetchCart = async () => {
+    const fetchAll = async () => {
       if (!isAuthenticated) {
         setCartItems([]);
+        setSaveLaterItems([]);
         return;
       }
       try {
-        const res = await authFetch(
-          `${import.meta.env.VITE_API_URL}/api/cart/my`,
-          { method: "GET" }
-        );
-        if (res.ok) {
-          setCartItems(res.data || []);
+        const [cartRes, savedRes] = await Promise.all([
+          authFetch(`${import.meta.env.VITE_API_URL}/api/cart/my`, {
+            method: "GET",
+          }),
+          authFetch(`${import.meta.env.VITE_API_URL}/api/savelater/my`, {
+            method: "GET",
+          }),
+        ]);
+
+        if (cartRes.ok) setCartItems(cartRes.data || []);
+        if (savedRes.ok) {
+          // ✅ normaliza os itens salvos para incluir saveLaterId separado de productId
+          const normalized = (savedRes.data || []).map((item) => ({
+            saveLaterId: item.id, // id da linha em save_later_items
+            productId: item.productId, // id do produto
+            name: item.name,
+            imageUrl: item.imageUrl,
+            quantity: item.quantity,
+            price: item.price,
+            userEmail: item.userEmail,
+            userId: item.userId,
+          }));
+          setSaveLaterItems(normalized);
         }
       } catch (err) {
-        console.error("Erro ao carregar carrinho:", err);
+        console.error("Erro ao carregar dados:", err);
         if (err.message.includes("Sessão expirada")) {
-          // 🚨 força logout se token inválido
           localStorage.removeItem("accessToken");
           window.location.href = "/login";
         }
       }
     };
-    fetchCart();
+    fetchAll();
   }, [isAuthenticated]);
 
-  // 📌 Persistência local
+  // 📌 Persistência local (apenas carrinho, não mais saveLater)
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
@@ -101,15 +118,13 @@ export function CartProvider({ children }) {
     }
   };
 
-  // 📌 Remover item
+  // 📌 Remover item (usa cartItem.id, não productId)
   const removeById = async (id) => {
     try {
       await authFetch(`${import.meta.env.VITE_API_URL}/api/cart/${id}`, {
         method: "DELETE",
       });
-      setCartItems((prev) =>
-        prev.filter((p) => p.id !== id && p.productId !== id)
-      );
+      setCartItems((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       console.error("Erro ao remover item:", err);
     }
@@ -127,18 +142,13 @@ export function CartProvider({ children }) {
       );
       if (res.ok) {
         setCartItems((prev) =>
-          prev.map((p) =>
-            p.id === id || p.productId === id
-              ? { ...p, quantity: newQuantity }
-              : p
-          )
+          prev.map((p) => (p.id === id ? { ...p, quantity: newQuantity } : p))
         );
       }
     } catch (err) {
       console.error("Erro ao atualizar quantidade:", err);
     }
   };
-
   // 📌 Limpar carrinho
   const clearCart = async () => {
     if (!isAuthenticated) {
@@ -158,23 +168,84 @@ export function CartProvider({ children }) {
   };
 
   // 📌 Salvar para depois
-  const saveForLater = (item) => {
-    setCartItems((prev) =>
-      prev.filter((p) => (p.id || p.productId) !== (item.id || item.productId))
-    );
-    setSaveLaterItems((prev) => [...prev, item]);
-    setShowSaveLater(true);
+  const saveForLater = async (item) => {
+    try {
+      await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/cart/${
+          item.cartItemId || item.id
+        }`,
+        { method: "DELETE" }
+      );
+
+      const res = await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/savelater`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            productId: item.productId,
+            name: item.name,
+            imageUrl: item.imageUrl,
+            quantity: item.quantity,
+            price: item.price,
+            userEmail: item.userEmail,
+          }),
+        }
+      );
+
+      if (res.ok) {
+        const savedItem = res.data;
+        const normalized = {
+          saveLaterId: savedItem.id, // id da linha em save_later_items
+          productId: savedItem.productId, // id do produto
+          name: savedItem.name,
+          imageUrl: savedItem.imageUrl,
+          quantity: savedItem.quantity,
+          price: savedItem.price,
+          userEmail: savedItem.userEmail,
+          userId: savedItem.userId,
+        };
+
+        setCartItems((prev) =>
+          prev.filter((p) => p.id !== item.id && p.productId !== item.productId)
+        );
+        setSaveLaterItems((prev) => [...prev, normalized]);
+        setShowSaveLater(true);
+      }
+    } catch (err) {
+      console.error("Erro ao salvar para depois:", err);
+    }
   };
 
   // 📌 Mover de volta do 'salvos' para carrinho
-  const moveBackToCart = (item) => {
-    setSaveLaterItems((prev) =>
-      prev.filter((p) => (p.id || p.productId) !== (item.id || item.productId))
-    );
-    setCartItems((prev) => [...prev, item]);
+  const moveBackToCart = async (item) => {
+    try {
+      await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/savelater/${item.saveLaterId}`,
+        { method: "DELETE" }
+      );
+
+      await authFetch(`${import.meta.env.VITE_API_URL}/api/cart`, {
+        method: "POST",
+        body: JSON.stringify({
+          productId: item.productId,
+          name: item.name,
+          imageUrl: item.imageUrl,
+          quantity: item.quantity,
+          price: item.price,
+          userEmail: item.userEmail,
+        }),
+      });
+
+      setSaveLaterItems((prev) =>
+        prev.filter((p) => p.saveLaterId !== item.saveLaterId)
+      );
+      setCartItems((prev) => [...prev, item]);
+    } catch (err) {
+      console.error("Erro ao mover item de volta:", err);
+    }
   };
 
-  // 📌 Checkout (Pix/Cartão)
+  // 📌 Checkout
   const checkout = async (method, payload = {}) => {
     if (!isAuthenticated) return { ok: false, error: "not_auth" };
     try {

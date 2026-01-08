@@ -28,7 +28,10 @@ export default function CheckoutCard({
   const total = priceNumber * quantity;
 
   return (
-    <div className="flex gap-6 rounded-xl border border-brand-border bg-brand-surface shadow-strong p-6 hover:scale-[1.02] transition-transform duration-300">
+    <div
+      className="flex gap-6 rounded-xl border border-brand-border shadow-strong p-6 hover:scale-[1.02] transition-transform duration-300"
+      style={{ backgroundColor: "#151B23" }} // ✅ fundo do card
+    >
       {/* Esquerda: imagem + info básica */}
       <div className="flex-1 flex gap-4">
         <img
@@ -40,7 +43,7 @@ export default function CheckoutCard({
           className="w-24 h-24 rounded-lg object-cover border border-brand-border"
         />
         <div className="flex flex-col">
-          <h3 className="text-lg font-display">{name}</h3>
+          <h3 className="text-lg font-display text-white">{name}</h3>
 
           {/* Preço unitário */}
           <p className="text-brand-text mt-2">Preço: {price}</p>
@@ -53,7 +56,7 @@ export default function CheckoutCard({
             >
               −
             </button>
-            <span className="min-w-8 text-center">{quantity}</span>
+            <span className="min-w-8 text-center text-white">{quantity}</span>
             <button
               onClick={() => onQuantityChange(index, +1)}
               className="btn-accent px-3 py-1"
@@ -81,17 +84,22 @@ export default function CheckoutCard({
       </div>
 
       {/* Direita: resumo e total */}
-      <div className="w-64 border-l border-brand-border pl-6">
-        <p className="text-brand-text font-semibold">
-          Total: R$ {total.toFixed(2).replace(".", ",")}
-        </p>
+      <div className="w-64 pl-6">
+        <div
+          className="p-3 rounded-md"
+          style={{ backgroundColor: "#212830" }} // ✅ fundo interno sem borda dourada
+        >
+          <p className="text-brand-text font-semibold">
+            Total: R$ {total.toFixed(2).replace(".", ",")}
+          </p>
 
-        {/* Parcelamento e estoque abaixo do Total */}
-        <p className="text-brand-text mt-2">
-          Até 10x de R$ {(total / 10).toFixed(2).replace(".", ",")} sem juros
-          <br />
-          Em estoque
-        </p>
+          {/* Parcelamento e estoque abaixo do Total */}
+          <p className="text-brand-text mt-2">
+            Até 10x de R$ {(total / 10).toFixed(2).replace(".", ",")} sem juros
+            <br />
+            Em estoque
+          </p>
+        </div>
       </div>
     </div>
   );

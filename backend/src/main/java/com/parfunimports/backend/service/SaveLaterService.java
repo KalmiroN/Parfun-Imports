@@ -1,7 +1,9 @@
 package com.parfunimports.backend.service;
 
+import com.parfunimports.backend.dto.SaveLaterItemRequest;
 import com.parfunimports.backend.model.SaveLaterItem;
 import com.parfunimports.backend.repository.SaveLaterRepository;
+import com.parfunimports.backend.security.CustomUserPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,27 +17,32 @@ public class SaveLaterService {
         this.saveLaterRepository = saveLaterRepository;
     }
 
-    // ➕ Adicionar item à lista "Salvar para depois"
-    public SaveLaterItem saveItem(SaveLaterItem item) {
-        // Verifica se já existe o mesmo produto para o mesmo usuário
-        SaveLaterItem existing = saveLaterRepository.findByUserEmailAndProductId(
-                item.getUserEmail(), item.getProductId()
-        );
+    // ➕ Adicionar item à lista "Salvar para depois" usando DTO
+    public SaveLaterItem saveItem(SaveLaterItemRequest request, CustomUserPrincipal user) {
+        return saveLaterRepository.findByUserEmailAndProductId(user.getEmail(), request.getProductId())
+            .map(existing -> {
+                // Atualiza a quantidade acumulando
+                existing.setQuantity(existing.getQuantity() + request.getQuantity());
 
-        if (existing != null) {
-            // Atualiza a quantidade acumulando
-            existing.setQuantity(existing.getQuantity() + item.getQuantity());
+                // Atualiza também os outros campos (nome, preço, imagem) caso tenham mudado
+                existing.setName(request.getName());
+                existing.setPrice(request.getPrice());
+                existing.setImageUrl(request.getImageUrl());
 
-            // Atualiza também os outros campos (nome, preço, imagem) caso tenham mudado
-            existing.setName(item.getName());
-            existing.setPrice(item.getPrice());
-            existing.setImageUrl(item.getImageUrl());
-
-            return saveLaterRepository.save(existing);
-        }
-
-        // Se não existe, salva novo item
-        return saveLaterRepository.save(item);
+                return saveLaterRepository.save(existing);
+            })
+            .orElseGet(() -> {
+                SaveLaterItem newItem = SaveLaterItem.builder()
+                        .userId(user.getId())
+                        .userEmail(user.getEmail())
+                        .productId(request.getProductId())
+                        .name(request.getName())
+                        .imageUrl(request.getImageUrl())
+                        .quantity(request.getQuantity())
+                        .price(request.getPrice())
+                        .build();
+                return saveLaterRepository.save(newItem);
+            });
     }
 
     // 📦 Listar itens salvos de um usuário
@@ -43,13 +50,13 @@ public class SaveLaterService {
         return saveLaterRepository.findByUserEmail(userEmail);
     }
 
-    // ❌ Remover item salvo
-    public void removeSavedItem(Long id) {
-        if (saveLaterRepository.existsById(id)) {
-            saveLaterRepository.deleteById(id);
-        } else {
-            throw new IllegalArgumentException("Item não encontrado para remoção: " + id);
-        }
+    // ❌ Remover item salvo (garantindo que pertence ao usuário)
+    public void removeSavedItem(String userEmail, Long id) {
+        saveLaterRepository.findByIdAndUserEmail(id, userEmail)
+            .ifPresentOrElse(
+                saveLaterRepository::delete,
+                () -> { throw new IllegalArgumentException("Item não encontrado ou não pertence ao usuário: " + id); }
+            );
     }
 
     // 🗑️ Limpar todos os itens salvos de um usuário

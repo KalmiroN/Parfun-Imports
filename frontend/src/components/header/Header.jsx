@@ -6,7 +6,7 @@ import { useCart } from "../../context/CartProvider";
 import { toast } from "react-toastify";
 
 import NavigationMenu from "./NavigationMenu";
-import UserMenu from "./UserMenu"; // ✅ atualizado
+import UserMenu from "./UserMenu";
 import CartIcon from "./CartIcon";
 import LoginIcon from "./LoginIcon";
 import UserIcon from "./UserIcon";

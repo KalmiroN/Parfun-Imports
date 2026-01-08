@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "../context/auth/AuthProvider";
 import PasswordResetForm from "../components/PasswordResetForm";
 import { authFetch } from "../utils/authFetch";
+import { formatRole, isAdmin, isCliente } from "../utils/roleUtils";
 
 export default function Profile() {
   const { user, token, updateUser } = useAuth();
@@ -56,11 +57,15 @@ export default function Profile() {
     }
   };
 
+  // ✅ Se não estiver logado, apenas mostra mensagem dentro do layout
   if (!user) {
     return (
-      <main className="flex items-center justify-center min-h-screen">
-        <p className="text-brand-text">Você não está logado.</p>
-      </main>
+      <div className="p-8 text-center">
+        <h2 className="text-2xl text-brand-text mb-4">Perfil</h2>
+        <p className="text-brand-textMuted">
+          ⚠️ O usuário precisa estar logado para acessar seu perfil.
+        </p>
+      </div>
     );
   }
 
@@ -101,15 +106,13 @@ export default function Profile() {
           </div>
           <div className="p-4 border border-brand-border rounded-lg bg-white/40">
             <h3 className="text-lg font-semibold text-brand-text">Usuário</h3>
-            <p className="text-brand-textMuted">
-              {user?.role === "ADMIN" ? "admin" : "cliente"}
-            </p>
+            <p className="text-brand-textMuted">{formatRole(user?.role)}</p>
           </div>
         </div>
 
         {/* Botões por role */}
         <div className="mb-8">
-          {user?.role === "CLIENTE" && (
+          {isCliente(user) && (
             <div className="flex flex-col gap-4">
               <a href="/my-orders" className="btn-accent w-full">
                 Meus Pedidos
@@ -119,7 +122,7 @@ export default function Profile() {
               </a>
             </div>
           )}
-          {user?.role === "ADMIN" && (
+          {isAdmin(user) && (
             <div className="flex flex-col gap-4">
               <a href="/admin/products" className="btn-accent w-full">
                 Gerenciar Produtos

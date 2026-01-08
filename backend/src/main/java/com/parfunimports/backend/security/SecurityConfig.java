@@ -71,6 +71,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/user/update").authenticated()
                 .requestMatchers("/api/user/orders").authenticated()
 
+                // ✅ proteger endpoints de salvar para depois
+                .requestMatchers("/api/savelater/**").authenticated()
+
                 // Qualquer outra requisição precisa estar autenticada
                 .anyRequest().authenticated()
             )

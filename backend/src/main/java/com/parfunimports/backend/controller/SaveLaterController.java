@@ -1,10 +1,13 @@
 package com.parfunimports.backend.controller;
 
+import com.parfunimports.backend.dto.SaveLaterItemRequest;
 import com.parfunimports.backend.model.SaveLaterItem;
 import com.parfunimports.backend.service.SaveLaterService;
+import com.parfunimports.backend.security.CustomUserPrincipal;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,30 +22,32 @@ public class SaveLaterController {
         this.saveLaterService = saveLaterService;
     }
 
-    // ➕ Adicionar item
+    // ➕ Adicionar item (usando DTO em vez da entidade)
     @PostMapping
-    public ResponseEntity<SaveLaterItem> saveItem(@Valid @RequestBody SaveLaterItem item) {
-        SaveLaterItem saved = saveLaterService.saveItem(item);
+    public ResponseEntity<SaveLaterItem> saveItem(@Valid @RequestBody SaveLaterItemRequest request,
+                                                  @AuthenticationPrincipal CustomUserPrincipal user) {
+        SaveLaterItem saved = saveLaterService.saveItem(request, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    // 📦 Listar itens
-    @GetMapping("/{email}")
-    public ResponseEntity<List<SaveLaterItem>> getSavedItems(@PathVariable String email) {
-        return ResponseEntity.ok(saveLaterService.getSavedItems(email));
+    // 📦 Listar itens do usuário autenticado
+    @GetMapping("/my")
+    public ResponseEntity<List<SaveLaterItem>> getMySavedItems(@AuthenticationPrincipal CustomUserPrincipal user) {
+        return ResponseEntity.ok(saveLaterService.getSavedItems(user.getEmail()));
     }
 
     // ❌ Remover item
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> removeSavedItem(@PathVariable Long id) {
-        saveLaterService.removeSavedItem(id);
+    public ResponseEntity<Void> removeSavedItem(@PathVariable Long id,
+                                                @AuthenticationPrincipal CustomUserPrincipal user) {
+        saveLaterService.removeSavedItem(user.getEmail(), id);
         return ResponseEntity.noContent().build();
     }
 
-    // 🗑️ Limpar lista
-    @DeleteMapping("/user/{email}")
-    public ResponseEntity<Void> clearSavedItems(@PathVariable String email) {
-        saveLaterService.clearSavedItems(email);
+    // 🗑️ Limpar lista do usuário autenticado
+    @DeleteMapping("/clear")
+    public ResponseEntity<Void> clearMySavedItems(@AuthenticationPrincipal CustomUserPrincipal user) {
+        saveLaterService.clearSavedItems(user.getEmail());
         return ResponseEntity.noContent().build();
     }
 }

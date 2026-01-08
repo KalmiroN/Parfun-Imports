@@ -4,10 +4,8 @@ import { getTokenExpiry, isJwtExpired } from "./authUtils";
 import { saveAuthData, loadAuthData } from "./authStorage";
 import { loginRequest, refreshRequest } from "./authService";
 
-// Criando o contexto
 const AuthContext = createContext();
 
-// Hook para usar o contexto em qualquer componente
 export function useAuth() {
   return useContext(AuthContext);
 }
@@ -37,6 +35,9 @@ export default function AuthProvider({ children }) {
     if (storedRefresh) setRefreshToken(storedRefresh);
 
     setLoadingAuth(false);
+
+    // ✅ sempre iniciar na Home, independente de estar logado ou não
+    navigate("/");
   }, []);
 
   // 📌 Persistir user/token/refresh sempre que mudar
@@ -48,10 +49,14 @@ export default function AuthProvider({ children }) {
   const refreshAccessToken = async (refreshTokenValue) => {
     try {
       const data = await refreshRequest(refreshTokenValue);
-      setToken(data.accessToken);
-      setRefreshToken(data.refreshToken);
-      storage.setItem("accessToken", data.accessToken);
-      storage.setItem("refreshToken", data.refreshToken);
+      if (data?.accessToken) {
+        setToken(data.accessToken);
+        setRefreshToken(data.refreshToken);
+        storage.setItem("accessToken", data.accessToken);
+        storage.setItem("refreshToken", data.refreshToken);
+      } else {
+        throw new Error("Refresh token inválido");
+      }
     } catch (err) {
       console.error("Erro ao renovar token:", err);
       logout(false);
@@ -62,7 +67,21 @@ export default function AuthProvider({ children }) {
   const login = async (email, password, remember = true) => {
     try {
       const data = await loginRequest(email, password);
-      const userData = { ...data, role: data.role?.toUpperCase() };
+
+      // 🔎 valida se veio accessToken
+      if (!data?.accessToken) {
+        throw new Error("Credenciais inválidas");
+      }
+
+      const userData = {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        role: data.role?.toUpperCase(),
+        phone: data.phone,
+        address: data.address,
+      };
+
       setUser(userData);
       setToken(data.accessToken);
       setRefreshToken(data.refreshToken);
@@ -75,6 +94,9 @@ export default function AuthProvider({ children }) {
         refreshToken: data.refreshToken,
         rememberMe: remember,
       });
+
+      // ✅ redireciona para Home após login bem-sucedido
+      navigate("/");
 
       return true;
     } catch (err) {
@@ -90,7 +112,10 @@ export default function AuthProvider({ children }) {
     setUser(null);
     setToken(null);
     setRefreshToken(null);
-    if (redirect) navigate("/login");
+    if (redirect) {
+      // ✅ após logout, volta para Home deslogado
+      navigate("/");
+    }
   };
 
   // 📌 Agendar refresh automático do token

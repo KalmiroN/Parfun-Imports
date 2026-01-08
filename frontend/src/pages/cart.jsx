@@ -1,12 +1,11 @@
 import { useCart } from "../context/CartProvider.jsx";
-import { toast } from "react-toastify";
+import { useAuth } from "../context/auth/AuthProvider.jsx";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import CheckoutCard from "../components/CheckoutCard";
 import AsideContainer from "../components/AsideContainer";
-import { authFetch } from "../utils/authFetch";
-import { useAuth } from "../context/auth/AuthProvider.jsx";
-import { resolveImageUrl } from "../utils/resolveImageUrl"; // ✅ normaliza URLs de imagens
+import CartItemsList from "../components/CartItemsList";
+import { useCartActions } from "../hooks/useCartActions";
+import { calculateSubtotal } from "../utils/calculateSubtotal";
 
 export default function Cart() {
   const {
@@ -16,6 +15,7 @@ export default function Cart() {
     checkout,
     showSaveLater,
     setShowSaveLater,
+    setSaveLaterItems, // ✅ agora também extraímos do provider
   } = useCart();
   const { user, token, loadingAuth, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -31,24 +31,33 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // 📌 Buscar carrinho do backend
+  // 📌 Buscar carrinho e salvos para depois do backend
   useEffect(() => {
-    const fetchCart = async () => {
+    const fetchAll = async () => {
       try {
-        const response = await authFetch(
-          `${import.meta.env.VITE_API_URL}/api/cart/my`,
-          { method: "GET" },
-          token
-        );
+        const [cartRes, savedRes] = await Promise.all([
+          fetch(`${import.meta.env.VITE_API_URL}/api/cart/my`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${import.meta.env.VITE_API_URL}/api/savelater/my`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-        if (!response.ok) {
-          throw new Error(response.data?.error || "Erro ao buscar carrinho");
-        }
+        const cartData = await cartRes.json();
+        const savedData = await savedRes.json();
 
-        const data = response.data || response;
-        setCartItems(data || []);
+        if (!cartRes.ok)
+          throw new Error(cartData?.error || "Erro ao buscar carrinho");
+        if (!savedRes.ok)
+          throw new Error(
+            savedData?.error || "Erro ao buscar salvos para depois"
+          );
+
+        setCartItems(cartData || []);
+        setSaveLaterItems(savedData || []); // ✅ popula os salvos
       } catch (err) {
-        console.error("Erro ao buscar carrinho:", err);
+        console.error("Erro ao buscar dados:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -56,12 +65,9 @@ export default function Cart() {
     };
 
     if (loadingAuth) return;
-    if (isAuthenticated) {
-      fetchCart();
-    } else {
-      setLoading(false);
-    }
-  }, [setCartItems, token, loadingAuth, isAuthenticated]);
+    if (isAuthenticated) fetchAll();
+    else setLoading(false);
+  }, [setCartItems, setSaveLaterItems, token, loadingAuth, isAuthenticated]);
 
   // 📌 Atualizar métricas para posicionar aside
   useEffect(() => {
@@ -92,94 +98,24 @@ export default function Cart() {
     }
   }, [error]);
 
-  const handleRemove = async (index) => {
-    const updated = [...cartItems];
-    const removedItem = updated[index];
-    updated.splice(index, 1);
-    setCartItems(updated);
+  // ✅ Handlers separados em hook
+  const {
+    handleRemove,
+    handleQuantityChange,
+    handleSaveLater,
+    handleCheckout,
+  } = useCartActions({
+    cartItems,
+    setCartItems,
+    saveForLater,
+    checkout,
+    token,
+    isAuthenticated,
+    setShowSaveLater,
+    setShowCheckout,
+  });
 
-    try {
-      await authFetch(
-        `${import.meta.env.VITE_API_URL}/api/cart/${removedItem.id}`,
-        { method: "DELETE" },
-        token
-      );
-      toast.info(`${removedItem?.name || "Produto"} foi removido do carrinho.`);
-    } catch (err) {
-      console.error("Erro ao remover produto:", err);
-      toast.error("Erro ao remover produto do carrinho.");
-    }
-  };
-
-  const handleQuantityChange = async (index, delta) => {
-    const updated = [...cartItems];
-    const newQty = (updated[index]?.quantity || 1) + delta;
-    updated[index].quantity = Math.max(1, newQty);
-    setCartItems(updated);
-
-    try {
-      await authFetch(
-        `${import.meta.env.VITE_API_URL}/api/cart/${updated[index].id}`,
-        {
-          method: "PUT",
-          body: JSON.stringify({ quantity: updated[index].quantity }),
-        },
-        token
-      );
-      toast.success(
-        `Quantidade de ${updated[index]?.name || "Produto"} atualizada para ${
-          updated[index].quantity
-        }`
-      );
-    } catch (err) {
-      console.error("Erro ao atualizar quantidade:", err);
-      toast.error("Erro ao atualizar quantidade.");
-    }
-  };
-
-  const handleSaveLater = (rawItem) => {
-    try {
-      saveForLater(rawItem);
-      toast.success(`${rawItem?.name || "Item"} salvo para depois!`);
-      setShowSaveLater(true);
-    } catch (err) {
-      console.error("Erro ao salvar item:", err);
-      toast.error("Erro ao salvar item para depois.");
-    }
-  };
-
-  const handleCheckout = async (method) => {
-    if (!isAuthenticated) {
-      toast.error("Você precisa estar logado para finalizar a compra.");
-      return;
-    }
-    try {
-      const res = await checkout(method);
-      if (res.ok) {
-        toast.success("Compra finalizada com sucesso!");
-        setCartItems([]);
-        setShowCheckout(false);
-      } else {
-        toast.error("Erro ao finalizar compra.");
-      }
-    } catch (err) {
-      console.error("Erro ao finalizar compra:", err);
-      toast.error("Erro ao finalizar compra.");
-    }
-  };
-
-  const subtotal = cartItems.reduce((acc, item) => {
-    const qty = item?.quantity || 1;
-    let priceValue = 0;
-    if (typeof item?.price === "string") {
-      priceValue = parseFloat(
-        item.price.replace("R$", "").replace(".", "").replace(",", ".")
-      );
-    } else if (typeof item?.price === "number") {
-      priceValue = item.price;
-    }
-    return acc + priceValue * qty;
-  }, 0);
+  const subtotal = calculateSubtotal(cartItems);
 
   if (loading) {
     return (
@@ -211,47 +147,14 @@ export default function Cart() {
           </div>
         ) : (
           <>
-            <div
+            <CartItemsList
               ref={cardsRef}
-              className="space-y-4 mx-auto"
-              style={{ maxWidth: "850px", minWidth: "650px", width: "100%" }}
-            >
-              {cartItems.map((rawItem, idx) => {
-                const item = {
-                  id: rawItem?.id,
-                  productId: rawItem?.productId,
-                  name: rawItem?.name || "Produto",
-                  price:
-                    typeof rawItem?.price === "number"
-                      ? `R$ ${rawItem.price.toFixed(2).replace(".", ",")}`
-                      : rawItem?.price || "R$ 0,00",
-                  imageUrl: resolveImageUrl(rawItem?.imageUrl), // ✅ normaliza aqui
-                  quantity: rawItem?.quantity || 1,
-                };
-
-                return (
-                  <div
-                    key={idx}
-                    className="hover:scale-[1.02] transition-transform duration-300"
-                  >
-                    <CheckoutCard
-                      item={item}
-                      index={idx}
-                      onRemove={handleRemove}
-                      onQuantityChange={handleQuantityChange}
-                      onSaveLater={() => handleSaveLater(rawItem)}
-                    />
-                  </div>
-                );
-              })}
-
-              {/* ✅ Subtotal agora dentro do mesmo container dos cards */}
-              <div className="mt-10 flex justify-end">
-                <p className="text-xl font-semibold">
-                  Subtotal: R$ {subtotal.toFixed(2).replace(".", ",")}
-                </p>
-              </div>
-            </div>
+              cartItems={cartItems}
+              handleRemove={handleRemove}
+              handleQuantityChange={handleQuantityChange}
+              handleSaveLater={handleSaveLater}
+              subtotal={subtotal}
+            />
 
             <div className="flex justify-center gap-4 mt-8">
               <button

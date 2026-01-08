@@ -106,17 +106,14 @@ export default function App() {
                 }
               />
 
-              {/* Rotas principais com Layout */}
+              {/* ✅ Todas as rotas principais dentro do Layout */}
               <Route element={<Layout />}>
-                <Route path="/" element={<Home />} />
-
-                {/* Catálogo semântico */}
+                <Route path="/" element={<Home />} />{" "}
+                {/* ✅ Home agora dentro do Layout */}
                 <Route path="/catalogo" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
-
                 <Route path="/forgot-password" element={<ForgotPassword />} />
-
-                {/* ✅ Perfil não redireciona para login se não autenticado */}
+                {/* Perfil não redireciona para login se não autenticado */}
                 <Route
                   path="/profile"
                   element={
@@ -125,13 +122,9 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
-
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/search" element={<Search />} />
-
-                {/* Carrinho dentro do Layout */}
                 <Route path="/cart" element={<Cart />} />
-
                 {/* Rotas administrativas (apenas ADMIN) */}
                 <Route
                   path="/admin/products"
@@ -165,7 +158,6 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
-
                 {/* Fallback */}
                 <Route path="*" element={<NotFound />} />
               </Route>

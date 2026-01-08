@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { isAdmin } from "../../utils/roleUtils";
 
 export default function NavigationMenu({
   isAuthenticated,
@@ -23,17 +24,21 @@ export default function NavigationMenu({
       }
     >
       <ul className={listClass}>
+        {/* Home sempre visível */}
         <li>
           <Link to="/" className="btn-accent w-full text-center">
             Home
           </Link>
         </li>
+
+        {/* Catálogo sempre visível */}
         <li>
           <Link to="/catalogo" className="btn-accent w-full text-center">
             Catálogo
           </Link>
         </li>
 
+        {/* Perfil: não redireciona se não logado, apenas mostra aviso */}
         <li>
           <button
             className="btn-accent w-full text-center"
@@ -41,10 +46,13 @@ export default function NavigationMenu({
               if (isAuthenticated) {
                 navigate("/profile");
               } else {
-                toast.warn("Você precisa estar logado para acessar o perfil.", {
-                  position: "bottom-right",
-                  autoClose: 2000,
-                });
+                toast.warn(
+                  "⚠️ Você precisa estar logado para acessar o perfil.",
+                  {
+                    position: "bottom-right",
+                    autoClose: 2000,
+                  }
+                );
               }
             }}
           >
@@ -52,6 +60,7 @@ export default function NavigationMenu({
           </button>
         </li>
 
+        {/* Itens salvos só aparecem dentro do carrinho */}
         {location.pathname === "/cart" && (
           <li>
             <button
@@ -63,7 +72,8 @@ export default function NavigationMenu({
           </li>
         )}
 
-        {user?.role?.toUpperCase() === "ADMIN" && (
+        {/* Botões administrativos só aparecem se for ADMIN */}
+        {isAuthenticated && isAdmin(user) && (
           <>
             <li>
               <Link
