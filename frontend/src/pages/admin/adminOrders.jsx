@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { authFetch } from "../../utils/authFetch";
 import { toast } from "react-toastify";
 import EditOrderModal from "./components/EditOrderModal";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "./AdminLayout";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -42,7 +42,8 @@ export default function AdminOrders() {
 
   if (loading) {
     return (
-      <AdminLayout>
+      // 🔥 Aqui você escolhe o tema: "dark" ou "gold"
+      <AdminLayout theme="dark">
         <div className="flex items-center justify-center py-12">
           <p className="text-brand-text text-lg">Carregando pedidos...</p>
         </div>
@@ -51,14 +52,15 @@ export default function AdminOrders() {
   }
 
   return (
-    <AdminLayout>
+    // 🔥 Troque para theme="gold" se quiser ver o tema claro
+    <AdminLayout theme="dark">
       <div className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="font-display text-3xl text-brand-text mb-8">
           Administração de Pedidos
         </h2>
 
         {/* Filtros */}
-        <div className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-6 mb-8">
+        <div className="glass-card p-6 mb-8">
           <h3 className="text-xl font-display text-brand-text mb-4">Filtros</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <select
@@ -112,10 +114,7 @@ export default function AdminOrders() {
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
-              <div
-                key={order.id}
-                className="bg-brand-surface/80 backdrop-blur-md rounded-xl shadow-soft p-6"
-              >
+              <div key={order.id} className="glass-card p-6">
                 <h3 className="text-lg font-display text-brand-text mb-2">
                   Pedido #{order.id} - {order.customerName}
                 </h3>
