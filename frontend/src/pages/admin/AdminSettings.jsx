@@ -63,10 +63,7 @@ export default function AdminSettings() {
         <h2 className="font-display text-3xl text-brand-text mb-8">
           Configurações de Pagamento
         </h2>
-        <form
-          onSubmit={handleSave}
-          className="space-y-6 bg-brand-surface/80 backdrop-blur-md p-6 rounded-xl shadow-soft"
-        >
+        <form onSubmit={handleSave} className="admin-card space-y-6">
           <div>
             <label className="block text-brand-text mb-2">Ativar Pix</label>
             <input

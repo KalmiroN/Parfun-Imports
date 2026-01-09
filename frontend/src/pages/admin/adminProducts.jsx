@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { authFetch } from "../../utils/authFetch";
 import { toast } from "react-toastify";
 import EditProductModal from "./components/EditProductModal";
-import AdminLayout from "./AdminLayout";
+import AdminLayout from "../../components/AdminLayout";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -81,8 +81,7 @@ export default function AdminProducts() {
 
   if (loading) {
     return (
-      // 🔥 Aqui você escolhe o tema: "dark" ou "gold"
-      <AdminLayout theme="dark">
+      <AdminLayout>
         <div className="flex items-center justify-center py-12">
           <p className="text-brand-text text-lg">Carregando produtos...</p>
         </div>
@@ -91,8 +90,7 @@ export default function AdminProducts() {
   }
 
   return (
-    // 🔥 Troque para theme="gold" se quiser ver o tema claro
-    <AdminLayout theme="dark">
+    <AdminLayout>
       <div className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="font-display text-3xl text-brand-text mb-8">
           Administração de Produtos
@@ -101,7 +99,7 @@ export default function AdminProducts() {
         {/* Formulário de cadastro */}
         <form
           onSubmit={handleAddProduct}
-          className="glass-card p-6 mb-12 space-y-6"
+          className="admin-products-form mb-12 space-y-6"
         >
           <input
             type="text"
@@ -175,7 +173,7 @@ export default function AdminProducts() {
             {products.map((p) => (
               <div
                 key={p.id}
-                className="glass-card p-6 flex justify-between items-center"
+                className="admin-product-card flex justify-between items-center"
               >
                 <div>
                   <h3 className="text-lg font-display text-brand-text mb-1">
@@ -189,13 +187,13 @@ export default function AdminProducts() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setSelectedProduct(p)}
-                    className="px-4 py-2 rounded-full btn-accent"
+                    className="edit-btn px-4 py-2 rounded-full"
                   >
                     Editar
                   </button>
                   <button
                     onClick={() => handleRemove(p.id)}
-                    className="px-4 py-2 rounded-full btn-secondary bg-red-500 text-white hover:bg-red-600 transition-colors"
+                    className="remove-btn px-4 py-2 rounded-full"
                   >
                     Remover
                   </button>

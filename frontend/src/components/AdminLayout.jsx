@@ -1,38 +1,47 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 export default function AdminLayout({ children }) {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Recupera tema salvo ou usa "dark" como fallback
+    const appliedTheme = localStorage.getItem("theme") || "dark";
+
+    document.documentElement.classList.remove("theme-dark", "theme-gold");
+    document.documentElement.classList.add(
+      appliedTheme === "dark" ? "theme-dark" : "theme-gold"
+    );
+  }, [location.pathname]); // ✅ reaplica ao navegar
+
+  // ✅ Ordem fixa dos links
+  const links = [
+    { to: "/admin/dashboard", label: "Dashboard" },
+    { to: "/admin/products", label: "Produtos" },
+    { to: "/admin/orders", label: "Pedidos" },
+  ];
+
   return (
-    <div className="flex min-h-screen bg-brand-bg">
-      {/* Sidebar */}
-      <aside className="w-64 bg-brand-surface/80 backdrop-blur-md shadow-soft p-6">
-        <h2 className="text-xl font-display text-brand-text mb-6">
-          Painel Admin
-        </h2>
-        <nav className="space-y-3">
-          <Link
-            to="/admin/dashboard"
-            className="block px-3 py-2 rounded-lg btn-secondary border-2 border-yellow-500 hover:btn-accent transition-colors"
-          >
-            📊 Dashboard
-          </Link>
-          <Link
-            to="/admin/products"
-            className="block px-3 py-2 rounded-lg btn-secondary border-2 border-yellow-500 hover:btn-accent transition-colors"
-          >
-            📦 Produtos
-          </Link>
-          <Link
-            to="/admin/orders"
-            className="block px-3 py-2 rounded-lg btn-secondary border-2 border-yellow-500 hover:btn-accent transition-colors"
-          >
-            🧾 Pedidos
-          </Link>
+    <div className="flex min-h-screen">
+      {/* Aside do admin → usa cor exclusiva */}
+      <aside className="w-64 p-6 flex flex-col gap-6 bg-[var(--admin-aside-bg)] text-[var(--color-text)]">
+        <h2 className="text-xl font-display font-bold mb-4">Administração</h2>
+        <nav className="flex flex-col gap-3">
+          {links.map((link) => (
+            <Link
+              key={link.to} // chave estável evita embaralhamento
+              to={link.to}
+              className="btn-secondary text-center"
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
       </aside>
 
-      {/* Conteúdo principal */}
-      <main className="flex-1">
-        <div className="px-4 md:px-8 py-8">{children}</div>
+      {/* Main interna do admin → usa cor exclusiva */}
+      <main className="flex-1 p-8 overflow-y-auto bg-[var(--admin-main-bg)] text-[var(--color-text)]">
+        {children}
       </main>
     </div>
   );

@@ -105,17 +105,17 @@ export default function AdminDashboard() {
 
         {/* Indicadores principais */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-          <div className="p-6 rounded-xl bg-brand-surface/80 backdrop-blur-md shadow-soft text-center">
+          <div className="admin-card text-center">
             <h3 className="text-xl font-display text-brand-text">Pedidos</h3>
             <p className="text-2xl font-bold">{salesData.totalOrders}</p>
           </div>
-          <div className="p-6 rounded-xl bg-brand-surface/80 backdrop-blur-md shadow-soft text-center">
+          <div className="admin-card text-center">
             <h3 className="text-xl font-display text-brand-text">Vendas</h3>
             <p className="text-2xl font-bold">
               {formatCurrency(salesData.totalSales)}
             </p>
           </div>
-          <div className="p-6 rounded-xl bg-brand-surface/80 backdrop-blur-md shadow-soft text-center">
+          <div className="admin-card text-center">
             <h3 className="text-xl font-display text-brand-text">
               Ticket Médio
             </h3>
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
               {formatCurrency(salesData.avgTicket)}
             </p>
           </div>
-          <div className="p-6 rounded-xl bg-brand-surface/80 backdrop-blur-md shadow-soft text-center">
+          <div className="admin-card text-center">
             <h3 className="text-xl font-display text-brand-text">
               Produtos Vendidos
             </h3>
@@ -133,15 +133,15 @@ export default function AdminDashboard() {
 
         {/* Status dos pedidos */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="p-6 rounded-xl bg-brand-surface/80 backdrop-blur-md shadow-soft text-center">
+          <div className="admin-status text-center">
             <h3 className="text-xl font-display text-brand-text">Pendentes</h3>
             <p className="text-2xl font-bold">{statusData.pendingOrders}</p>
           </div>
-          <div className="p-6 rounded-xl bg-brand-surface/80 backdrop-blur-md shadow-soft text-center">
+          <div className="admin-status text-center">
             <h3 className="text-xl font-display text-brand-text">Pagos</h3>
             <p className="text-2xl font-bold">{statusData.paidOrders}</p>
           </div>
-          <div className="p-6 rounded-xl bg-brand-surface/80 backdrop-blur-md shadow-soft text-center">
+          <div className="admin-status text-center">
             <h3 className="text-xl font-display text-brand-text">Cancelados</h3>
             <p className="text-2xl font-bold">{statusData.cancelledOrders}</p>
           </div>
@@ -149,13 +149,13 @@ export default function AdminDashboard() {
 
         {/* Gráficos */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          <div className="p-6 rounded-xl bg-brand-surface/80 backdrop-blur-md shadow-soft">
+          <div className="admin-chart">
             <h3 className="text-xl font-display text-brand-text mb-4">
               Vendas Diárias (Mês Atual)
             </h3>
             <Line data={dailyChartData} />
           </div>
-          <div className="p-6 rounded-xl bg-brand-surface/80 backdrop-blur-md shadow-soft">
+          <div className="admin-chart">
             <h3 className="text-xl font-display text-brand-text mb-4">
               Vendas Mensais (Ano Atual)
             </h3>

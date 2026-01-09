@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useCart } from "../context/CartProvider";
+import { toast } from "react-toastify";
 
 // ✅ MiniCard para itens salvos com fallback de imagem
 function MiniCard({ item, onAddToCart, onDelete }) {
@@ -16,7 +17,7 @@ function MiniCard({ item, onAddToCart, onDelete }) {
         alt={item?.name || "Produto"}
         onError={(e) => {
           if (!e.currentTarget.src.includes("default.jpg")) {
-            e.currentTarget.src = "/images/default.jpg"; // ✅ evita loop/piscar
+            e.currentTarget.src = "/images/default.jpg";
           }
         }}
         className="w-12 h-12 rounded object-cover"
@@ -29,13 +30,13 @@ function MiniCard({ item, onAddToCart, onDelete }) {
       </div>
       <div className="flex gap-2">
         <button
-          onClick={() => onAddToCart(item)} // ✅ passa o objeto completo com saveLaterId
+          onClick={() => onAddToCart(item)}
           className="btn-accent text-xs px-2 py-1"
         >
           ➕ Carrinho
         </button>
         <button
-          onClick={() => onDelete(item)} // ✅ também passa o objeto completo
+          onClick={() => onDelete(item)}
           className="btn-secondary text-xs px-2 py-1"
         >
           ✕
@@ -50,25 +51,26 @@ export default function AsideContainer({
   showSaveLater,
   onCloseCheckout,
   onCloseSaveLater,
-  onCheckout,
   cardsTopAbs,
 }) {
-  const { saveLaterItems, moveBackToCart, setSaveLaterItems, getCartTotal } =
-    useCart();
+  const {
+    saveLaterItems,
+    moveBackToCart,
+    setSaveLaterItems,
+    getCartTotal,
+    getCartCount,
+    checkout,
+    clearCart,
+  } = useCart();
 
   const [scrollY, setScrollY] = useState(window.scrollY || 0);
-  const [hovered, setHovered] = useState(null); // "checkout" | "save" | null
+  const [hovered, setHovered] = useState(null);
 
-  const [paymentMode, setPaymentMode] = useState(null); // null | "PIX" | "CARD"
+  const [paymentMode, setPaymentMode] = useState(null); // null | "PIX" | "CARD" | "CARD_DEBIT" | "CARD_CREDIT"
   const [discountCode, setDiscountCode] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState(null);
 
   const pixDiscountActive = true;
   const pixDiscountValue = 50;
-  const discountCodes = {
-    VALE10: { type: 1, value: 10 },
-    VALE20: { type: 2, value: 20 },
-  };
 
   useEffect(() => {
     const onScroll = () => setScrollY(window.scrollY);
@@ -81,6 +83,26 @@ export default function AsideContainer({
   if (!showCheckout && !showSaveLater) return null;
 
   const hoverEnabled = showCheckout && showSaveLater;
+
+  const handleCheckout = async () => {
+    if (!paymentMode) {
+      toast.warn("Escolha uma forma de pagamento.");
+      return;
+    }
+    const payload =
+      paymentMode === "CARD_DEBIT" || paymentMode === "CARD_CREDIT"
+        ? { cardType: paymentMode }
+        : {};
+    const res = await checkout(paymentMode.toLowerCase(), payload);
+    if (res.ok) {
+      toast.success("Pagamento realizado com sucesso!");
+      clearCart();
+      onCloseCheckout();
+    } else {
+      toast.error("Erro no pagamento.");
+    }
+  };
+
   const aside = (
     <div
       className="fixed z-[1000] flex flex-col overflow-hidden transition-all duration-300"
@@ -108,10 +130,95 @@ export default function AsideContainer({
             minHeight: 0,
           }}
         >
-          {/* ... checkout UI permanece igual ... */}
+          {/* Cabeçalho */}
+          <h2 className="text-2xl font-display mb-4 text-white">
+            Finalizar compra
+          </h2>
+          <p className="text-brand-text mb-4">
+            Total de itens: {getCartCount()} <br />
+            Valor:{" "}
+            {getCartTotal().toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </p>
+
+          {/* Formas de pagamento */}
+          <p className="text-brand-text mb-2">Escolha a forma de pagamento:</p>
+          <div className="flex flex-col gap-2">
+            <button
+              className={`btn-accent w-full ${
+                paymentMode?.startsWith("CARD")
+                  ? "ring-2 ring-brand-accent"
+                  : ""
+              }`}
+              onClick={() => setPaymentMode("CARD")}
+            >
+              Pagar com cartão
+            </button>
+            <button
+              className={`btn-accent w-full ${
+                paymentMode === "PIX" ? "ring-2 ring-brand-accent" : ""
+              }`}
+              onClick={() => setPaymentMode("PIX")}
+            >
+              Pix
+            </button>
+          </div>
+
+          {/* Sub-opções se escolher cartão */}
+          {paymentMode === "CARD" && (
+            <div className="mt-3 flex gap-2">
+              <button
+                className="btn-secondary flex-1"
+                onClick={() => setPaymentMode("CARD_DEBIT")}
+              >
+                Débito
+              </button>
+              <button
+                className="btn-secondary flex-1"
+                onClick={() => setPaymentMode("CARD_CREDIT")}
+              >
+                Crédito
+              </button>
+            </div>
+          )}
+
+          {/* Desconto Pix */}
+          {paymentMode === "PIX" && pixDiscountActive && (
+            <div className="mt-4 p-3 bg-green-100 rounded-lg text-green-700">
+              Pagando com Pix você ganha desconto de{" "}
+              {pixDiscountValue.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })}
+            </div>
+          )}
+
+          {/* Rodapé fixo */}
+          <div className="mt-auto flex flex-col gap-2">
+            <input
+              type="text"
+              value={discountCode}
+              onChange={(e) => setDiscountCode(e.target.value)}
+              placeholder="Código de desconto"
+              className="input-field mb-2"
+            />
+            <button
+              onClick={handleCheckout}
+              className="btn-accent w-full text-lg"
+            >
+              Finalizar compra
+            </button>
+            <button
+              onClick={onCloseCheckout}
+              className="btn-secondary w-full text-lg"
+            >
+              Fechar
+            </button>
+          </div>
         </div>
       )}
-
       {/* Aside: Salvar para depois */}
       {showSaveLater && (
         <div
@@ -145,13 +252,12 @@ export default function AsideContainer({
             ) : (
               saveLaterItems.map((item) => (
                 <MiniCard
-                  key={item.saveLaterId} // ✅ usa saveLaterId como chave
+                  key={item.saveLaterId}
                   item={item}
-                  onAddToCart={() => moveBackToCart(item)} // ✅ passa objeto completo
+                  onAddToCart={() => moveBackToCart(item)}
                   onDelete={(it) =>
-                    setSaveLaterItems(
-                      (prev) =>
-                        prev.filter((p) => p.saveLaterId !== it.saveLaterId) // ✅ compara por saveLaterId
+                    setSaveLaterItems((prev) =>
+                      prev.filter((p) => p.saveLaterId !== it.saveLaterId)
                     )
                   }
                 />

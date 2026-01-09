@@ -1,0 +1,230 @@
+/* ===========================================================
+   Diretivas principais do Tailwind v4
+   =========================================================== */
+@import "tailwindcss";
+
+/* ===========================================================
+   Importa seu tema customizado e estilos do admin
+   =========================================================== */
+@import "./theme.css";
+@import "./admin.css";
+
+/* ===========================================================
+   Ajustes globais extras
+   =========================================================== */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Classe para usar a fonte Love Light */
+.love-light-regular {
+  font-family: "Love Light", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* ===========================================================
+   Botões e inputs globais
+   =========================================================== */
+@layer components {
+  .btn-accent {
+    @apply px-6 py-3 rounded-full font-bold transition;
+    background-color: var(--color-accent);
+    color: #000;
+    border: 2px solid var(--color-border);
+  }
+  .btn-accent:hover {
+    @apply opacity-90;
+  }
+  .btn-accent:active {
+    @apply brightness-90;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-full font-medium transition;
+    background-color: transparent;
+    color: var(--color-text);
+    border: 2px solid var(--color-border);
+  }
+  .btn-secondary:hover {
+    background-color: var(--color-accent);
+    color: #000;
+  }
+  .btn-secondary:active {
+    @apply brightness-90;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 rounded-lg;
+    border: 2px solid var(--color-border);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+  .input-field:focus {
+    @apply outline-none ring-2 ring-[var(--color-accent)];
+  }
+  .input-field::placeholder {
+    color: var(--color-muted);
+  }
+}
+
+/* ===========================================================
+   Campos de entrada globais
+   =========================================================== */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+  border: 2px solid var(--color-border);
+  border-radius: 0.5rem;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  padding: 0.5rem 0.75rem;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+/* ===========================================================
+   Containers e Cards globais
+   =========================================================== */
+.card,
+.container-box,
+.checkout-card,
+.wishlist-card,
+.cart-card {
+  border: 2px solid var(--color-border) !important;
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
+}
+
+/* Utilitárias */
+.border-brand-border {
+  border: 2px solid var(--color-border) !important;
+}
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+/* Botões dentro dos cards globais */
+.card button,
+.checkout-card button,
+.wishlist-card button,
+.cart-card button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+.card button:hover,
+.checkout-card button:hover,
+.wishlist-card button:hover,
+.cart-card button:hover {
+  background-color: var(--color-accent);
+  color: #000;
+}
+.card button:active,
+.checkout-card button:active,
+.wishlist-card button:active,
+.cart-card button:active {
+  filter: brightness(0.9);
+}
+
+/* ===========================================================
+   AsideContainer global
+   =========================================================== */
+.aside-container {
+  border-left: 2px solid var(--color-border);
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  border-radius: 0.75rem 0 0 0.75rem;
+}
+.aside-container .flex.items-center {
+  border-bottom: 1px solid var(--color-border);
+}
+.aside-container button {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+.aside-container .btn-accent {
+  background-color: var(--color-accent);
+  color: #000;
+  border: 2px solid var(--color-border);
+}
+.aside-container .btn-accent:hover {
+  opacity: 0.9;
+}
+.aside-container .btn-secondary {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+.aside-container .btn-secondary:hover {
+  background-color: var(--color-accent);
+  color: #000;
+}
+
+/* ===========================================================
+   Animações globais
+   =========================================================== */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-fadeInLeft {
+  animation: fadeInLeft 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-fadeInRight {
+  animation: fadeInRight 0.6s ease-out forwards;
+}

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { authFetch } from "../../utils/authFetch";
 import { toast } from "react-toastify";
 import EditOrderModal from "./components/EditOrderModal";
-import AdminLayout from "./AdminLayout";
+import AdminLayout from "../../components/AdminLayout";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -42,8 +42,7 @@ export default function AdminOrders() {
 
   if (loading) {
     return (
-      // 🔥 Aqui você escolhe o tema: "dark" ou "gold"
-      <AdminLayout theme="dark">
+      <AdminLayout>
         <div className="flex items-center justify-center py-12">
           <p className="text-brand-text text-lg">Carregando pedidos...</p>
         </div>
@@ -52,15 +51,14 @@ export default function AdminOrders() {
   }
 
   return (
-    // 🔥 Troque para theme="gold" se quiser ver o tema claro
-    <AdminLayout theme="dark">
+    <AdminLayout>
       <div className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="font-display text-3xl text-brand-text mb-8">
           Administração de Pedidos
         </h2>
 
         {/* Filtros */}
-        <div className="glass-card p-6 mb-8">
+        <div className="admin-orders-filters mb-8">
           <h3 className="text-xl font-display text-brand-text mb-4">Filtros</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <select
@@ -114,7 +112,7 @@ export default function AdminOrders() {
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
-              <div key={order.id} className="glass-card p-6">
+              <div key={order.id} className="admin-order-card">
                 <h3 className="text-lg font-display text-brand-text mb-2">
                   Pedido #{order.id} - {order.customerName}
                 </h3>
@@ -129,13 +127,13 @@ export default function AdminOrders() {
                 <div className="flex flex-col md:flex-row gap-4 mt-6">
                   <button
                     onClick={() => setSelectedOrder(order)}
-                    className="flex-1 px-4 py-2 rounded-full btn-accent text-center"
+                    className="flex-1 btn-accent text-center"
                   >
                     Detalhes / Atualizar
                   </button>
                   <Link
                     to="/admin/dashboard"
-                    className="flex-1 px-4 py-2 rounded-full btn-secondary text-center"
+                    className="flex-1 btn-secondary text-center"
                   >
                     Voltar ao painel
                   </Link>

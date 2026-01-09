@@ -1,0 +1,90 @@
+/* ===========================================================
+   Admin Dashboard
+   =========================================================== */
+.admin-card,
+.admin-indicator,
+.admin-status,
+.admin-chart {
+  border: 2px solid var(--color-border);
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.admin-card:hover,
+.admin-indicator:hover,
+.admin-status:hover,
+.admin-chart:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.35);
+}
+
+/* ===========================================================
+   Admin Products
+   =========================================================== */
+.admin-products-form {
+  border: 2px solid var(--color-border);
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  padding: 1.5rem;
+}
+.admin-product-card {
+  border: 2px solid var(--color-border);
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  padding: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.admin-product-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.35);
+}
+
+/* Botões dentro da lista de produtos */
+.admin-product-card button.edit-btn {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+.admin-product-card button.edit-btn:hover {
+  background-color: var(--color-accent);
+  color: #000;
+}
+.admin-product-card button.remove-btn {
+  background-color: #dc2626;
+  color: #fff;
+  border: 2px solid var(--color-border);
+}
+.admin-product-card button.remove-btn:hover {
+  background-color: #b91c1c;
+}
+
+/* ===========================================================
+   Admin Orders
+   =========================================================== */
+.admin-orders-filters,
+.admin-order-card {
+  border: 2px solid var(--color-border);
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+  padding: 1.5rem;
+}
+.admin-order-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.35);
+}
+
+/* ===========================================================
+   Admin Modals
+   =========================================================== */
+.admin-modal {
+  border: 2px solid var(--color-border);
+  border-radius: 0.75rem;
+  background-color: var(--color-surface);
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.35);
+  padding: 1.5rem;
+}
