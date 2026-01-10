@@ -68,8 +68,9 @@ public class ProductService {
                     product.setDescription(updatedProduct.getDescription());
                     product.setPrice(updatedProduct.getPrice());
                     product.setStock(updatedProduct.getStock());
-                    product.setHighlight(updatedProduct.isHighlight());
+                    product.setHighlight(updatedProduct.isHighlight()); // ✅ destaque atualizado
                     product.setImageUrl(updatedProduct.getImageUrl());
+                    product.setCategory(updatedProduct.getCategory());
                     return productRepository.save(product);
                 })
                 .orElse(null);

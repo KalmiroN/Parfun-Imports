@@ -46,8 +46,6 @@ export default function ProductCard({
         userEmail: user?.email,
       };
 
-      console.log("Payload enviado ao backend:", payload);
-
       const res = await authFetch(
         `${import.meta.env.VITE_API_URL}/api/cart`,
         {
@@ -70,10 +68,11 @@ export default function ProductCard({
   };
 
   return (
-    <article className="rounded-xl border border-brand-border bg-brand-surface shadow-2xl overflow-hidden transition duration-500 transform hover:scale-105 hover:shadow-2xl select-none">
+    <article className="rounded-xl border border-brand-border bg-brand-surface shadow-2xl overflow-hidden transition duration-500 transform hover:scale-105 hover:shadow-2xl select-none flex flex-col">
+      {/* Imagem */}
       <div className="aspect-[3/4] bg-brand-surface overflow-hidden">
         <img
-          src={resolveImageUrl(imageUrl)} // ✅ normaliza URL para public/images
+          src={resolveImageUrl(imageUrl)} // ✅ normaliza URL
           alt={name}
           onError={(e) => {
             e.currentTarget.onerror = null; // ✅ evita loop
@@ -84,7 +83,8 @@ export default function ProductCard({
         />
       </div>
 
-      <div className="p-6 transition-colors duration-500">
+      {/* Conteúdo */}
+      <div className="p-6 flex-1 flex flex-col transition-colors duration-500">
         <h3 className="font-sans text-brand-text text-lg select-none">
           {name || "Produto sem nome"}
         </h3>
@@ -94,17 +94,16 @@ export default function ProductCard({
         <p className="mt-1 text-sm text-brand-muted select-none">
           Estoque: {stock ?? 0}
         </p>
-        <div className="mt-4 flex items-center justify-between">
+
+        {/* Rodapé fixo: preço + botão */}
+        <div className="mt-auto flex items-center justify-between pt-4">
           <span className="font-medium text-brand-text select-none">
             {Number(price || 0).toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
             })}
           </span>
-          <button
-            onClick={handleAdd}
-            className="btn-secondary" // ✅ padronizado
-          >
+          <button onClick={handleAdd} className="btn-secondary">
             Adicionar
           </button>
         </div>

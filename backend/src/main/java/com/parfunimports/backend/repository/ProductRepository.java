@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    // ✅ Busca apenas produtos em destaque (highlight = true)
+    // ⭐ Busca apenas produtos em destaque (highlight = true)
     List<Product> findByHighlightTrue();
 
     // ✅ Top N produtos mais vendidos (via OrderProduct)
@@ -23,13 +23,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT COALESCE(SUM(p.stock), 0) FROM Product p")
     Integer sumTotalStock();
 
-    // ✅ Buscar produtos por nome (case insensitive, útil para pesquisa no catálogo)
+    // 🔎 Buscar produtos por nome (case insensitive, útil para pesquisa no catálogo)
     List<Product> findByNameContainingIgnoreCase(String name);
 
-    // ✅ Buscar produtos com preço menor ou igual ao valor informado
+    // 🔎 Buscar produtos com preço menor ou igual ao valor informado
     List<Product> findByPriceLessThanEqual(Double price);
 
-    // ✅ Buscar produtos com estoque maior que zero (disponíveis para venda)
+    // 🔎 Buscar produtos com estoque maior que zero (disponíveis para venda)
     List<Product> findByStockGreaterThan(Integer stock);
 
     // 🔎 Buscar produtos por categoria (útil para filtros no frontend)

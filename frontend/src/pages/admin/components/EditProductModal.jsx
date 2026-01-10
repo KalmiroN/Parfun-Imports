@@ -18,6 +18,7 @@ export default function EditProductModal({ product, onClose, onSave }) {
       ...form,
       price: Number(form.price),
       stock: Number(form.stock),
+      highlight: Number(form.highlight) || 0, // garante número
     };
     onSave(updated);
   };
@@ -50,12 +51,24 @@ export default function EditProductModal({ product, onClose, onSave }) {
           placeholder="Preço"
         />
         <input
-          className="input-field mb-6"
+          className="input-field mb-4"
           type="number"
           value={form.stock ?? ""}
           onChange={(e) => handleChange("stock", e.target.value)}
           placeholder="Quantidade em estoque"
         />
+
+        {/* ✅ Checkbox para destaque */}
+        <label className="flex items-center gap-2 mb-6 text-brand-text">
+          <input
+            type="checkbox"
+            checked={Number(form.highlight) === 1}
+            onChange={(e) =>
+              handleChange("highlight", e.target.checked ? 1 : 0)
+            }
+          />
+          Destaque na Home
+        </label>
 
         <div className="flex gap-4">
           <button className="btn-accent flex-1" onClick={handleSave}>

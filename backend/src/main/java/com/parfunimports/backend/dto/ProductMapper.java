@@ -20,7 +20,8 @@ public class ProductMapper {
                 product.getImageUrl(),    // ✅ nome do arquivo físico .png
                 product.getPrice(),
                 product.getStock(),
-                product.isHighlight()
+                product.isHighlight(),
+                product.getCategory()
         );
     }
 }

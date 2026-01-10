@@ -17,6 +17,7 @@ export default function AdminProducts() {
     imageUrl: "",
   });
 
+  // 📌 Buscar produtos
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -33,6 +34,7 @@ export default function AdminProducts() {
     fetchProducts();
   }, []);
 
+  // 📌 Remover produto
   const handleRemove = async (id) => {
     try {
       await authFetch(
@@ -46,6 +48,7 @@ export default function AdminProducts() {
     }
   };
 
+  // 📌 Adicionar produto
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
@@ -53,6 +56,7 @@ export default function AdminProducts() {
         ...newProduct,
         price: parseFloat(newProduct.price) || 0,
         stock: parseInt(newProduct.stock, 10) || 0,
+        highlight: 0, // padrão: não destaque
       };
 
       const res = await authFetch(
@@ -76,6 +80,44 @@ export default function AdminProducts() {
       });
     } catch (err) {
       toast.error(err.message || "Erro ao adicionar produto");
+    }
+  };
+
+  // 📌 Alternar destaque com limite de 12
+  const toggleHighlight = async (product) => {
+    try {
+      const destacados = products.filter(
+        (p) => Number(p.highlight) === 1
+      ).length;
+      const vaiAdicionar = Number(product.highlight) !== 1;
+
+      if (vaiAdicionar && destacados >= 12) {
+        toast.warn("Limite máximo de 12 destaques atingido.");
+        return;
+      }
+
+      const updated = { ...product, highlight: vaiAdicionar ? 1 : 0 };
+
+      await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/admin/products/${product.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updated),
+        }
+      );
+
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? updated : p))
+      );
+
+      toast.success(
+        vaiAdicionar
+          ? "Produto adicionado aos destaques!"
+          : "Produto removido dos destaques!"
+      );
+    } catch (err) {
+      toast.error(err.message || "Erro ao atualizar destaque");
     }
   };
 
@@ -149,13 +191,14 @@ export default function AdminProducts() {
           />
           <input
             type="text"
-            placeholder="URL da Imagem"
+            placeholder="/images/nome-da-imagem.png"
             value={newProduct.imageUrl}
             onChange={(e) =>
               setNewProduct({ ...newProduct, imageUrl: e.target.value })
             }
             className="input-field"
           />
+
           <button type="submit" className="btn-accent w-full mt-4">
             Salvar Produto
           </button>
@@ -170,6 +213,12 @@ export default function AdminProducts() {
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Contador de destaques */}
+            <div className="text-sm text-brand-textMuted">
+              Destaques atuais:{" "}
+              {products.filter((p) => Number(p.highlight) === 1).length} / 12
+            </div>
+
             {products.map((p) => (
               <div
                 key={p.id}
@@ -182,6 +231,9 @@ export default function AdminProducts() {
                   <p className="text-brand-textMuted">Preço: R$ {p.price}</p>
                   <p className="text-brand-textMuted">
                     Estoque: {p.stock ?? 0}
+                  </p>
+                  <p className="text-brand-textMuted">
+                    Destaque: {Number(p.highlight) === 1 ? "✅ Sim" : "❌ Não"}
                   </p>
                 </div>
                 <div className="flex gap-3">
@@ -196,6 +248,18 @@ export default function AdminProducts() {
                     className="remove-btn px-4 py-2 rounded-full"
                   >
                     Remover
+                  </button>
+                  <button
+                    onClick={() => toggleHighlight(p)}
+                    className={
+                      Number(p.highlight) === 1
+                        ? "btn-accent px-4 py-2 rounded-full"
+                        : "btn-secondary px-4 py-2 rounded-full"
+                    }
+                  >
+                    {Number(p.highlight) === 1
+                      ? "Remover do Destaque"
+                      : "Adicionar ao Destaque"}
                   </button>
                 </div>
               </div>
@@ -215,6 +279,7 @@ export default function AdminProducts() {
                 ...updated,
                 price: parseFloat(updated.price) || 0,
                 stock: parseInt(updated.stock, 10) || 0,
+                highlight: Number(updated.highlight) || 0,
               };
 
               await authFetch(
@@ -230,7 +295,7 @@ export default function AdminProducts() {
               toast.success("Produto atualizado!");
               setSelectedProduct(null);
               setProducts((prev) =>
-                prev.map((p) => (p.id === updated.id ? updated : p))
+                prev.map((p) => (p.id === updated.id ? payload : p))
               );
             } catch (err) {
               toast.error(err.message || "Erro ao atualizar produto");

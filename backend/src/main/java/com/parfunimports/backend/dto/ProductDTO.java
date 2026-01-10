@@ -5,7 +5,8 @@ import java.math.BigDecimal;
 /**
  * DTO para produtos.
  * - name: nome comercial (ex.: "Lattafa Asad")
- * - imageUrl: nome do arquivo físico da imagem (ex.: "Lattafa-Asad.png")
+ * - imageUrl: nome do arquivo físico da imagem (ex.: "/images/Lattafa-Asad.png")
+ * - highlight: indica se o produto aparece em destaque na Home
  * - separa a entidade Product da resposta enviada ao frontend
  */
 public record ProductDTO(
@@ -15,5 +16,6 @@ public record ProductDTO(
         String imageUrl,
         BigDecimal price,
         Integer stock,
-        boolean highlight
+        boolean highlight,
+        String category // ✅ incluí categoria para manter alinhado com a entidade
 ) {}
