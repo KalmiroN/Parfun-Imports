@@ -34,9 +34,13 @@ public class ProductService {
         return imageUrl.replaceAll("^/+", "/");
     }
 
-    // 📦 Listar todos os produtos
+    // 📦 Listar todos os produtos (apenas válidos)
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        return productRepository.findAll().stream()
+                .filter(p -> p.getId() != null
+                          && p.getName() != null && !p.getName().isBlank()
+                          && p.getImageUrl() != null && !p.getImageUrl().isBlank())
+                .toList();
     }
 
     // 🔎 Buscar produto por ID
@@ -87,9 +91,13 @@ public class ProductService {
                 .orElse(false);
     }
 
-    // ⭐ Listar apenas produtos em destaque
+    // ⭐ Listar apenas produtos em destaque válidos
     public List<Product> getHighlightProducts() {
-        return productRepository.findByHighlightTrue();
+        return productRepository.findByHighlightTrue().stream()
+                .filter(p -> p.getId() != null
+                          && p.getName() != null && !p.getName().isBlank()
+                          && p.getImageUrl() != null && !p.getImageUrl().isBlank())
+                .toList();
     }
 
     // 🔎 Buscar produtos por nome (case insensitive)

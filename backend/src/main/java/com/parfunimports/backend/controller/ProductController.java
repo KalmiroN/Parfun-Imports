@@ -28,7 +28,7 @@ public class ProductController {
         this.productMapper = productMapper;
     }
 
-    // 📦 Listar todos os produtos
+    // 📦 Listar todos os produtos (já filtrados no service)
     @GetMapping
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
@@ -81,7 +81,7 @@ public class ProductController {
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
-    // ⭐ Listar produtos em destaque
+    // ⭐ Listar produtos em destaque (já filtrados no service)
     @GetMapping("/highlights")
     public ResponseEntity<List<ProductDTO>> getHighlightProducts() {
         List<Product> products = productService.getHighlightProducts();

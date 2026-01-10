@@ -8,11 +8,19 @@ export default function Footer() {
   // Checa se existe usuário logado no localStorage
   const isAuthenticated = !!localStorage.getItem("user");
 
+  // Função para rolar até o topo da página
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <footer className="bg-brand-surface border-t border-brand-border shadow-soft mt-12">
       <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-8">
         {/* Logo + nome */}
-        <div className="flex items-center gap-4 animate-fadeInLeft">
+        <div
+          className="flex items-center gap-4 cursor-pointer transform transition hover:scale-110"
+          onClick={scrollToTop}
+        >
           <img
             src="/images/logo.png"
             alt="Parfun Imports"
@@ -24,14 +32,16 @@ export default function Footer() {
         </div>
 
         {/* Links úteis */}
-        <div className="flex flex-col gap-2 text-brand-text animate-fadeInUp text-center md:text-left">
+        <div className="flex flex-col gap-2 text-brand-text text-center md:text-left">
           <h3 className="font-semibold mb-2">Links úteis</h3>
-          {/* ✅ corrigido: agora aponta para /catalogo */}
-          <Link to="/catalogo" className="hover:text-brand-accent transition">
+          <Link
+            to="/catalogo"
+            className="hover:text-brand-accent transition transform hover:scale-110"
+          >
             Produtos
           </Link>
           <button
-            className="hover:text-brand-accent transition text-left"
+            className="hover:text-brand-accent transition transform hover:scale-110 text-left"
             onClick={() => {
               if (isAuthenticated) {
                 navigate("/profile");
@@ -42,37 +52,43 @@ export default function Footer() {
           >
             Perfil
           </button>
-          <Link to="/cart" className="hover:text-brand-accent transition">
+          <Link
+            to="/cart"
+            className="hover:text-brand-accent transition transform hover:scale-110"
+          >
             Carrinho
           </Link>
-          <Link to="/contact" className="hover:text-brand-accent transition">
+          <Link
+            to="/contact"
+            className="hover:text-brand-accent transition transform hover:scale-110"
+          >
             Contato
           </Link>
         </div>
 
         {/* Redes sociais */}
-        <div className="flex flex-col items-center gap-3 animate-fadeInRight">
+        <div className="flex flex-col items-center gap-3">
           <h3 className="font-semibold text-brand-text">Siga-nos</h3>
           <div className="flex gap-4">
             <a href="https://facebook.com" target="_blank" rel="noreferrer">
               <img
                 src="/images/facebook.png"
                 alt="Facebook"
-                className="h-8 w-8 hover:scale-110 transition"
+                className="h-8 w-8 rounded-full border-2 border-yellow-500 hover:scale-110 transition"
               />
             </a>
             <a href="https://instagram.com" target="_blank" rel="noreferrer">
               <img
                 src="/images/instagram.png"
                 alt="Instagram"
-                className="h-8 w-8 hover:scale-110 transition"
+                className="h-8 w-8 rounded-full border-2 border-yellow-500 hover:scale-110 transition"
               />
             </a>
             <a href="https://twitter.com" target="_blank" rel="noreferrer">
               <img
                 src="/images/twitter_X.png"
                 alt="Twitter/X"
-                className="h-8 w-8 hover:scale-110 transition"
+                className="h-8 w-8 rounded-full border-2 border-yellow-500 hover:scale-110 transition"
               />
             </a>
           </div>

@@ -8,6 +8,7 @@ export default function Products() {
   const hasDarkOverlay = theme === "dark";
 
   const [produtos, setProdutos] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // ✅ Carregar produtos do backend (rota pública)
   useEffect(() => {
@@ -16,10 +17,24 @@ export default function Products() {
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/products`
         );
-        console.log("Produtos recebidos:", res.data); // 👀 log para verificar formato
-        setProdutos(res.data || []);
+        console.log("Produtos recebidos:", res.data);
+
+        // ✅ filtra produtos inválidos
+        const validProducts = (res.data || []).filter(
+          (p) =>
+            p &&
+            p.id &&
+            p.name &&
+            !p.name.trim().isEmpty &&
+            p.imageUrl &&
+            !p.imageUrl.trim().isEmpty
+        );
+
+        setProdutos(validProducts);
       } catch (err) {
         console.error("Erro ao carregar produtos", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProducts();
@@ -32,7 +47,7 @@ export default function Products() {
         className="relative min-h-[60vh] flex flex-col items-center justify-center text-center"
         style={{
           backgroundImage:
-            "url('/images/background_files/perfumes-arabes-2.png')",
+            "url('/images/background_files/default-product.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -51,18 +66,30 @@ export default function Products() {
       </section>
 
       {/* Grid de produtos */}
-      <div className="mx-auto max-w-6xl px-4 py-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {produtos.map((p) => (
-          <ProductCard
-            key={p.id}
-            id={p.id}
-            name={p.name || p.nome || "Produto sem nome"} // ✅ fallback
-            price={p.price || p.valor || 0} // ✅ fallback
-            imageUrl={p.imageUrl || p.imagem || "/images/default-product.png"} // ✅ fallback
-            description={p.description || "Sem descrição"} // ✅ fallback
-            stock={p.stock ?? 0} // ✅ fallback
-          />
-        ))}
+      <div className="mx-auto max-w-6xl px-4 py-12">
+        {loading ? (
+          <p className="text-center text-brand-textMuted">
+            Carregando produtos...
+          </p>
+        ) : produtos.length === 0 ? (
+          <p className="text-center text-brand-textMuted">
+            Nenhum produto disponível.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {produtos.map((p) => (
+              <ProductCard
+                key={p.id}
+                id={p.id}
+                name={p.name}
+                price={p.price}
+                imageUrl={p.imageUrl}
+                description={p.description}
+                stock={p.stock}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );

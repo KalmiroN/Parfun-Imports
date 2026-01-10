@@ -19,7 +19,10 @@ export default function Home() {
         );
         if (!res.ok) throw new Error("Erro ao carregar destaques");
         const data = await res.json();
-        setHighlights(data.slice(0, 12)); // ✅ máximo de 12
+
+        // ✅ filtra produtos inválidos e limita a 12
+        const validProducts = data.filter((p) => p && p.id && p.name);
+        setHighlights(validProducts.slice(0, 12));
       } catch (err) {
         toast.error(err.message || "Erro ao carregar destaques");
       } finally {
@@ -88,6 +91,7 @@ export default function Home() {
                 price={p.price}
                 imageUrl={p.imageUrl}
                 description={p.description}
+                stock={p.stock}
               />
             ))}
           </div>

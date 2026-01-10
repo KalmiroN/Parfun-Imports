@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "../context/auth/AuthProvider";
 import { authFetch } from "../utils/authFetch";
 import { useTheme } from "../context/ThemeProvider";
-import { resolveImageUrl } from "../utils/resolveImageUrl"; // ✅ utilitário atualizado
+import { resolveImageUrl } from "../utils/resolveImageUrl";
 
 export default function ProductCard({
   id,
@@ -16,6 +16,9 @@ export default function ProductCard({
   const { addToCart } = useCart();
   const { isAuthenticated, user, token } = useAuth();
   const { theme } = useTheme();
+
+  // 🚫 Não renderiza se não houver dados mínimos
+  if (!id || !name) return null;
 
   const handleAdd = async () => {
     if (!isAuthenticated) {
@@ -42,7 +45,7 @@ export default function ProductCard({
         quantity: 1,
         name: String(name).trim(),
         price: productPrice,
-        imageUrl: imageUrl || "/images/default-product.png", // ✅ fallback no payload
+        imageUrl: imageUrl || "/images/default-product.png",
         userEmail: user?.email,
       };
 
@@ -72,11 +75,11 @@ export default function ProductCard({
       {/* Imagem */}
       <div className="aspect-[3/4] bg-brand-surface overflow-hidden">
         <img
-          src={resolveImageUrl(imageUrl)} // ✅ normaliza URL
+          src={resolveImageUrl(imageUrl)}
           alt={name}
           onError={(e) => {
-            e.currentTarget.onerror = null; // ✅ evita loop
-            e.currentTarget.src = "/images/default-product.png"; // ✅ fallback estável
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = "/images/default-product.png";
           }}
           className="h-full w-full object-cover transition duration-500 hover:brightness-110 hover:contrast-105"
           loading="lazy"
@@ -86,11 +89,13 @@ export default function ProductCard({
       {/* Conteúdo */}
       <div className="p-6 flex-1 flex flex-col transition-colors duration-500">
         <h3 className="font-sans text-brand-text text-lg select-none">
-          {name || "Produto sem nome"}
+          {name}
         </h3>
-        <p className="mt-1 text-sm text-brand-muted select-none">
-          {description || "Sem descrição disponível"}
-        </p>
+        {description && (
+          <p className="mt-1 text-sm text-brand-muted select-none">
+            {description}
+          </p>
+        )}
         <p className="mt-1 text-sm text-brand-muted select-none">
           Estoque: {stock ?? 0}
         </p>
