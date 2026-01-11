@@ -5,12 +5,12 @@ const ThemeContext = createContext({
   theme: "gold",
   setTheme: () => {},
   cycleTheme: () => {},
-  enabledThemes: ["gold", "dark"],
+  enabledThemes: ["gold", "dark", "light"],
   toggleThemeAvailability: () => {},
 });
 
 // 🎨 Lista de todos os temas disponíveis
-const allThemes = ["gold", "dark", "orange", "imperial"];
+const allThemes = ["gold", "dark", "orange", "imperial", "light"];
 
 export function ThemeProvider({ children }) {
   // 📌 Carrega temas habilitados do localStorage, filtrando apenas válidos
@@ -23,7 +23,7 @@ export function ThemeProvider({ children }) {
     } catch {
       // ignora erros de parse
     }
-    return ["gold", "dark"]; // padrão inicial
+    return ["gold", "dark", "light"]; // padrão inicial
   });
 
   // 📌 Carrega tema atual do localStorage, validando se é válido
@@ -35,9 +35,12 @@ export function ThemeProvider({ children }) {
   // 📌 Aplica tema no <html> e persiste no localStorage
   useEffect(() => {
     const html = document.documentElement;
+
+    // Remove todas as classes de tema antes de aplicar a nova
     html.classList.remove(...allThemes.map((t) => `theme-${t}`));
     html.classList.add(`theme-${theme}`);
 
+    // Persiste no localStorage
     localStorage.setItem("theme", theme);
     localStorage.setItem("enabledThemes", JSON.stringify(enabledThemes));
   }, [theme, enabledThemes]);

@@ -132,7 +132,7 @@ html.theme-gold {
   --color-primary: #d4af37;
   --color-accent: #fbbf24;
   --color-border: #d4af37;
-  --color-surface: #ffffff;
+  --color-surface: #e3d8ff; /* ✅ agora lilás */
   --color-overlay: rgba(255, 255, 255, 0.65);
 
   /* ✅ Admin */
@@ -148,7 +148,7 @@ html.theme-orange {
   --color-primary: #d4af37;
   --color-accent: #f97316;
   --color-border: #d4af37;
-  --color-surface: #ffffff;
+  --color-surface: #e3d8ff; /* ✅ lilás também aqui */
   --color-overlay: rgba(255, 255, 255, 0.65);
 
   /* Admin fallback */

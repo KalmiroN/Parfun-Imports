@@ -11,7 +11,7 @@ export default function CheckoutCard({
 
   // ✅ Função para resolver a URL da imagem com fallback
   const resolveSrc = (url) => {
-    if (!url) return "/images/default.jpg"; // fallback se não houver imagem
+    if (!url) return "/images/default.jpg";
     return url;
   };
 
@@ -29,8 +29,11 @@ export default function CheckoutCard({
 
   return (
     <div
-      className="flex gap-6 rounded-xl border border-brand-border shadow-strong p-6 hover:scale-[1.02] transition-transform duration-300"
-      style={{ backgroundColor: "#151B23" }} // ✅ fundo do card
+      className="flex gap-6 rounded-xl shadow-strong p-6 hover:scale-[1.02] transition-transform duration-300"
+      style={{
+        backgroundColor: "var(--card-bg)",
+        color: "var(--card-text)",
+      }}
     >
       {/* Esquerda: imagem + info básica */}
       <div className="flex-1 flex gap-4">
@@ -38,15 +41,22 @@ export default function CheckoutCard({
           src={resolveSrc(imageUrl)}
           alt={name}
           onError={(e) => {
-            e.currentTarget.src = "/images/default.jpg"; // ✅ fallback se a imagem não carregar
+            e.currentTarget.src = "/images/default.jpg";
           }}
-          className="w-24 h-24 rounded-lg object-cover border border-brand-border"
+          className="w-24 h-24 rounded-lg object-cover"
         />
         <div className="flex flex-col">
-          <h3 className="text-lg font-display text-white">{name}</h3>
+          <h3
+            className="text-lg font-display"
+            style={{ color: "var(--card-text)" }}
+          >
+            {name}
+          </h3>
 
           {/* Preço unitário */}
-          <p className="text-brand-text mt-2">Preço: {price}</p>
+          <p className="mt-2" style={{ color: "var(--card-text)" }}>
+            Preço: {price}
+          </p>
 
           {/* Quantidade */}
           <div className="mt-4 flex items-center gap-3">
@@ -56,7 +66,12 @@ export default function CheckoutCard({
             >
               −
             </button>
-            <span className="min-w-8 text-center text-white">{quantity}</span>
+            <span
+              className="min-w-8 text-center"
+              style={{ color: "var(--card-text)" }}
+            >
+              {quantity}
+            </span>
             <button
               onClick={() => onQuantityChange(index, +1)}
               className="btn-accent px-3 py-1"
@@ -87,14 +102,16 @@ export default function CheckoutCard({
       <div className="w-64 pl-6">
         <div
           className="p-3 rounded-md"
-          style={{ backgroundColor: "#212830" }} // ✅ fundo interno sem borda dourada
+          style={{
+            backgroundColor: "var(--aside-bg)",
+            color: "var(--aside-text)",
+          }}
         >
-          <p className="text-brand-text font-semibold">
+          <p className="font-semibold">
             Total: R$ {total.toFixed(2).replace(".", ",")}
           </p>
 
-          {/* Parcelamento e estoque abaixo do Total */}
-          <p className="text-brand-text mt-2">
+          <p className="mt-2">
             Até 10x de R$ {(total / 10).toFixed(2).replace(".", ",")} sem juros
             <br />
             Em estoque

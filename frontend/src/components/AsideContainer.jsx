@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useCart } from "../context/CartProvider";
 import { toast } from "react-toastify";
+import { useTheme } from "../context/ThemeProvider";
 
 // ✅ MiniCard para itens salvos com fallback de imagem
 function MiniCard({ item, onAddToCart, onDelete }) {
@@ -23,7 +24,7 @@ function MiniCard({ item, onAddToCart, onDelete }) {
         className="w-12 h-12 rounded object-cover"
       />
       <div className="flex-1">
-        <p className="text-sm font-semibold text-white">{item.name}</p>
+        <p className="text-sm font-semibold">{item.name}</p>
         <p className="text-xs text-brand-text">
           R$ {Number(item.price).toFixed(2)}
         </p>
@@ -62,6 +63,8 @@ export default function AsideContainer({
     checkout,
     clearCart,
   } = useCart();
+
+  const { theme } = useTheme();
 
   const [scrollY, setScrollY] = useState(window.scrollY || 0);
   const [hovered, setHovered] = useState(null);
@@ -118,7 +121,7 @@ export default function AsideContainer({
         <div
           onMouseEnter={() => hoverEnabled && setHovered("checkout")}
           onMouseLeave={() => hoverEnabled && setHovered(null)}
-          className="bg-[#061624] border-l border-brand-border rounded-l-2xl shadow-soft p-4 flex flex-col transition-all duration-300 overflow-y-auto"
+          className="aside-container p-4 flex flex-col transition-all duration-300 overflow-y-auto"
           style={{
             height: hoverEnabled
               ? hovered === "checkout"
@@ -131,9 +134,7 @@ export default function AsideContainer({
           }}
         >
           {/* Cabeçalho */}
-          <h2 className="text-2xl font-display mb-4 text-white">
-            Finalizar compra
-          </h2>
+          <h2 className="text-2xl font-display mb-4">Finalizar compra</h2>
           <p className="text-brand-text mb-4">
             Total de itens: {getCartCount()} <br />
             Valor:{" "}
@@ -219,12 +220,13 @@ export default function AsideContainer({
           </div>
         </div>
       )}
+
       {/* Aside: Salvar para depois */}
       {showSaveLater && (
         <div
           onMouseEnter={() => hoverEnabled && setHovered("save")}
           onMouseLeave={() => hoverEnabled && setHovered(null)}
-          className="bg-[#061624] border-l border-brand-border rounded-l-2xl shadow-soft p-4 flex flex-col transition-all duration-300 overflow-y-auto"
+          className="aside-container p-4 flex flex-col transition-all duration-300 overflow-y-auto"
           style={{
             height: hoverEnabled
               ? hovered === "save"
@@ -237,9 +239,7 @@ export default function AsideContainer({
             width: "clamp(20rem, 30vw, 30rem)",
           }}
         >
-          <h2 className="text-xl font-display mb-3 text-white">
-            Salvar para depois
-          </h2>
+          <h2 className="text-xl font-display mb-3">Salvar para depois</h2>
           <p className="text-sm text-brand-text mb-3">
             Os itens salvos ficarão disponíveis para você finalizar mais tarde.
           </p>

@@ -38,7 +38,7 @@ const CartItemsList = forwardRef(
           return (
             <div
               key={idx}
-              className="hover:scale-[1.02] transition-transform duration-300"
+              className="cart-card hover:scale-[1.02] transition-transform duration-300 rounded-md shadow-md p-2"
             >
               <CheckoutCard
                 item={item}

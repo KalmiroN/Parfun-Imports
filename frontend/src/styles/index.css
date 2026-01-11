@@ -107,45 +107,10 @@ textarea:focus {
 .checkout-card,
 .wishlist-card,
 .cart-card {
-  border: 2px solid var(--color-border) !important;
+  border: 2px solid var(--color-border);
   border-radius: 0.75rem;
   background-color: var(--color-surface);
   box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
-}
-
-/* Utilitárias */
-.border-brand-border {
-  border: 2px solid var(--color-border) !important;
-}
-.rounded-xl {
-  border-radius: 0.75rem;
-}
-
-/* Botões dentro dos cards globais */
-.card button,
-.checkout-card button,
-.wishlist-card button,
-.cart-card button {
-  padding: 0.75rem 1.5rem;
-  border-radius: 9999px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  background-color: transparent;
-  color: var(--color-text);
-  border: 2px solid var(--color-border);
-}
-.card button:hover,
-.checkout-card button:hover,
-.wishlist-card button:hover,
-.cart-card button:hover {
-  background-color: var(--color-accent);
-  color: #000;
-}
-.card button:active,
-.checkout-card button:active,
-.wishlist-card button:active,
-.cart-card button:active {
-  filter: brightness(0.9);
 }
 
 /* ===========================================================
@@ -182,6 +147,67 @@ textarea:focus {
 .aside-container .btn-secondary:hover {
   background-color: var(--color-accent);
   color: #000;
+}
+
+/* ===========================================================
+   Temas
+   =========================================================== */
+
+/* Tema claro: cards e asides lilás */
+.theme-light .card,
+.theme-light .checkout-card,
+.theme-light .cart-card,
+.theme-light .aside-container {
+  background-color: #b58dd9 !important;
+  color: #000 !important;
+  border-color: #8f6bb3 !important;
+}
+
+/* Tema dark: mantém fundo escuro */
+.theme-dark .card,
+.theme-dark .checkout-card,
+.theme-dark .cart-card,
+.theme-dark .aside-container {
+  background-color: var(--color-surface) !important;
+  color: #fff !important;
+  border-color: var(--color-border) !important;
+}
+
+/* ===========================================================
+   Utilitárias
+   =========================================================== */
+.border-brand-border {
+  border: 2px solid var(--color-border) !important;
+}
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+/* Botões dentro dos cards globais */
+.card button,
+.checkout-card button,
+.wishlist-card button,
+.cart-card button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background-color: transparent;
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+.card button:hover,
+.checkout-card button:hover,
+.wishlist-card button:hover,
+.cart-card button:hover {
+  background-color: var(--color-accent);
+  color: #000;
+}
+.card button:active,
+.checkout-card button:active,
+.wishlist-card button:active,
+.cart-card button:active {
+  filter: brightness(0.9);
 }
 
 /* ===========================================================
