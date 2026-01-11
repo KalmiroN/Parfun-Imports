@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { authFetch } from "../../utils/authFetch";
 import { toast } from "react-toastify";
 import EditOrderModal from "./components/EditOrderModal";
+import CustomerInfoModal from "./components/CustomerInfoModal"; // novo import
 import AdminLayout from "../../components/AdminLayout";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null); // novo estado
   const [filters, setFilters] = useState({
     status: "",
     customer: "",
+    orderId: "",
     startDate: "",
     endDate: "",
   });
@@ -22,6 +24,7 @@ export default function AdminOrders() {
         const params = new URLSearchParams();
         if (filters.status) params.append("status", filters.status);
         if (filters.customer) params.append("customer", filters.customer);
+        if (filters.orderId) params.append("orderId", filters.orderId);
         if (filters.startDate) params.append("startDate", filters.startDate);
         if (filters.endDate) params.append("endDate", filters.endDate);
 
@@ -39,6 +42,21 @@ export default function AdminOrders() {
     };
     fetchOrders();
   }, [filters]);
+
+  const traduzirStatus = (status) => {
+    switch (status) {
+      case "pending":
+        return "Status do pedido: Aguardando pagamento";
+      case "processing":
+        return "Status do pedido: Em processamento";
+      case "shipped":
+        return "Status do pedido: Enviado";
+      case "completed":
+        return "Status do pedido: Concluído";
+      default:
+        return "Status do pedido: Desconhecido";
+    }
+  };
 
   if (loading) {
     return (
@@ -60,36 +78,29 @@ export default function AdminOrders() {
         {/* Filtros */}
         <div className="admin-orders-filters mb-8">
           <h3 className="text-xl font-display text-brand-text mb-4">Filtros</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+          {/* Primeira linha: status + datas */}
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
             <select
               value={filters.status}
               onChange={(e) =>
                 setFilters({ ...filters, status: e.target.value })
               }
-              className="input-field"
+              className="input-field flex-1"
             >
               <option value="">Todos os Status</option>
-              <option value="pending">Pendente</option>
-              <option value="processing">Em Processamento</option>
+              <option value="pending">Aguardando pagamento</option>
+              <option value="processing">Em processamento</option>
               <option value="shipped">Enviado</option>
               <option value="completed">Concluído</option>
             </select>
-            <input
-              type="text"
-              placeholder="Cliente"
-              value={filters.customer}
-              onChange={(e) =>
-                setFilters({ ...filters, customer: e.target.value })
-              }
-              className="input-field"
-            />
             <input
               type="date"
               value={filters.startDate}
               onChange={(e) =>
                 setFilters({ ...filters, startDate: e.target.value })
               }
-              className="input-field"
+              className="input-field flex-1"
             />
             <input
               type="date"
@@ -97,8 +108,50 @@ export default function AdminOrders() {
               onChange={(e) =>
                 setFilters({ ...filters, endDate: e.target.value })
               }
-              className="input-field"
+              className="input-field flex-1"
             />
+          </div>
+
+          {/* Segunda linha: cliente + número do pedido + lupa */}
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <input
+              type="text"
+              placeholder="Cliente"
+              value={filters.customer}
+              onChange={(e) =>
+                setFilters({ ...filters, customer: e.target.value })
+              }
+              className="input-field flex-1"
+            />
+            <input
+              type="text"
+              placeholder="Número do pedido"
+              value={filters.orderId}
+              onChange={(e) =>
+                setFilters({ ...filters, orderId: e.target.value })
+              }
+              className="input-field flex-1"
+            />
+            <button
+              onClick={() => toast.info("Buscando pedidos...")}
+              className="btn-accent flex items-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z"
+                />
+              </svg>
+              Buscar
+            </button>
           </div>
         </div>
 
@@ -117,7 +170,7 @@ export default function AdminOrders() {
                   Pedido #{order.id} - {order.customerName}
                 </h3>
                 <p className="text-brand-textMuted">
-                  Total: R$ {order.total} | Status: {order.status}
+                  Total: R$ {order.total} | {traduzirStatus(order.status)}
                 </p>
                 <p className="text-brand-textMuted">
                   Data: {new Date(order.createdAt).toLocaleDateString("pt-BR")}
@@ -129,14 +182,14 @@ export default function AdminOrders() {
                     onClick={() => setSelectedOrder(order)}
                     className="flex-1 btn-accent text-center"
                   >
-                    Detalhes / Atualizar
+                    Atualização de Pedidos
                   </button>
-                  <Link
-                    to="/admin/dashboard"
+                  <button
+                    onClick={() => setSelectedCustomer(order)}
                     className="flex-1 btn-secondary text-center"
                   >
-                    Voltar ao painel
-                  </Link>
+                    Exibir endereço
+                  </button>
                 </div>
               </div>
             ))}
@@ -170,6 +223,14 @@ export default function AdminOrders() {
               toast.error(err.message || "Erro ao atualizar pedido");
             }
           }}
+        />
+      )}
+
+      {/* Modal de informações do cliente */}
+      {selectedCustomer && (
+        <CustomerInfoModal
+          order={selectedCustomer}
+          onClose={() => setSelectedCustomer(null)}
         />
       )}
     </AdminLayout>
