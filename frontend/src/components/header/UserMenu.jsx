@@ -15,8 +15,8 @@ export default function UserMenu({
     <div
       ref={userBoxRef}
       className="
-        glass-card absolute right-0 top-12 w-64 p-4 z-50
-        shadow-strong animate-fadeIn
+        glass-card absolute right-0 top-12 w-64 p-4
+        shadow-strong animate-fadeIn user-info-menu
       "
     >
       {isAuthenticated ? (

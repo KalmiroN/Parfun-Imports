@@ -29,6 +29,32 @@ body {
   font-style: normal;
 }
 
+/* Menu de Informações do Usuário */
+.user-info-menu {
+  position: fixed; /* ✅ independente do fluxo/layout do header */
+  top: 3rem; /* ajuste conforme seu header */
+  right: 1rem; /* canto superior direito */
+  z-index: 9999; /* acima dos asides */
+  width: 16rem; /* ~w-64 */
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  background: var(--color-surface);
+  color: var(--color-text);
+  max-height: 70vh; /* evita crescer demais */
+  overflow: auto; /* scroll interno se precisar */
+}
+
+/* Responsividade: telas menores que 640px */
+@media (max-width: 640px) {
+  .user-info-menu {
+    right: 0.5rem;
+    left: 0.5rem; /* ocupa mais largura */
+    width: auto;
+    top: 3.5rem;
+  }
+}
+
 /* ===========================================================
    Botões e inputs globais
    =========================================================== */
@@ -118,6 +144,7 @@ textarea:focus {
    =========================================================== */
 .aside-container {
   border-left: 2px solid var(--color-border);
+  z-index: 20; /* ✅ acima dos cards, abaixo do menu */
   background-color: var(--color-surface);
   box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
   border-radius: 0.75rem 0 0 0.75rem;
