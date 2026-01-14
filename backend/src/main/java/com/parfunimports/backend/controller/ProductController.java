@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controller para gerenciar os endpoints de produtos.
@@ -142,10 +143,19 @@ public class ProductController {
         return ResponseEntity.ok(dtos);
     }
 
-    // 📊 Top produtos mais vendidos
+    // 📊 Top produtos mais vendidos — agora retornando DTO para consistência
     @GetMapping("/top-selling")
-    public ResponseEntity<List<Object[]>> getTopSellingProducts() {
-        return ResponseEntity.ok(productService.getTopSellingProductsWithQuantity());
+    public ResponseEntity<List<ProductDTO>> getTopSellingProducts() {
+        List<Object[]> results = productService.getTopSellingProductsWithQuantity();
+
+        List<ProductDTO> dtos = results.stream()
+                .map(row -> {
+                    Product product = (Product) row[0];
+                    return productMapper.fromEntity(product);
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
     }
 
     // 📊 Estoque total

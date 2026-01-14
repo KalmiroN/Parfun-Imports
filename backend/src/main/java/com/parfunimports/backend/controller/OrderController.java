@@ -1,5 +1,7 @@
 package com.parfunimports.backend.controller;
 
+import com.parfunimports.backend.dto.OrderDTO;
+import com.parfunimports.backend.dto.OrderMapper;
 import com.parfunimports.backend.model.Order;
 import com.parfunimports.backend.model.OrderProduct;
 import com.parfunimports.backend.model.Product;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -22,26 +25,37 @@ public class OrderController {
     private final OrderService orderService;
     private final ProductService productService;
     private final JwtUtil jwtUtil;
+    private final OrderMapper orderMapper;
 
-    public OrderController(OrderService orderService, ProductService productService, JwtUtil jwtUtil) {
+    public OrderController(OrderService orderService,
+                           ProductService productService,
+                           JwtUtil jwtUtil,
+                           OrderMapper orderMapper) {
         this.orderService = orderService;
         this.productService = productService;
         this.jwtUtil = jwtUtil;
+        this.orderMapper = orderMapper;
     }
 
     // 📦 Listar todos os pedidos (somente ADMIN)
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<Order>> getAll() {
-        return ResponseEntity.ok(orderService.getAllOrders());
+    public ResponseEntity<List<OrderDTO>> getAll() {
+        List<Order> orders = orderService.getAllOrders();
+        List<OrderDTO> dtos = orders.stream()
+                .map(orderMapper::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     // 🔎 Buscar pedido por ID (somente ADMIN)
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getById(@PathVariable Long id) {
+    public ResponseEntity<OrderDTO> getById(@PathVariable Long id) {
         Order order = orderService.getOrderById(id);
-        return (order != null) ? ResponseEntity.ok(order) : ResponseEntity.notFound().build();
+        return (order != null)
+                ? ResponseEntity.ok(orderMapper.fromEntity(order))
+                : ResponseEntity.notFound().build();
     }
 
     // ➕ Criar novo pedido (CLIENTE autenticado)
@@ -70,16 +84,14 @@ public class OrderController {
                 item.setPrice(product.getPrice()); // ✅ BigDecimal
                 item.setOrder(order); // garantir vínculo
 
-                // ✅ calcular subtotal do item
                 BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
                 total = total.add(subtotal);
             }
 
-            // ✅ definir total do pedido
             order.setTotal(total);
 
             Order savedOrder = orderService.saveOrder(order);
-            return ResponseEntity.ok(savedOrder);
+            return ResponseEntity.ok(orderMapper.fromEntity(savedOrder));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -90,17 +102,22 @@ public class OrderController {
     // 📥 Criar vários pedidos de uma vez (somente ADMIN)
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/batch")
-    public ResponseEntity<List<Order>> createOrders(@RequestBody List<Order> orders) {
+    public ResponseEntity<List<OrderDTO>> createOrders(@RequestBody List<Order> orders) {
         List<Order> saved = orderService.saveAllOrders(orders);
-        return ResponseEntity.ok(saved);
+        List<OrderDTO> dtos = saved.stream()
+                .map(orderMapper::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     // ✏️ Atualizar pedido (somente ADMIN)
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Order> update(@PathVariable Long id, @RequestBody Order updatedOrder) {
+    public ResponseEntity<OrderDTO> update(@PathVariable Long id, @RequestBody Order updatedOrder) {
         Order order = orderService.updateOrder(id, updatedOrder);
-        return (order != null) ? ResponseEntity.ok(order) : ResponseEntity.notFound().build();
+        return (order != null)
+                ? ResponseEntity.ok(orderMapper.fromEntity(order))
+                : ResponseEntity.notFound().build();
     }
 
     // ❌ Deletar pedido (somente ADMIN)
@@ -114,12 +131,14 @@ public class OrderController {
     // 👤 Listar pedidos do usuário autenticado (CLIENTE)
     @PreAuthorize("hasRole('CLIENTE')")
     @GetMapping("/my")
-    public ResponseEntity<List<Order>> getMyOrders(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<OrderDTO>> getMyOrders(@RequestHeader("Authorization") String token) {
         String jwt = token.replace("Bearer ", "").trim();
         String email = jwtUtil.extractEmail(jwt);
 
-        // Buscar pedidos pelo e-mail do usuário autenticado
         List<Order> orders = orderService.getOrdersByEmail(email);
-        return ResponseEntity.ok(orders);
+        List<OrderDTO> dtos = orders.stream()
+                .map(orderMapper::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 }

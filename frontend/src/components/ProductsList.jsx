@@ -13,7 +13,13 @@ export default function ProductsList() {
         }
         return res.json();
       })
-      .then((data) => setProducts(data))
+      .then((data) => {
+        // ✅ deduplicação por ID
+        const uniqueProducts = Array.from(
+          new Map(data.map((p) => [p.id, p])).values()
+        );
+        setProducts(uniqueProducts);
+      })
       .catch((err) => console.error("Erro ao carregar produtos:", err));
   }, []);
 

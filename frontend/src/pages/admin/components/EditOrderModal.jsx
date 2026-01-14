@@ -29,10 +29,10 @@ export default function EditOrderModal({ order, onClose, onSave }) {
           value={status}
           onChange={(e) => setStatus(e.target.value)}
         >
-          <option value="Em processamento">Em processamento</option>
-          <option value="Enviado">Enviado</option>
-          <option value="Entregue">Entregue</option>
-          <option value="Cancelado">Cancelado</option>
+          <option value="processing">Em processamento</option>
+          <option value="shipped">Enviado</option>
+          <option value="completed">Entregue</option>
+          <option value="cancelled">Cancelado</option>
         </select>
 
         {/* Informações extras */}

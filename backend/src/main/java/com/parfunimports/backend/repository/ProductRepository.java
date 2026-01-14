@@ -8,8 +8,13 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    // ⭐ Busca apenas produtos em destaque (highlight = true)
-    List<Product> findByHighlightTrue();
+    // 📦 Busca todos os produtos sem duplicados
+    @Query("SELECT DISTINCT p FROM Product p")
+    List<Product> findAllDistinct();
+
+    // ⭐ Busca apenas produtos em destaque (highlight = true) sem duplicados
+    @Query("SELECT DISTINCT p FROM Product p WHERE p.highlight = true")
+    List<Product> findDistinctByHighlightTrue();
 
     // ✅ Top N produtos mais vendidos (via OrderProduct)
     // Retorna uma lista de Object[] onde:
@@ -23,18 +28,23 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT COALESCE(SUM(p.stock), 0) FROM Product p")
     Integer sumTotalStock();
 
-    // 🔎 Buscar produtos por nome (case insensitive, útil para pesquisa no catálogo)
+    // 🔎 Buscar produtos por nome (case insensitive, sem duplicados)
+    @Query("SELECT DISTINCT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))")
     List<Product> findByNameContainingIgnoreCase(String name);
 
-    // 🔎 Buscar produtos com preço menor ou igual ao valor informado
+    // 🔎 Buscar produtos com preço menor ou igual ao valor informado (sem duplicados)
+    @Query("SELECT DISTINCT p FROM Product p WHERE p.price <= :price")
     List<Product> findByPriceLessThanEqual(Double price);
 
-    // 🔎 Buscar produtos com estoque maior que zero (disponíveis para venda)
+    // 🔎 Buscar produtos com estoque maior que zero (sem duplicados)
+    @Query("SELECT DISTINCT p FROM Product p WHERE p.stock > :stock")
     List<Product> findByStockGreaterThan(Integer stock);
 
-    // 🔎 Buscar produtos por categoria (útil para filtros no frontend)
+    // 🔎 Buscar produtos por categoria (sem duplicados)
+    @Query("SELECT DISTINCT p FROM Product p WHERE LOWER(p.category) = LOWER(:category)")
     List<Product> findByCategoryIgnoreCase(String category);
 
-    // 🔎 Buscar produtos por faixa de preço
+    // 🔎 Buscar produtos por faixa de preço (sem duplicados)
+    @Query("SELECT DISTINCT p FROM Product p WHERE p.price BETWEEN :minPrice AND :maxPrice")
     List<Product> findByPriceBetween(Double minPrice, Double maxPrice);
 }

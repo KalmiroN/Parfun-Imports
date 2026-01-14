@@ -25,12 +25,17 @@ export default function Products() {
             p &&
             p.id &&
             p.name &&
-            !p.name.trim().isEmpty &&
+            p.name.trim() !== "" &&
             p.imageUrl &&
-            !p.imageUrl.trim().isEmpty
+            p.imageUrl.trim() !== ""
         );
 
-        setProdutos(validProducts);
+        // ✅ remove duplicados pelo ID
+        const uniqueProducts = Array.from(
+          new Map(validProducts.map((p) => [p.id, p])).values()
+        );
+
+        setProdutos(uniqueProducts);
       } catch (err) {
         console.error("Erro ao carregar produtos", err);
       } finally {

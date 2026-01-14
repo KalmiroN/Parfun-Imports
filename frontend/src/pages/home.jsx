@@ -20,9 +20,15 @@ export default function Home() {
         if (!res.ok) throw new Error("Erro ao carregar destaques");
         const data = await res.json();
 
-        // ✅ filtra produtos inválidos e limita a 12
+        // ✅ filtra produtos inválidos
         const validProducts = data.filter((p) => p && p.id && p.name);
-        setHighlights(validProducts.slice(0, 12));
+
+        // ✅ deduplicação por ID e limite de 12
+        const uniqueProducts = Array.from(
+          new Map(validProducts.map((p) => [p.id, p])).values()
+        ).slice(0, 12);
+
+        setHighlights(uniqueProducts);
       } catch (err) {
         toast.error(err.message || "Erro ao carregar destaques");
       } finally {

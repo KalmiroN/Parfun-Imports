@@ -62,6 +62,16 @@
   background-color: #b91c1c;
 }
 
+/* Botão excluir pedido dentro dos cards de pedidos */
+.admin-order-card button.remove-btn {
+  background-color: #dc2626;
+  color: #fff;
+  border: 2px solid var(--color-border);
+}
+.admin-order-card button.remove-btn:hover {
+  background-color: #b91c1c;
+}
+
 /* ===========================================================
    Admin Orders
    =========================================================== */

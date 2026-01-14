@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { authFetch } from "../../utils/authFetch";
 import { toast } from "react-toastify";
 import EditOrderModal from "./components/EditOrderModal";
-import CustomerInfoModal from "./components/CustomerInfoModal"; // novo import
+import CustomerInfoModal from "./components/CustomerInfoModal";
 import AdminLayout from "../../components/AdminLayout";
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [selectedCustomer, setSelectedCustomer] = useState(null); // novo estado
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [filters, setFilters] = useState({
     status: "",
     customer: "",
@@ -53,8 +53,28 @@ export default function AdminOrders() {
         return "Status do pedido: Enviado";
       case "completed":
         return "Status do pedido: Concluído";
+      case "cancelled":
+        return "Status do pedido: Cancelado";
       default:
         return "Status do pedido: Desconhecido";
+    }
+  };
+
+  const handleDelete = async (orderId) => {
+    const confirmDelete = window.confirm(
+      "O pedido foi cancelado com êxito, ainda assim, deseja realmente excluir permanentemente o pedido?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await authFetch(
+        `${import.meta.env.VITE_API_URL}/api/admin/orders/${orderId}`,
+        { method: "DELETE" }
+      );
+      toast.success("Pedido excluído com sucesso!");
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+    } catch (err) {
+      toast.error(err.message || "Erro ao excluir pedido");
     }
   };
 
@@ -93,6 +113,7 @@ export default function AdminOrders() {
               <option value="processing">Em processamento</option>
               <option value="shipped">Enviado</option>
               <option value="completed">Concluído</option>
+              <option value="cancelled">Cancelado</option>
             </select>
             <input
               type="date"
@@ -165,17 +186,28 @@ export default function AdminOrders() {
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
-              <div key={order.id} className="admin-order-card">
-                <h3 className="text-lg font-display text-brand-text mb-2">
-                  Pedido #{order.id} - {order.customerName}
-                </h3>
+              <div key={order.id} className="admin-order-card relative">
+                {/* Cabeçalho com botão excluir */}
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-display text-brand-text">
+                    Pedido #{order.id} - {order.customerName}
+                  </h3>
+                  {order.status === "cancelled" && (
+                    <button
+                      onClick={() => handleDelete(order.id)}
+                      className="remove-btn px-4 py-2 rounded-full"
+                    >
+                      Excluir pedido
+                    </button>
+                  )}
+                </div>
+
                 <p className="text-brand-textMuted">
                   Total: R$ {order.total} | {traduzirStatus(order.status)}
                 </p>
                 <p className="text-brand-textMuted">
                   Data: {new Date(order.createdAt).toLocaleDateString("pt-BR")}
                 </p>
-
                 {/* Botões de ação */}
                 <div className="flex flex-col md:flex-row gap-4 mt-6">
                   <button
