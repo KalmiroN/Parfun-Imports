@@ -3,7 +3,6 @@ package com.parfunimports.backend.controller;
 import com.parfunimports.backend.model.User;
 import com.parfunimports.backend.model.Order;
 import com.parfunimports.backend.model.Role;
-import com.parfunimports.backend.dto.UserDTO;
 import com.parfunimports.backend.dto.UserMapper;
 import com.parfunimports.backend.repository.UserRepository;
 import com.parfunimports.backend.repository.OrderRepository;
@@ -37,17 +36,28 @@ public class UserController {
     // 📌 Registrar novo usuário
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User newUser) {
-        Optional<User> existingUser = userRepository.findByEmail(newUser.getEmail());
-        if (existingUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", "Email já registrado."));
+        try {
+            Optional<User> existingUser = userRepository.findByEmail(newUser.getEmail());
+            if (existingUser.isPresent()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("error", "Email já registrado."));
+            }
+
+            if (newUser.getRawPassword() == null || newUser.getRawPassword().isBlank()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Senha não pode ser nula"));
+            }
+
+            newUser.setPassword(passwordEncoder.encode(newUser.getRawPassword()));
+            newUser.setRole(Role.CLIENTE);
+
+            User savedUser = userRepository.save(newUser);
+
+            return ResponseEntity.ok(userMapper.fromEntity(savedUser));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Falha ao registrar usuário"));
         }
-
-        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        newUser.setRole(Role.CLIENTE);
-        userRepository.save(newUser);
-
-        return ResponseEntity.ok(userMapper.fromEntity(newUser));
     }
 
     // 📌 Alterar senha
@@ -61,6 +71,11 @@ public class UserController {
         }
 
         User user = existingUser.get();
+        if (request.getNewPassword() == null || request.getNewPassword().isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Nova senha não pode ser nula"));
+        }
+
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 

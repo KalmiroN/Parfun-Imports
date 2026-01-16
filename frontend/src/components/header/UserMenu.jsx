@@ -7,8 +7,8 @@ export default function UserMenu({
   userBoxRef,
 }) {
   const formatRole = (role) => {
-    if (!role) return "cliente";
-    return role.toUpperCase() === "ADMIN" ? "Admin" : "cliente";
+    if (!role) return "Cliente";
+    return role.toUpperCase() === "ADMIN" ? "Admin" : "Cliente";
   };
 
   return (
@@ -24,9 +24,11 @@ export default function UserMenu({
           <h3 className="text-lg font-semibold mb-2 text-[var(--color-text)]">
             Informações do Usuário
           </h3>
-          <p className="text-sm text-[var(--color-text)]">Nome: {user?.name}</p>
           <p className="text-sm text-[var(--color-text)]">
-            Email: {user?.email}
+            Nome: {user?.name || "—"}
+          </p>
+          <p className="text-sm text-[var(--color-text)]">
+            Email: {user?.email || "—"}
           </p>
           <p className="text-sm text-orange-400 font-semibold mt-1">
             Usuário: {formatRole(user?.role)}

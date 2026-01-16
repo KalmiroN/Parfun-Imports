@@ -47,7 +47,8 @@ export async function authFetch(url, options = {}) {
         localStorage.removeItem("accessToken"); // limpa token
         throw new Error("Sessão expirada. Faça login novamente.");
       }
-      const message = data?.message || `Erro ${response.status}`;
+      // 🔎 backend retorna { error: "..."} e não { message: "..."}
+      const message = data?.error || data?.message || `Erro ${response.status}`;
       throw new Error(message);
     }
 

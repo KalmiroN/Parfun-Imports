@@ -1,42 +1,98 @@
-// src/context/auth/authService.js
-
-/**
- * Faz a requisição de login ao backend.
- * Espera receber um LoginResponse com accessToken e refreshToken.
- */
+// 🔑 Login
 export async function loginRequest(email, password) {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/login`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // envia objeto JSON com email e rawPassword
+        body: JSON.stringify({
+          email: email,
+          rawPassword: password, // ✅ padronizado com o backend
+        }),
+      }
+    );
 
-  const data = await res.json();
+    if (!response.ok) {
+      // captura erro específico retornado pelo backend
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error || `Erro ${response.status}`);
+    }
 
-  // 🔎 valida se veio accessToken
-  if (!res.ok || !data?.accessToken) {
-    throw new Error(data.error || "Credenciais inválidas");
+    // ✅ retorna objeto JSON completo (LoginResponse)
+    return await response.json();
+  } catch (err) {
+    console.error("Erro no loginRequest:", err);
+    throw new Error("Erro inesperado: " + err.message);
   }
-
-  return data; // { id, email, name, role, phone, address, accessToken, refreshToken }
 }
 
-/**
- * Faz a requisição de refresh ao backend.
- * Espera receber novos tokens.
- */
-export async function refreshRequest(refreshToken) {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/refresh`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refreshToken }),
-  });
+// ➕ Registro
+export async function registerRequest({
+  email,
+  password,
+  name,
+  phone,
+  address,
+}) {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/register`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // envia objeto JSON com email e rawPassword
+        body: JSON.stringify({
+          email,
+          rawPassword: password, // ✅ padronizado
+          name,
+          phone,
+          address,
+        }),
+      }
+    );
 
-  const data = await res.json();
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error || `Erro ${response.status}`);
+    }
 
-  if (!res.ok || !data?.accessToken) {
-    throw new Error(data.error || "Falha ao renovar token");
+    // ✅ retorna objeto JSON completo (LoginResponse)
+    return await response.json();
+  } catch (err) {
+    console.error("Erro no registerRequest:", err);
+    throw new Error("Erro inesperado: " + err.message);
   }
+}
 
-  return data; // { accessToken, refreshToken }
+// 🔄 Refresh token
+export async function refreshRequest(refreshToken) {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/refresh`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error || `Erro ${response.status}`);
+    }
+
+    // ✅ retorna objeto JSON com novo accessToken e refreshToken
+    return await response.json();
+  } catch (err) {
+    console.error("Erro no refreshRequest:", err);
+    throw new Error("Erro inesperado: " + err.message);
+  }
 }

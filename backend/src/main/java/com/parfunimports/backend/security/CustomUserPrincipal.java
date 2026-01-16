@@ -77,6 +77,6 @@ public class CustomUserPrincipal implements UserDetails {
 
     // Métodos auxiliares para facilitar acesso no controller
     public String getRoleName() {
-        return role.name();
+        return role != null ? role.name() : "CLIENTE";
     }
 }

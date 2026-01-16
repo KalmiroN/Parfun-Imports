@@ -8,6 +8,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Repositório JPA para a entidade Order.
+ * - Fornece consultas prontas para relatórios e gráficos.
+ * - Permite buscar pedidos por datas, status e cliente.
+ * - Inclui agregações para dashboards (vendas por dia/mês).
+ */
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // 🔎 Buscar pedidos entre duas datas

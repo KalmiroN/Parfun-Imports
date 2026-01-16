@@ -12,6 +12,9 @@ import java.util.List;
 
 /**
  * Configuração global de CORS para permitir chamadas do frontend.
+ * - Permite origens configuráveis via application.properties (cors.allowed-origins).
+ * - Habilita métodos e headers necessários para comunicação segura.
+ * - Suporta credenciais (cookies, Authorization header).
  */
 @Configuration
 public class CorsConfig {
@@ -32,7 +35,7 @@ public class CorsConfig {
         // 📦 Headers permitidos
         cors.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
 
-        // 🔑 Permitir envio de cookies/credenciais
+        // 🔑 Permitir envio de cookies/credenciais (ex.: Authorization: Bearer token)
         cors.setAllowCredentials(true);
 
         // ⏱ Tempo de cache da configuração (em segundos)

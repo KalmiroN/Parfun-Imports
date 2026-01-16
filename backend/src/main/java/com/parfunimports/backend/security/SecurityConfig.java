@@ -49,7 +49,8 @@ public class SecurityConfig {
             .requestCache(rc -> rc.disable())
             .authorizeHttpRequests(auth -> auth
                 // Endpoints públicos de autenticação
-                .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/user/register").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/refresh", "/api/auth/register").permitAll()
+                .requestMatchers("/api/user/register").permitAll() // se quiser manter também
 
                 // Catálogo de produtos é público
                 .requestMatchers("/api/products/**").permitAll()

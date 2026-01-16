@@ -15,6 +15,9 @@ import java.util.List;
 /**
  * Serviço responsável por carregar usuários do banco de dados
  * e convertê-los em UserDetails para o Spring Security.
+ *
+ * ⚠️ Esse serviço é usado internamente pelo Spring Security
+ * quando precisamos autenticar usuários com base no email.
  */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -27,6 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        // 🔎 Busca usuário no banco pelo email
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
 
@@ -41,7 +45,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         // ✅ Constrói objeto UserDetails usado pelo Spring Security
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
-                .password(user.getPassword())
+                .password(user.getPassword()) // senha já criptografada no banco
                 .authorities(authorities)
                 .accountExpired(false)
                 .accountLocked(false)

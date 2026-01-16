@@ -26,38 +26,39 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ✅ campo email único, usado no findByEmail
     @Email
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    // 🔒 nunca expor senha em JSON
+    // 🔒 senha criptografada no banco
     @JsonIgnore
     @Column(nullable = false, length = 255)
     private String password;
+
+    // 📌 campo transitório para receber senha pura do JSON (não persistido)
+    @Transient
+    private String rawPassword;
 
     @NotBlank
     @Column(nullable = false, length = 255)
     private String name;
 
-    // ✅ Enum para role (ADMIN ou CLIENTE)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private Role role;
 
+    // 📌 Campos opcionais: podem ser nulos
     @Column(length = 255)
     private String phone;
 
     @Column(length = 255)
     private String address;
 
-    // 📌 relação com pedidos
-    @Builder.Default // ✅ garante inicialização mesmo com @Builder
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference   // ✅ evita recursão infinita no JSON
+    @JsonManagedReference
     private List<Order> orders = new ArrayList<>();
 
-    // ✅ helper methods
     public void addOrder(Order order) {
         order.setUser(this);
         this.orders.add(order);
@@ -70,14 +71,12 @@ public class User implements UserDetails {
         }
     }
 
-    // ✅ Método auxiliar para exibir role de forma semântica
     public String getRoleDisplay() {
         return role != null ? role.name().toLowerCase() : "desconhecido";
     }
 
-    // 🔑 Implementação de UserDetails para o Spring Security
-    @Override
-    @JsonIgnore // não serializar no JSON
+    // 📌 Implementação de UserDetails para Spring Security
+    @Override @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
     }

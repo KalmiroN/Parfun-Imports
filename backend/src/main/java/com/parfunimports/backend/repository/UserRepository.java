@@ -8,6 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repositório JPA para a entidade User.
+ * - Fornece métodos prontos para CRUD.
+ * - Inclui consultas customizadas para login e filtragem por role.
+ */
 public interface UserRepository extends JpaRepository<User, Long> {
 
     // ✅ Busca usuário por e-mail (login principal)
@@ -16,17 +21,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // ✅ Verifica se já existe usuário com determinado e-mail
     boolean existsByEmail(String email);
 
-    // ✅ Busca usuários por telefone
+    // ✅ Busca usuário por telefone
     Optional<User> findByPhone(String phone);
 
     // ✅ Busca todos os usuários por role (ADMIN ou CLIENTE)
     List<User> findByRole(Role role);
 
-    // ✅ Exemplo de query customizada: busca todos os admins
+    // ✅ Busca todos os admins
     @Query("SELECT u FROM User u WHERE u.role = com.parfunimports.backend.model.Role.ADMIN")
     List<User> findAllAdmins();
 
-    // ✅ Exemplo de query customizada: busca todos os clientes
+    // ✅ Busca todos os clientes
     @Query("SELECT u FROM User u WHERE u.role = com.parfunimports.backend.model.Role.CLIENTE")
     List<User> findAllClients();
 }

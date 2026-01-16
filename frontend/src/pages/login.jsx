@@ -14,6 +14,7 @@ export default function Login() {
     e.preventDefault();
     setMessage("");
     try {
+      // ✅ login envia { email, rawPassword } para o backend
       const success = await login(email, password, rememberMe);
       if (success) {
         navigate("/");

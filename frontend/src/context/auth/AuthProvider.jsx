@@ -66,9 +66,9 @@ export default function AuthProvider({ children }) {
   // 📌 Login
   const login = async (email, password, remember = true) => {
     try {
+      // 🔑 loginRequest envia { email, rawPassword }
       const data = await loginRequest(email, password);
 
-      // 🔎 valida se veio accessToken
       if (!data?.accessToken) {
         throw new Error("Credenciais inválidas");
       }
@@ -113,8 +113,7 @@ export default function AuthProvider({ children }) {
     setToken(null);
     setRefreshToken(null);
     if (redirect) {
-      // ✅ após logout, volta para Home deslogado
-      navigate("/");
+      navigate("/"); // ✅ volta para Home deslogado
     }
   };
 

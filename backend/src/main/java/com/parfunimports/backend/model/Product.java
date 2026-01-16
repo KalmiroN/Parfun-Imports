@@ -28,39 +28,42 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;   // PK auto-increment
 
-    // ✅ Nome comercial bonito (aparece para o cliente)
+    // ✅ Nome comercial (aparece para o cliente)
     @NotBlank(message = "O nome do produto é obrigatório")
     @Size(max = 255, message = "O nome não pode ultrapassar 255 caracteres")
     @Column(nullable = false, length = 255)
     private String name;
 
+    // 📌 Descrição opcional
     @Size(max = 255, message = "A descrição não pode ultrapassar 255 caracteres")
     @Column(length = 255)
     private String description;
 
+    // 💰 Preço do produto
     @NotNull(message = "O preço é obrigatório")
-    @Column(nullable = false, precision = 10, scale = 2) // ✅ BigDecimal para valores monetários
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    // 📦 Estoque disponível
     @Column
     private Integer stock;
 
-    // ✅ Nome do arquivo físico da imagem (não aparece para o cliente)
+    // 🖼️ Nome do arquivo físico da imagem
     @Pattern(regexp = ".*\\.png$", message = "Somente arquivos .PNG são permitidos")
     @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    // ✅ campo para marcar produtos em destaque
+    // ⭐ Campo para marcar produtos em destaque
     @Builder.Default
     @Column(nullable = false)
     private boolean highlight = false;
 
-    // ➕ Novo campo: categoria
+    // 🏷️ Categoria do produto
     @Size(max = 100, message = "A categoria não pode ultrapassar 100 caracteres")
     @Column(length = 100)
     private String category;
 
-    // 📌 relação com OrderProduct (itens de pedidos)
+    // 📌 Relação com OrderProduct (itens de pedidos)
     @Builder.Default
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference   // ✅ evita recursão infinita no JSON

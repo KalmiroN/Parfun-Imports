@@ -2,11 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeProvider";
 import { useAuth } from "../context/auth/AuthProvider";
-import { authFetch } from "../utils/authFetch"; // ✅ agora usamos authFetch
+import { authFetch } from "../utils/authFetch";
 
-/* ===========================
-   Componente local PasswordInput
-   =========================== */
 function PasswordInput({ value, onChange, placeholder = "Digite sua senha" }) {
   const [show, setShow] = useState(false);
   const { theme } = useTheme();
@@ -64,27 +61,40 @@ export default function Register() {
 
     try {
       const response = await authFetch(
-        `${import.meta.env.VITE_API_URL}/api/user/register`, // ✅ rota correta
+        `${import.meta.env.VITE_API_URL}/api/auth/register`, // ✅ corrigido para usar /api/auth/register
         {
           method: "POST",
-          body: JSON.stringify({ name, email, password }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            rawPassword: password, // ✅ campo correto
+            role: "CLIENTE", // ✅ define papel padrão
+          }),
         }
       );
 
       const data = response.data;
+
+      // 🔎 tratamento específico para email duplicado
+      if (response.status === 409) {
+        setMessage("❌ Esse email já está em uso, tente outro.");
+        return;
+      }
 
       if (!response.ok) {
         setMessage(`❌ ${data?.error || "Falha ao registrar."}`);
         return;
       }
 
-      const userData = { email: data.email, name: data.name };
-      const token = data.accessToken || "";
-      const roles = data.roles || ["client"];
-
-      login(userData, token, roles);
-      setMessage(data.message || "✅ Cadastro realizado com sucesso!");
-      navigate("/");
+      // ✅ chama login corretamente com email e senha
+      const success = await login(email, password, true);
+      if (success) {
+        setMessage("✅ Cadastro realizado com sucesso!");
+        navigate("/");
+      } else {
+        setMessage("❌ Falha ao realizar login após cadastro.");
+      }
     } catch (err) {
       console.error("Erro no cadastro:", err);
       setMessage("❌ Falha ao registrar. Tente novamente.");

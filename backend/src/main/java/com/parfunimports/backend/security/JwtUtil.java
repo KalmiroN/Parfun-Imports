@@ -30,10 +30,11 @@ public class JwtUtil {
                    @Value("${jwt.refresh.expiration}") long refreshTokenExpirationMs) {
         Key key;
         try {
+            // tenta decodificar como Base64
             byte[] keyBytes = java.util.Base64.getDecoder().decode(secret);
             key = Keys.hmacShaKeyFor(keyBytes);
         } catch (IllegalArgumentException e) {
-            // fallback: secret como texto puro
+            // fallback: usa secret como texto puro
             key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         }
         this.secretKey = key;

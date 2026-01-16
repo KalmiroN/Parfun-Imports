@@ -41,10 +41,10 @@ public class Order {
     // 📌 usuário associado ao pedido (relação ManyToOne)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @JsonBackReference   // ✅ evita recursão infinita (lado inverso)
+    @JsonBackReference   // ✅ evita recursão infinita (lado inverso da relação)
     private User user;
 
-    // 📌 também mantém o userId simples (compatibilidade)
+    // 📌 também mantém o userId simples (compatibilidade com frontend)
     @Column(name = "user_id", insertable = false, updatable = false)
     private Long userId;
 
@@ -52,14 +52,14 @@ public class Order {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    // 📌 campo extra para compatibilidade com frontend
+    // 📌 campo extra para compatibilidade com frontend (se precisar Date em vez de LocalDateTime)
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
     // 📌 relação com os itens do pedido
     @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference   // ✅ evita recursão infinita
+    @JsonManagedReference   // ✅ evita recursão infinita (lado dono da relação)
     private List<OrderProduct> items = new ArrayList<>();
 
     // ✅ helper method para manter consistência

@@ -41,7 +41,7 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getRawPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Credenciais inválidas"));
         }
@@ -76,21 +76,21 @@ public class AuthController {
                     .body(Map.of("error", "Email já cadastrado"));
         }
 
+        if (request.getRawPassword() == null || request.getRawPassword().isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Senha não pode ser nula"));
+        }
+
         User newUser = User.builder()
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .password(passwordEncoder.encode(request.getRawPassword()))
                 .name(request.getName())
                 .phone(request.getPhone())
                 .address(request.getAddress())
-                .role(Role.CLIENTE)
+                .role(Role.CLIENTE) // ✅ papel padrão
                 .build();
 
         userRepository.save(newUser);
-
-        if (newUser.getRole() == null) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erro ao registrar usuário: role não definida."));
-        }
 
         String accessToken = jwtUtil.generateAccessToken(newUser.getEmail(), newUser.getRole());
         String refreshToken = jwtUtil.generateRefreshToken(newUser.getEmail());
@@ -141,35 +141,47 @@ public class AuthController {
     // DTOs internos
     public static class LoginRequest {
         private String email;
-        private String password;
-        // getters e setters
+        private String rawPassword;
+
+        public LoginRequest() {} // ✅ construtor vazio
+
         public String getEmail() { return email; }
         public void setEmail(String email) { this.email = email; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
+
+        public String getRawPassword() { return rawPassword; }
+        public void setRawPassword(String rawPassword) { this.rawPassword = rawPassword; }
     }
 
     public static class RegisterRequest {
         private String email;
-        private String password;
+        private String rawPassword;
         private String name;
         private String phone;
         private String address;
-        // getters e setters
+
+        public RegisterRequest() {} // ✅ construtor vazio
+
         public String getEmail() { return email; }
         public void setEmail(String email) { this.email = email; }
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
+
+        public String getRawPassword() { return rawPassword; }
+        public void setRawPassword(String rawPassword) { this.rawPassword = rawPassword; }
+
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
+
         public String getPhone() { return phone; }
         public void setPhone(String phone) { this.phone = phone; }
+
         public String getAddress() { return address; }
         public void setAddress(String address) { this.address = address; }
     }
 
     public static class RefreshRequest {
         private String refreshToken;
+
+        public RefreshRequest() {} // ✅ construtor vazio
+
         public String getRefreshToken() { return refreshToken; }
         public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
     }
@@ -197,7 +209,6 @@ public class AuthController {
             this.refreshToken = refreshToken;
         }
 
-        // getters
         public Long getId() { return id; }
         public String getEmail() { return email; }
         public String getName() { return name; }
@@ -208,4 +219,3 @@ public class AuthController {
         public String getRefreshToken() { return refreshToken; }
     }
 }
-

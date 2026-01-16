@@ -40,4 +40,10 @@ public class OrderProduct {
     // 💰 preço do item no momento da compra
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
+
+    // ✅ helper para calcular subtotal do item
+    public BigDecimal getSubtotal() {
+        if (price == null || quantity == null) return BigDecimal.ZERO;
+        return price.multiply(BigDecimal.valueOf(quantity));
+    }
 }
